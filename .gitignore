@@ -1,0 +1,83 @@
+# =====================================
+# GLOBAL IGNORE (válido para todo o projeto)
+# =====================================
+*.log
+*.env
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# =====================================
+# JAVA - BACK-END (pasta: /back-end)
+# =====================================
+/back-end/target/
+/back-end/bin/
+*.class
+*.jar
+*.war
+*.ear
+/back-end/.settings/
+/back-end/.classpath
+/back-end/.project
+/back-end/.mvn/
+!back-end/mvn/wrapper/maven-wrapper.jar
+hs_err_pid*
+*.db
+*.sqlite
+*.h2.db
+
+# =====================================
+# NODE BFF (pasta: /bff)
+# =====================================
+/bff/node_modules/
+/bff/dist/
+/bff/build/
+/bff/coverage/
+/bff/.eslintcache
+/bff/.npm/
+/bff/.scannerwork/
+/bff/npm-debug.log*
+/bff/yarn-debug.log*
+/bff/yarn-error.log*
+/bff/tsconfig.tsbuildinfo
+/bff/*.tsbuildinfo
+
+# =====================================
+# ANGULAR FRONT-END (pasta: /front-end)
+# =====================================
+/front-end-angular/node_modules/
+/front-end-angular/dist/
+/front-end-angular/.angular/
+/front-end-angular/.angular/cache/
+/front-end-angular/.angular/config.json
+/front-end-angular/coverage/
+/front-end-angular/.scannerwork/
+
+# =====================================
+# ANGULAR FRONT-END (pasta: /front-end)
+# =====================================
+/front-end-react/node_modules/
+/front-end-react/dist/
+/front-end-react/coverage/
+/front-end-react/.scannerwork/
+
+# Angular build artifacts
+*.js.map
+*.ngfactory.ts
+*.ngsummary.json
+*.tsickle.ts
+*.metadata.json
+
+# Angular testing
+
+# =====================================
+# LOCK FILES (opcional, se você quiser padronizar só um gerenciador)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
