@@ -1,0 +1,66 @@
+.d-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* Full height */
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.login-card h3 {
+  margin-bottom: 1.5rem;
+  font-size: 24px;
+  text-align: center;
+  color: #006437;
+}
+
+.login-card label {  
+  color: #006437;
+}
+
+.form-control {
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}
+
+.form-label {
+  font-weight: bold;
+  color: #333333;
+}
+
+.login-btn {
+  background-color: #006437;
+  /* Verde */
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #004b2e;
+}
+
+.text-danger {
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.fundo {  
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
+    url("/background.jpg");
+  background-size: cover;
+  background-position: center;
+}
