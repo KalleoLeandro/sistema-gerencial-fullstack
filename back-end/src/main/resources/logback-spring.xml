@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Console appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{dd/MM/yyyy HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/application.log</file> <!-- Caminho e nome do arquivo de log -->
+        <encoder>
+            <pattern>%d{dd/MM/yyyy HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger para capturar logs da aplicação e direcionar para o FILE appender -->
+    <logger name="org.springframework.boot.actuate" level="WARN">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- Logger global, configurando o nível de log para a aplicação -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- Exemplo de como silenciar logs de outros pacotes, como Spring, se necessário -->
+    <logger name="org.springframework" level="WARN"/>
+
+</configuration>
