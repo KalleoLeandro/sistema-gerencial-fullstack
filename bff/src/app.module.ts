@@ -2,10 +2,11 @@ import { LoginController } from '@controllers/login/login.controller';
 import { TokenMiddleware } from '@middlewares/token/token.middleware';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { LoginService } from './services/login/login.service';
+import { MetricsController } from '@controllers/metrics/metrics.controller';
 
 @Module({
   imports: [],
-  controllers: [LoginController],
+  controllers: [LoginController, MetricsController],
   providers: [LoginService],
 })
 export class AppModule {
