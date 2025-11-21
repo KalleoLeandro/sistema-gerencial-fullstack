@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     build:
@@ -58,7 +56,47 @@ services:
     ports:
       - "4200:80"
     depends_on:
-      - bff  
+      - bff
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    depends_on:
+      - back-end
+    ports:
+      - "9090:9090"
+    networks:
+      - minharede
+    volumes:
+      - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+     - "3001:3000"
+    environment:
+     - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+     - minharede
+    volumes:
+     - grafana_data:/var/lib/grafana
+     - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+     - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+     - ./grafana/dashboards:/var/lib/grafana/dashboards   
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonar
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+    networks:
+      - minharede
       
   
 
@@ -68,3 +106,7 @@ networks:
 
 volumes:
   mysql-data:
+  prometheus-data:
+  grafana_data:
+  sonarqube_data:
+  sonar-token:
