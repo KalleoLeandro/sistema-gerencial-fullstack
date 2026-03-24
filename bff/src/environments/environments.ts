@@ -4,7 +4,7 @@ dotenv.config();
 
 export const environments = {
   PORT: process.env.PORT || 3000,
-  BACK_END: process.env.BACK_END || 'http://localhost:8080/api',
+  BACK_END: process.env.BACK_END || 'http://localhost:8080/',
   PRIVATE_KEY: process.env.PRIVATE_KEY || `-----BEGIN RSA PRIVATE KEY-----
     MIIJKAIBAAKCAgEAyNuTGqyEJCxsdSR1regdspawehc20gjoyw1idxFQrjqz4GjU
     JnoU4b6lkuLGww7cLc24gykTcsu+LZvjd6/vvf9SiiNztWtL978RwDYzdImvQQa5
