@@ -8,12 +8,22 @@ public class DefaultErrorException extends RuntimeException {
 	
 	private HttpStatus status;
 
+    /**
+     * Cria uma nova instancia de DefaultErrorException.
+     * @param message valor do parametro message.
+     * @param status valor do parametro status.
+     */
     public DefaultErrorException(String message, HttpStatus status) {
         super(message);
         this.status = status;
     }
 
+    /**
+     * Executa o metodo getStatus.
+     * @return resultado da operacao.
+     */
     public HttpStatus getStatus() {
         return status;
     }
 }
+

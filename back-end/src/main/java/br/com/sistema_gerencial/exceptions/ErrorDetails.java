@@ -19,3 +19,4 @@ public class ErrorDetails {
     private String message;
     private int statusCode;
 }
+

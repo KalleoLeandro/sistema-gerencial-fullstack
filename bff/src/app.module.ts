@@ -1,23 +1,24 @@
+import { AtendimentoController } from '@controllers/atendimento/atendimento.controller';
+import { AvulsoController } from '@controllers/avulso/avulso.controller';
+import { DashboardController } from '@controllers/dashboard/dashboard.controller';
+import { EmpresaController } from '@controllers/empresa/empresa.controller';
+import { EquipamentoController } from '@controllers/equipamento/equipamento.controller';
 import { LoginController } from '@controllers/login/login.controller';
-import { TokenMiddleware } from '@middlewares/token/token.middleware';
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { LoginService } from './services/login/login.service';
+import { ManutencaoController } from '@controllers/manutencao/manutencao.controller';
+import { Module } from '@nestjs/common';
+import { ProxyService } from '@services/proxy/proxy.service';
 
 @Module({
   imports: [],
-  controllers: [LoginController],
-  providers: [LoginService],
+  controllers: [
+    LoginController,
+    EmpresaController,
+    EquipamentoController,
+    AtendimentoController,
+    AvulsoController,
+    ManutencaoController,
+    DashboardController,
+  ],
+  providers: [ProxyService],
 })
-export class AppModule {
-
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(TokenMiddleware)
-      .exclude(        
-        { path: 'metrics', method: RequestMethod.GET },
-        { path: 'login/validar-login', method: RequestMethod.POST },
-        { path: 'login/validar-token', method: RequestMethod.POST },
-      )
-      .forRoutes('*');
-    }
-}
+export class AppModule {}

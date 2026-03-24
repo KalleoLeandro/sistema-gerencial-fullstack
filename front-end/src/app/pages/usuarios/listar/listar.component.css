@@ -1,0 +1,12 @@
+#botaoModal{
+    display: none;
+    visibility: hidden;
+}
+
+a {    
+    text-decoration: none;
+}
+
+label {
+    font-weight: bold;
+}

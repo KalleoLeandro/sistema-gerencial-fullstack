@@ -1,0 +1,71 @@
+<svg width="1280" height="360" viewBox="0 0 1280 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGlass" x1="42" y1="30" x2="430" y2="290" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.34" stop-color="#D9F8FF" stop-opacity="0.94"/>
+      <stop offset="0.72" stop-color="#BEF2E2" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#74C8D9" stop-opacity="0.96"/>
+    </linearGradient>
+    <linearGradient id="glassStroke" x1="56" y1="48" x2="406" y2="272" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#8CDDC6"/>
+    </linearGradient>
+    <linearGradient id="monitorFill" x1="108" y1="78" x2="278" y2="210" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFFFFF"/>
+      <stop offset="0.55" stop-color="#BEEBFF"/>
+      <stop offset="1" stop-color="#63C3E8"/>
+    </linearGradient>
+    <linearGradient id="coreFill" x1="143" y1="106" x2="239" y2="186" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B9FE8"/>
+      <stop offset="1" stop-color="#0E6EBF"/>
+    </linearGradient>
+    <linearGradient id="accentLeaf" x1="262" y1="88" x2="334" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A4F0CB"/>
+      <stop offset="1" stop-color="#2FAF86"/>
+    </linearGradient>
+    <linearGradient id="textFill" x1="490" y1="72" x2="1120" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B4B80"/>
+      <stop offset="0.48" stop-color="#1288D7"/>
+      <stop offset="1" stop-color="#1E8A72"/>
+    </linearGradient>
+    <filter id="softShadow" x="0" y="0" width="466" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.051 0 0 0 0 0.373 0 0 0 0 0.529 0 0 0 0.18 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <rect x="42" y="30" width="382" height="236" rx="54" fill="url(#bgGlass)"/>
+    <rect x="43.5" y="31.5" width="379" height="233" rx="52.5" stroke="url(#glassStroke)" stroke-width="3"/>
+    <ellipse cx="141" cy="86" rx="74" ry="34" fill="#FFFFFF" fill-opacity="0.54"/>
+    <ellipse cx="336" cy="226" rx="66" ry="26" fill="#FFED92" fill-opacity="0.28"/>
+    <rect x="96" y="70" width="194" height="126" rx="24" fill="url(#monitorFill)" stroke="#E9FFFF" stroke-width="3"/>
+    <rect x="116" y="88" width="154" height="90" rx="18" fill="#F5FFFF" fill-opacity="0.68"/>
+    <rect x="165" y="206" width="56" height="14" rx="7" fill="#74C8D9"/>
+    <rect x="143" y="220" width="100" height="14" rx="7" fill="#C7F6EF"/>
+    <rect x="142" y="104" width="100" height="82" rx="20" fill="url(#coreFill)"/>
+    <path d="M178 123V167H222" stroke="#E9FBFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="253" cy="108" r="12" fill="#D8FFF2"/>
+    <circle cx="282" cy="126" r="9" fill="#EAFBFF"/>
+    <circle cx="304" cy="155" r="11" fill="#A5F0CB"/>
+    <path d="M245 116L273 129" stroke="#73D9BE" stroke-width="6" stroke-linecap="round"/>
+    <path d="M289 133L298 147" stroke="#73D9BE" stroke-width="6" stroke-linecap="round"/>
+    <path d="M246 150C266 147 281 148 296 152" stroke="#0F7BC9" stroke-width="6" stroke-linecap="round"/>
+    <path d="M301 95C319 102 335 118 340 141C345 164 338 187 320 204" stroke="url(#accentLeaf)" stroke-width="14" stroke-linecap="round"/>
+  </g>
+
+  <g>
+    <text x="480" y="142" fill="url(#textFill)" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="74" font-weight="800" letter-spacing="1.1">
+      Leal Informatica
+    </text>
+    <text x="482" y="194" fill="#2F6D96" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="26" font-weight="700" letter-spacing="6.4">
+      TECNOLOGIA • SUPORTE • INFRAESTRUTURA
+    </text>
+  </g>
+</svg>

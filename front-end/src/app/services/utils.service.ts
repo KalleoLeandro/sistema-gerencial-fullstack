@@ -1,28 +1,26 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { environment } from '@environments/environment';
-import { catchError, Observable, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilsService {
+  
+  private httpClient = inject(HttpClient);  
 
-  private httpClient = inject(HttpClient);
-  private url = signal(environment.BFF);
+  constructor() { }
 
-  public validarCpf(cpf: string): Observable<any> {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',        
-      }),
-      withCredentials: true
-    }  
+  public formatarDatas(data: Date) {        
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()} ${pad(data.getHours())}:${pad(data.getMinutes())}`
+  }
 
-    return this.httpClient.post<any>(`${this.url()}/validar-cpf`, { cpf }, httpOptions).pipe(
-    catchError((error: HttpErrorResponse) =>
-      throwError(() => error)
-    )
-  );
+  public buscarEnderecoPorCep(cep: string) {
+    return this.httpClient.get<any>(`https://viacep.com.br/ws/${cep}/json/`).pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    return throwError(() => error);
   }
 }

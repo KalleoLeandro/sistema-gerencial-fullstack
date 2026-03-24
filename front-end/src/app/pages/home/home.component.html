@@ -1,0 +1,39 @@
+<section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+  <article class="aero-panel rounded-[1.8rem] p-6">
+    <div class="max-w-3xl space-y-4">
+      <p class="text-xs font-bold uppercase tracking-[0.28em] text-emerald-800/80">Painel inicial</p>
+      <h1 class="text-4xl font-black leading-tight text-sky-950">
+        Uma base visual para organizar a <span class="aero-highlight-text">gestao</span> do ambiente e do time.
+      </h1>
+      <p class="text-base leading-7 text-sky-900/70">
+        Este layout principal foi preparado para receber modulos internos da aplicacao com navegacao lateral, cabecalho fixo e area central para as rotas.
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      <div
+        *ngFor="let item of highlights; let i = index"
+        class="aero-panel rounded-[1.4rem] p-4"
+        [ngClass]="i === 1 ? 'aero-panel-green' : 'aero-panel-blue'"
+      >
+        <h2 class="text-lg font-black text-sky-950">{{ item.title }}</h2>
+        <p class="mt-2 text-sm leading-6 text-sky-900/72">{{ item.description }}</p>
+      </div>
+    </div>
+  </article>
+
+  <aside class="aero-panel aero-panel-green rounded-[1.8rem] p-5">
+    <img
+      src="managerial-system-hero.svg"
+      alt="Ilustracao de painel gerencial"
+      class="w-full rounded-[1.35rem] border border-white/75 bg-white/45"
+    />
+
+    <div class="aero-panel mt-5 rounded-[1.3rem] p-4">
+      <p class="text-xs font-bold uppercase tracking-[0.22em] text-teal-800/80">Proximo passo</p>
+      <p class="mt-2 text-sm leading-6 text-sky-900/72">
+        A partir daqui, podemos encaixar dashboard, cadastros, listagens e relatorios dentro desta estrutura.
+      </p>
+    </div>
+  </aside>
+</section>

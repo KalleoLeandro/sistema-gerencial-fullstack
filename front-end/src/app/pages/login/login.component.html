@@ -1,21 +1,67 @@
-<div class="d-flex justify-content-center align-items-center vh-100 bg-white fundo">
-  <div class="card shadow p-4 login-card">
-    <h3 class="text-center mb-4">Sistema Gerencial Fullstack</h3>    
-    <form [formGroup]="loginForm" (ngSubmit)="logar()">
-      <div class="mb-3">
-        <label for="login" class="form-label">Login</label>
-        <input type="text" class="form-control" id="login" formControlName="login" placeholder="Digite seu login" (keyup)="change()">
+<div class="login-shell" id="container">
+  <div class="login-card">
+    <section class="login-brand-panel">
+      <div class="login-brand-copy">
+        <p class="login-kicker">Leal Informatica</p>
+        <h1>Sistema de Gestao da Informacao</h1>
+        <p class="login-description">
+          Gerencie contratos, atendimentos, avulsos e equipamentos em uma interface mais clara, fluida e conectada a operacao de TI.
+        </p>
       </div>
 
-      <div class="mb-3">
-        <label for="senha" class="form-label">Senha</label>
-        <input type="password" class="form-control" id="senha" formControlName="senha" placeholder="Digite sua senha" (keyup)="change()">
+      <div class="login-highlight">
+        <div class="login-logo-ring">
+          <img src="/leal-informatica-logo.svg" alt="Logo Leal Informatica" class="login-logo">
+        </div>
+        <div class="login-highlight-copy">
+          <strong>Operacao centralizada</strong>
+          <span>Infraestrutura, suporte e gestao reunidos em uma identidade visual Frutiger Aero.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-form-panel">
+      <div class="login-form-header">
+        <p class="login-form-kicker">Acesso seguro</p>
+        <h2>Entrar na plataforma</h2>
       </div>
 
-      <button type="submit" class="btn w-100 mt-3 login-btn">
-        Entrar
-      </button>
-      <small *ngIf="invalido" class="text-danger">Login e/ou senha inválidos</small>
-    </form>
+      <form [formGroup]="loginForm" (ngSubmit)="logar()" class="login-form">
+        <div>
+          <mat-form-field appearance="fill" class="login-field w-full">
+            <mat-label>Login</mat-label>
+            <input
+              matInput
+              type="text"
+              id="login"
+              formControlName="login"
+              placeholder="Digite seu login"
+              (keyup)="change()">
+            <mat-error *ngIf="isInvalid('login')">Informe seu login</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field appearance="fill" class="login-field w-full">
+            <mat-label>Senha</mat-label>
+            <input
+              matInput
+              type="password"
+              id="senha"
+              formControlName="senha"
+              placeholder="Digite sua senha"
+              (keyup)="change()">
+            <mat-error *ngIf="isInvalid('senha')">Informe sua senha</mat-error>
+          </mat-form-field>
+        </div>
+
+        <button
+          type="submit"
+          class="login-button"
+          [disabled]="this.loginForm.invalid">
+          Entrar
+        </button>
+      </form>
+    </section>
   </div>
 </div>

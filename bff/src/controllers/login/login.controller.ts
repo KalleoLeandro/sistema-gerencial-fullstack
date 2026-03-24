@@ -1,114 +1,113 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
-import { ApiBody, ApiCookieAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { decriptografia, logger } from '@utils/utils';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
+import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ProxyService } from '@services/proxy/proxy.service';
 import { Request, Response } from 'express';
-import { environments } from '@environments/environments';
-import { Logger } from 'winston';
-import { LoginRequest } from '@models/interfaces/login-request';
-import { LoginResponseDto } from '@models/dto/login-reponse-dto';
-import { LoginRequestDto } from '@models/dto/login-request-dto';
-import { CustomError } from '@errors/custom-error/custom-error';
-import { LoginService } from '@services/login/login.service';
 
-const log: Logger = logger;
-
-
-@Controller()
+@ApiTags('Login')
+@Controller('login')
 export class LoginController {
+  constructor(private readonly proxyService: ProxyService) {}
 
-    constructor(private readonly loginService: LoginService) { }
+  @Post('validar-login')
+  @ApiOperation({ summary: 'Autentica o usuario e inicia a sessao' })
+  @ApiResponse({ status: 200, description: 'Login realizado com sucesso' })
+  validarLogin(@Body() body: unknown, @Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'POST', '/login/validar-login', body);
+  }
 
-    @Post('validar-login')
-    @ApiBody({
-        description: 'Credenciais criptografadas para autenticação',
-        required: true,
-        type: LoginRequestDto,
-    })
-    @ApiOperation({ summary: 'Endpoint de autenticação' })
-    @ApiResponse({
-        status: 200,
-        description: 'Login e/ou senha válidos',
-        type: LoginResponseDto,
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Bad Request',
-        schema: {
-            example: { message: 'Erro' },
-        },
-    })
-    @ApiResponse({
-        status: 401,
-        description: 'Login e/ou senha inválidos',
-        schema: {
-            example: { message: "Login e/ou senha inválidos" },
-        },
-    })
-    @ApiResponse({
-        status: 500,
-        description: 'Erro ao validar o login',
-        schema: {
-            example: { message: "Erro ao validar o login" },
-        },
-    })
-    async validarLogin(@Body() body: LoginRequestDto, @Res() res: Response) {
-        const hash: string = body.hash;
+  @Post('refresh')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Renova a sessao atual via refresh token' })
+  @ApiResponse({ status: 200, description: 'Sessao renovada com sucesso' })
+  refresh(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'POST', '/login/refresh');
+  }
 
-        if (!hash) {
-            throw new CustomError("Hash inválido ou ausente", 500);
-        }
+  @Post('logout')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Encerra a sessao atual' })
+  @ApiResponse({ status: 204, description: 'Logout realizado com sucesso' })
+  logout(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'POST', '/login/logout');
+  }
 
-        const decrypted = decriptografia(hash);
+  @Post('validar-token')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Valida o token de acesso atual' })
+  @ApiResponse({ status: 200, description: 'Token validado com sucesso' })
+  validarToken(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'POST', '/login/validar-token');
+  }
 
-        if (!decrypted) {
-            throw new CustomError("Falha ao descriptografar o hash", 500);
-        }
+  @Get('buscar-por-token')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Retorna o usuario autenticado' })
+  @ApiResponse({ status: 200, description: 'Usuario retornado com sucesso' })
+  buscarPorToken(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/login/buscar-por-token');
+  }
 
-        const login: LoginRequest = JSON.parse(decrypted);
-        log.info("Executando a LoginService.validarLogin")
-        const retorno: LoginResponseDto = await this.loginService.validarLogin(login);
-        res.cookie('jwt', retorno.token, {
-            httpOnly: true,
-            sameSite: environments.NODE_ENV === 'production' ? 'none' : 'lax',
-            secure: environments.NODE_ENV === 'production',
-        });
+  @Post('cadastrar')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Cadastra um usuario' })
+  @ApiResponse({ status: 201, description: 'Usuario cadastrado com sucesso' })
+  cadastrar(@Body() body: unknown, @Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'POST', '/login/cadastrar', body);
+  }
 
-        return res.status(200).json({
-            expiration: retorno.expiration,
-            status: retorno.status,
-            userName: retorno.userName,
-            message: retorno.message
-        });
-    }
+  @Get('listar')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Lista usuarios paginados' })
+  @ApiResponse({ status: 200, description: 'Usuarios listados com sucesso' })
+  listar(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/login/listar');
+  }
 
-    @Post('validar-token')
-    @ApiCookieAuth()
-    @ApiOperation({ summary: 'Endpoint de validação de token' })
-    @ApiResponse({
-        status: 200,
-        description: 'Token testado (pode ser true ou false)',
-        schema: {
-            example: true
-        },
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Bad Request',
-        schema: {
-            example: { message: 'Erro' },
-        },
-    })
-    @ApiResponse({
-        status: 500,
-        description: 'Erro ao validar o token',
-        schema: {
-            example: { message: "Erro ao validar o token" },
-        },
-    })
-    async validarToken(@Req() req: Request, @Res() res: Response) {
-        const token: string = req.cookies['jwt'];
-        log.info("Executando a LoginService.validarToken")
-        const retorno: boolean = await this.loginService.validarToken(token);
-        return res.status(200).json(retorno);
-    }   
+  @Get('listar-todos')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Lista todos os usuarios executores' })
+  @ApiResponse({ status: 200, description: 'Usuarios listados com sucesso' })
+  listarTodos(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/login/listar-todos');
+  }
+
+  @Get('buscar-por-id/:id')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Busca um usuario por id' })
+  @ApiResponse({ status: 200, description: 'Usuario encontrado com sucesso' })
+  buscarPorId(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', `/login/buscar-por-id/${id}`);
+  }
+
+  @Get('buscar-por-nome')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Busca usuarios por nome' })
+  @ApiResponse({ status: 200, description: 'Usuarios encontrados com sucesso' })
+  buscarPorNome(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/login/buscar-por-nome');
+  }
+
+  @Put('atualizar')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Atualiza um usuario' })
+  @ApiResponse({ status: 204, description: 'Usuario atualizado com sucesso' })
+  atualizar(@Body() body: unknown, @Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'PUT', '/login/atualizar', body);
+  }
+
+  @Delete('excluir/:id')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Exclui um usuario por id' })
+  @ApiResponse({ status: 204, description: 'Usuario excluido com sucesso' })
+  excluir(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'DELETE', `/login/excluir/${id}`);
+  }
+
+  @Get('retorna-perfil')
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Retorna o perfil do usuario autenticado' })
+  @ApiResponse({ status: 200, description: 'Perfil retornado com sucesso' })
+  retornarPerfil(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/login/retorna-perfil');
+  }
 }

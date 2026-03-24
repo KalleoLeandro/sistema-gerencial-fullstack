@@ -1,67 +1,70 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
 import { LoginService } from '@services/login.service';
-import { criptografia } from '@utils/utils';
+import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent implements OnInit{
-
-  private fb = inject(FormBuilder);
+export class LoginComponent {
+  private formBuilder = inject(FormBuilder);
   private router = inject(Router);
-  private loginService = inject(LoginService); 
+  private loginService = inject(LoginService);
+  private toastService = inject(ToastService);
 
-  ngOnInit(): void {    
-    this.loginService.validarToken().subscribe({
-      next: (res) => {
-        if(res === true){
-          this.router.navigate(['/home']);
-        }
-      },      
-    })
-  }
+  public invalido = false;
 
-  public loginForm: FormGroup = this.fb.group({
-   login: ['',[Validators.required]],
-   senha: ['',[Validators.required]]   
-  })
+  public loginForm: FormGroup = this.formBuilder.group({
+    login: ['', [Validators.required]],
+    senha: ['', [Validators.required]]
+  });
 
-  public invalido: boolean = false;
-
-  public change() {
-    if (this.loginForm.controls['login'].value != '' || this.loginForm.controls['senha'].value != '') {
+  public change(): void {
+    if (this.loginForm.controls['login'].value !== '' || this.loginForm.controls['senha'].value !== '') {
       this.invalido = false;
     }
   }
 
-  public logar() {    
-    const login = {
-      login: this.loginForm.controls['login'].value,
-      senha: this.loginForm.controls['senha'].value
+  public isInvalid(field: 'login' | 'senha'): boolean {
+    const control = this.loginForm.get(field);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+
+  public logar(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
     }
 
-    const hash = criptografia(login);  
-    this.loginService.validarLogin(hash).subscribe({
-      next: (res) => {        
-        sessionStorage.setItem('userName', res.userName || "");
-        this.router.navigate(['/home']);
+    this.loginService.validarLogin(this.loginForm).subscribe({
+      next: (res) => {
+        this.loginService.persistSessionMetadata(res);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
+        const errorMessage = this.getErrorMessage(err);
+        this.toastService.error(errorMessage);
+
         if (err.status === 401) {
           this.loginForm.patchValue({
             login: '',
             senha: ''
-          })
+          });
           this.invalido = true;
         }
       }
     });
+  }
+
+  private getErrorMessage(err: HttpErrorResponse): string {
+    return err?.error?.message || err?.error?.error || err?.message || 'Erro ao validar login.';
   }
 }

@@ -17,6 +17,9 @@ public class LoginResponse {
 	
 	private HttpStatus status;
 	private String token;
+	private String refreshToken;
 	private String expiration;
+	private String refreshExpiration;
 	private String userName;
+	private String perfil;
 }

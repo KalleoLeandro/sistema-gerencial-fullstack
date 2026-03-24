@@ -1,0 +1,106 @@
+<section class="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-10">
+  <div class="aero-orb left-[-8rem] top-[5rem] h-52 w-52 bg-white/60"></div>
+  <div class="aero-orb right-[8%] top-[7%] h-36 w-36 bg-cyan-100/80"></div>
+  <div class="aero-orb bottom-[8%] left-[14%] h-44 w-44 bg-emerald-200/65"></div>
+  <div class="aero-orb bottom-[18%] right-[18%] h-28 w-28 bg-lime-100/55"></div>
+
+  <div class="mx-auto grid min-h-[calc(100vh-3rem)] max-w-7xl items-center gap-6 lg:grid-cols-[1.2fr_0.85fr]">
+    <article class="aero-glass relative overflow-hidden rounded-[2rem] px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
+      <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/60 to-transparent"></div>
+
+      <div class="relative z-10 flex h-full flex-col justify-between gap-8">
+        <div class="space-y-5">
+          <div class="aero-panel aero-panel-green inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-emerald-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+            Sistema Gerencial
+          </div>
+
+          <div class="max-w-2xl space-y-4">
+            <h1 class="text-4xl font-black leading-tight text-sky-950 sm:text-5xl">
+              Gestao clara, conectada e pronta para o ritmo da <span class="aero-highlight-text">operacao</span>.
+            </h1>
+            <p class="max-w-xl text-base leading-7 text-sky-900/75 sm:text-lg">
+              Uma experiencia visual leve para acompanhar acessos, equipes, rotinas e indicadores em um so ambiente.
+            </p>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div class="aero-panel aero-panel-blue rounded-[1.4rem] px-4 py-4">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-sky-700/80">Monitoramento</p>
+              <p class="mt-2 text-sm text-sky-950/80">Visao rapida do ambiente e do status das rotinas.</p>
+            </div>
+            <div class="aero-panel aero-panel-green rounded-[1.4rem] px-4 py-4">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-emerald-800/85">Fluxo unificado</p>
+              <p class="mt-2 text-sm text-sky-950/80">Acesso, perfis e sessoes centralizados com seguranca.</p>
+            </div>
+            <div class="aero-panel rounded-[1.4rem] px-4 py-4">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-teal-800/85">Decisao visual</p>
+              <p class="mt-2 text-sm text-sky-950/80">Informacao organizada para agir sem atrito.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="aero-panel rounded-[1.75rem] p-3">
+          <img
+            src="managerial-system-hero.svg"
+            alt="Ilustracao de um painel gerencial conectado"
+            class="w-full rounded-[1.25rem] object-cover"
+          />
+        </div>
+      </div>
+    </article>
+
+    <mat-card class="aero-glass relative rounded-[2rem] border-0 p-0 shadow-none">
+      <div class="rounded-[2rem] px-6 py-8 sm:px-8 sm:py-10">
+        <div class="mb-8 space-y-3">
+          <p class="text-sm font-bold uppercase tracking-[0.26em] text-emerald-800/80">Acesso seguro</p>
+          <h2 class="text-3xl font-black text-sky-950">Entrar na plataforma</h2>
+          <p class="text-sm leading-6 text-sky-900/70">
+            Use suas credenciais para continuar com sua sessao de trabalho.
+          </p>
+        </div>
+
+        <form [formGroup]="AuthForm" (ngSubmit)="entrar()" class="space-y-5">
+          <div class="space-y-2">
+            <label for="login" class="block text-sm font-bold text-teal-950/85">Login</label>
+            <mat-form-field appearance="outline">
+              <input id="login" matInput formControlName="login" placeholder="Digite seu login" autocomplete="username" />
+            </mat-form-field>
+          </div>
+
+          <div class="space-y-2">
+            <label for="senha" class="block text-sm font-bold text-teal-950/85">Senha</label>
+            <mat-form-field appearance="outline">
+              <input
+                id="senha"
+                matInput
+                [type]="hidePassword ? 'password' : 'text'"
+                formControlName="senha"
+                placeholder="Digite sua senha"
+                autocomplete="current-password"
+              />
+              <button type="button" mat-button matSuffix (click)="togglePasswordVisibility()">
+                {{ hidePassword ? 'Mostrar' : 'Ocultar' }}
+              </button>
+            </mat-form-field>
+          </div>
+
+          <button
+            mat-flat-button
+            color="primary"
+            class="!h-14 !w-full !rounded-[1.15rem] !text-base !font-bold"
+            [disabled]="AuthForm.invalid"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <div class="aero-panel aero-panel-green mt-8 rounded-[1.4rem] px-4 py-4 text-sm text-sky-900/75">
+          <p class="font-bold text-emerald-900">Ambiente preparado para gestao continua</p>
+          <p class="mt-1 leading-6">
+            Layout responsivo, autenticacao por cookies e uma linguagem visual inspirada em superficies vitreas e interfaces luminosas.
+          </p>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</section>

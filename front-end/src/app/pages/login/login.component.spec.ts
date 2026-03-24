@@ -1,84 +1,88 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { LoginComponent } from './login.component';
-import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
+
+import { LoginComponent } from './login.component';
 import { LoginService } from '@services/login.service';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ToastService } from '@services/toast.service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let loginServiceMock: jasmine.SpyObj<LoginService>;
-  let routerMock: jasmine.SpyObj<Router>;
+  let loginService: jasmine.SpyObj<LoginService>;
+  let router: jasmine.SpyObj<Router>;
+  let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
-    loginServiceMock = jasmine.createSpyObj('LoginService', ['validarToken', 'validarLogin']);
-    routerMock = jasmine.createSpyObj('Router', ['navigate']);
+    loginService = jasmine.createSpyObj<LoginService>('LoginService', ['validarLogin', 'persistSessionMetadata']);
+    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    toastService = jasmine.createSpyObj<ToastService>('ToastService', ['error']);
 
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, ReactiveFormsModule, FormsModule],
+      imports: [LoginComponent],
       providers: [
-        { provide: LoginService, useValue: loginServiceMock },
-        { provide: Router, useValue: routerMock }
+        { provide: LoginService, useValue: loginService },
+        { provide: Router, useValue: router },
+        { provide: ToastService, useValue: toastService }
       ]
-    }).compileComponents();
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
-  it('deve redirecionar para /home se o token for válido no ngOnInit', () => {
-    loginServiceMock.validarToken.and.returnValue(of(true));    
-    fixture.detectChanges();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  it('não deve redirecionar se o token for inválido no ngOnInit', () => {
-    loginServiceMock.validarToken.and.returnValue(of(false));
-
-    fixture.detectChanges();
-
-    expect(routerMock.navigate).not.toHaveBeenCalled();
-  });
-
-  it('deve realizar login com sucesso e redirecionar para /home', () => {
-    loginServiceMock.validarToken.and.returnValue(of(false));
-    loginServiceMock.validarLogin.and.returnValue(of({ expiration: '20000', status: 200, userName: 'user', message: 'teste' }));
-
-    fixture.detectChanges();
-
-    component.loginForm.setValue({ login: 'user', senha: '123' });
-    component.logar();
-
-    expect(sessionStorage.getItem('userName')).toBe('user');
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
-  });
-
-  it('deve limpar o formulário e setar invalido=true quando o login der 401', () => {
-    loginServiceMock.validarToken.and.returnValue(of(false));
-
-    loginServiceMock.validarLogin.and.returnValue(
-      throwError(() => ({ status: 401 }))
-    );
-
-    fixture.detectChanges();
-    component.loginForm.setValue({ login: 'user', senha: '123' });
-    component.logar();
-
-    expect(component.invalido).toBeTrue();
-    expect(component.loginForm.value).toEqual({ login: '', senha: '' });
-  });
-
-  it('deve mudar invalido para false ao chamar change() quando houver valores', () => {
-    loginServiceMock.validarToken.and.returnValue(of(false));
-    fixture.detectChanges();
-
+  it('limpa o estado invalido quando o usuario altera os campos', () => {
     component.invalido = true;
-    component.loginForm.setValue({ login: 'user', senha: '123' });
+    component.loginForm.patchValue({ login: 'maria' });
 
     component.change();
 
     expect(component.invalido).toBeFalse();
   });
 
+  it('informa invalidade do campo quando tocado', () => {
+    const control = component.loginForm.get('login');
+    control?.markAsTouched();
+
+    expect(component.isInvalid('login')).toBeTrue();
+  });
+
+  it('marca o formulario quando tenta logar com campos invalidos', () => {
+    spyOn(component.loginForm, 'markAllAsTouched');
+
+    component.logar();
+
+    expect(component.loginForm.markAllAsTouched).toHaveBeenCalled();
+    expect(loginService.validarLogin).not.toHaveBeenCalled();
+  });
+
+  it('persiste a sessao e navega quando o login da certo', () => {
+    component.loginForm.patchValue({ login: 'maria', senha: '123' });
+    loginService.validarLogin.and.returnValue(of({ userName: 'Maria', perfil: 'ADMIN' } as any));
+
+    component.logar();
+
+    expect(loginService.persistSessionMetadata).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('trata erro 401 limpando o formulario e marcando invalido', () => {
+    component.loginForm.patchValue({ login: 'maria', senha: '123' });
+    loginService.validarLogin.and.returnValue(throwError(() => ({
+      status: 401,
+      error: { message: 'Credenciais invalidas' }
+    })));
+
+    component.logar();
+
+    expect(toastService.error).toHaveBeenCalledWith('Credenciais invalidas');
+    expect(component.invalido).toBeTrue();
+    expect(component.loginForm.value).toEqual({ login: '', senha: '' });
+  });
 });

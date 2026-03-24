@@ -1,21 +1,20 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { UtilsService } from './utils.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
-import { environment } from '@environments/environment';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+
+import { UtilsService } from './utils.service';
 
 describe('UtilsService', () => {
   let service: UtilsService;
   let httpMock: HttpTestingController;
-  const baseUrl = environment.BFF;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        UtilsService
-      ]
+      ],
     });
 
     service = TestBed.inject(UtilsService);
@@ -26,29 +25,32 @@ describe('UtilsService', () => {
     httpMock.verify();
   });
 
-  it('deve chamar validarCpf com método POST', () => {
-    const mockResponse = { valido: true };
+  it('deve formatar datas no padrao esperado', () => {
+    const data = new Date(2026, 2, 21, 9, 5);
 
-    service.validarCpf('12345678900').subscribe(res => {
-      expect(res).toEqual(mockResponse);
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/validar-cpf`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ cpf: '12345678900' });
-    req.flush(mockResponse);
+    expect(service.formatarDatas(data)).toBe('21/03/2026 09:05');
   });
 
-  it('deve retornar erro ao validarCpf', () => {
-    service.validarCpf('12345678900').subscribe({
-      next: () => fail('Era esperado erro, mas veio sucesso'),
-      error: (error) => {
-        expect(error.status).toBe(400);
-      }
+  it('deve consultar endereco por cep', () => {
+    service.buscarEnderecoPorCep('01001000').subscribe((response) => {
+      expect(response.cep).toBe('01001-000');
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/validar-cpf`);
-    expect(req.request.method).toBe('POST');
-    req.flush('Erro', { status: 400, statusText: 'Bad Request' });
+    const request = httpMock.expectOne('https://viacep.com.br/ws/01001000/json/');
+    expect(request.request.method).toBe('GET');
+    request.flush({ cep: '01001-000' });
+  });
+
+  it('deve propagar erro na consulta de CEP', () => {
+    let capturedError: HttpErrorResponse | undefined;
+
+    service.buscarEnderecoPorCep('00000000').subscribe({
+      error: (error) => capturedError = error
+    });
+
+    const request = httpMock.expectOne('https://viacep.com.br/ws/00000000/json/');
+    request.flush({ message: 'falha' }, { status: 500, statusText: 'Server Error' });
+
+    expect(capturedError?.status).toBe(500);
   });
 });

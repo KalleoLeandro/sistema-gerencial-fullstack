@@ -1,6 +1,7 @@
 export const environment = {
     production: false,
     BFF: 'http://localhost:3000',
+    apiUrl: 'http://localhost:3000',
     PUBLIC_KEY: `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAyNuTGqyEJCxsdSR1regd
 spawehc20gjoyw1idxFQrjqz4GjUJnoU4b6lkuLGww7cLc24gykTcsu+LZvjd6/v

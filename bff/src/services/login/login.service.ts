@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { environments } from '@environments/environments';
 import { CustomError } from '@errors/custom-error/custom-error';
 import { LoginResponseDto } from '@models/dto/login-reponse-dto';
+import { TokenValidationResponseDto } from '@models/dto/token-validation-response.dto';
 import { LoginRequest } from '@models/interfaces/login-request';
-import { LoginResponse } from '@models/interfaces/login-response';
-import { Injectable } from '@nestjs/common';
 import { logger } from '@utils/utils';
 
 const log = logger;
@@ -11,7 +11,7 @@ const log = logger;
 @Injectable()
 export class LoginService {
 
-    async validarLogin(body: LoginRequest) {
+    async validarLogin(body: LoginRequest): Promise<LoginResponseDto> {
         try {
             const options = {
                 method: 'POST',
@@ -21,53 +21,95 @@ export class LoginService {
                 body: JSON.stringify(body)
             };
 
-            log.info("Executando a /api/login/validar-login");
+            log.info('Executando a /api/login/validar-login');
             const res = await fetch(`${environments.BACK_END}/login/validar-login`, options);
-            const statusCode = res.status;
             const response: LoginResponseDto = await res.json();
-            let retorno: LoginResponseDto;
 
-            if (statusCode === 200) {
-                retorno = {
-                    token: response.token,
-                    expiration: response.expiration,
-                    userName: response.userName,
-                    status: 200
-                };
-            } else if (statusCode === 401) {
-                retorno = {
-                    status: 401,
-                    message: response.message
-                };
-            } else {
-
-                retorno = {
-                    status: 500,
-                    message: response.message
-                };
-            }
-            return retorno;
+            return {
+                status: res.status,
+                token: response.token,
+                refreshToken: response.refreshToken,
+                expiration: response.expiration,
+                refreshExpiration: response.refreshExpiration,
+                userName: response.userName,
+                perfil: response.perfil,
+                message: response.message
+            };
         } catch (error: any) {
             log.error(`Erro: ${error}`);
             throw new CustomError(error.message, 500);
         }
     }
 
-    async validarToken(token: string) {
+    async validarToken(token: string): Promise<TokenValidationResponseDto> {
         try {
             const options = {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `${token}`
+                    Authorization: token
                 }
             };
-            log.info("Executando a /api/login/validar-token");
-            let response: boolean = await fetch(`${environments.BACK_END}/login/validar-token`, options).then((res) => res.json());
-            return response;
+
+            log.info('Executando a /api/login/validar-token');
+            const res = await fetch(`${environments.BACK_END}/login/validar-token`, options);
+
+            if (res.status === 401) {
+                return {
+                    valid: false,
+                    status: 401
+                };
+            }
+
+            const response: TokenValidationResponseDto = await res.json();
+            return {
+                valid: response.valid,
+                status: res.status,
+                userName: response.userName,
+                perfil: response.perfil,
+                login: response.login,
+                expiration: response.expiration
+            };
         } catch (error: any) {
             log.error(`Erro: ${error}`);
             throw new CustomError(error.message, 500);
         }
-    }  
+    }
+
+    async refreshToken(token: string): Promise<LoginResponseDto> {
+        try {
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: token
+                }
+            };
+
+            log.info('Executando a /api/login/refresh-token');
+            const res = await fetch(`${environments.BACK_END}/login/refresh-token`, options);
+
+            if (res.status === 401) {
+                return {
+                    status: 401,
+                    message: 'Refresh token invÃ¡lido'
+                };
+            }
+
+            const response: LoginResponseDto = await res.json();
+            return {
+                status: res.status,
+                token: response.token,
+                refreshToken: response.refreshToken,
+                expiration: response.expiration,
+                refreshExpiration: response.refreshExpiration,
+                userName: response.userName,
+                perfil: response.perfil,
+                message: response.message
+            };
+        } catch (error: any) {
+            log.error(`Erro: ${error}`);
+            throw new CustomError(error.message, 500);
+        }
+    }
 }

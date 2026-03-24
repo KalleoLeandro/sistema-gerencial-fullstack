@@ -1,5 +1,4 @@
 import { LoginService } from '@services/login/login.service';
-import { LoginRequest } from '@models/interfaces/login-request';
 import * as utils from '@utils/utils';
 import { CustomError } from '@errors/custom-error/custom-error';
 
@@ -25,14 +24,16 @@ describe('LoginService', () => {
     service = new LoginService();
   });
 
-  const mockLoginBody: LoginRequest = { user: 'teste', password: '123' } as any;  
-
+  const mockLoginBody = { login: 'teste', senha: '123' };
 
   it('validarLogin() deve retornar LoginResponse com status 200', async () => {
     const mockResponse = {
       token: 'abc123',
-      expiration: '2025-10-15T00:00:00Z',
+      refreshToken: 'refresh123',
+      expiration: '2026-03-23T12:00:00Z',
+      refreshExpiration: '2026-03-23T19:00:00Z',
       userName: 'Kalleo',
+      perfil: 'admin',
     };
 
     (fetch as jest.Mock).mockResolvedValue({
@@ -43,69 +44,65 @@ describe('LoginService', () => {
     const result = await service.validarLogin(mockLoginBody);
 
     expect(result).toEqual({
+      status: 200,
       token: 'abc123',
-      expiration: '2025-10-15T00:00:00Z',
+      refreshToken: 'refresh123',
+      expiration: '2026-03-23T12:00:00Z',
+      refreshExpiration: '2026-03-23T19:00:00Z',
       userName: 'Kalleo',
-      status: 200,
+      perfil: 'admin',
+      message: undefined
     });
-    expect(utils.logger.info).toHaveBeenCalledWith(
-      'Executando a /api/login/validar-login'
-    );
+    expect(utils.logger.info).toHaveBeenCalledWith('Executando a /api/login/validar-login');
   });
 
-  it('validarLogin() deve retornar LoginResponse com status 401', async () => {
+  it('validarToken() deve retornar token invÃ¡lido para 401', async () => {
     (fetch as jest.Mock).mockResolvedValue({
       status: 401,
-      json: async () => ({ message: 'Credenciais inválidas' }),
+      json: async () => ({})
     });
 
-    const result = await service.validarLogin(mockLoginBody);
+    const result = await service.validarToken('abc');
 
     expect(result).toEqual({
-      status: 401,
-      message: 'Credenciais inválidas',
+      valid: false,
+      status: 401
     });
   });
 
-  it('validarLogin() deve retornar LoginResponse com status 500 para erro genérico', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      status: 500,
-      json: async () => ({ message: 'Erro interno' }),
-    });
-
-    const result = await service.validarLogin(mockLoginBody);
-
-    expect(result).toEqual({
-      status: 500,
-      message: 'Erro interno',
-    });
-  });
-
-  it('validarLogin() deve lançar CustomError em exceção', async () => {
-    (fetch as jest.Mock).mockRejectedValue(new Error('Falha na rede'));
-
-    await expect(service.validarLogin(mockLoginBody)).rejects.toThrow(CustomError);
-    expect(utils.logger.error).toHaveBeenCalledWith('Erro: Error: Falha na rede');
-  });
-
-  it('validarToken() deve retornar boolean true', async () => {
-    const token = 'abc';
+  it('refreshToken() deve retornar novos tokens', async () => {
+    const mockResponse = {
+      token: 'novo-access',
+      refreshToken: 'novo-refresh',
+      expiration: '2026-03-23T13:00:00Z',
+      refreshExpiration: '2026-03-23T20:00:00Z',
+      userName: 'Kalleo',
+      perfil: 'admin',
+    };
 
     (fetch as jest.Mock).mockResolvedValue({
       status: 200,
-      json: async () => (true),
+      json: async () => mockResponse,
     });
 
-    const result = await service.validarToken(token);
+    const result = await service.refreshToken('refresh');
 
-    expect(result).toEqual(true);
+    expect(result).toEqual({
+      status: 200,
+      token: 'novo-access',
+      refreshToken: 'novo-refresh',
+      expiration: '2026-03-23T13:00:00Z',
+      refreshExpiration: '2026-03-23T20:00:00Z',
+      userName: 'Kalleo',
+      perfil: 'admin',
+      message: undefined
+    });
   });
 
-  it('validarToken() deve lançar um CustomError', async () => {
-    const token = 'abc';
+  it('deve lanÃ§ar CustomError em exceÃ§Ã£o', async () => {
     (fetch as jest.Mock).mockRejectedValue(new Error('Falha na rede'));
 
-    await expect(service.validarToken(token)).rejects.toThrow(CustomError);
+    await expect(service.refreshToken('abc')).rejects.toThrow(CustomError);
     expect(utils.logger.error).toHaveBeenCalledWith('Erro: Error: Falha na rede');
-  });  
+  });
 });

@@ -1,0 +1,142 @@
+<div class="page-shell">
+  <div class="card page-card">
+    <div class="card-header py-3 mb-2 page-heading">
+      <h2>Cadastro de Empresas</h2>
+    </div>
+
+    <form [formGroup]="cadastroForm" class="empresa-form">
+      <input type="text" name="id" id="id" formControlName="id">
+
+      <div class="card section-card">
+        <div class="card-header py-3 mb-2 section-heading">
+          <h3>Dados da Empresa</h3>
+        </div>
+
+        <div class="form-grid form-grid-empresa">
+          <mat-form-field appearance="fill" class="full-span">
+            <mat-label>Razão Social</mat-label>
+            <input matInput type="text" formControlName="razao_social">
+            <mat-error *ngIf="isInvalid('razao_social')">Campo obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-span">
+            <mat-label>Nome Fantasia</mat-label>
+            <input matInput type="text" formControlName="nome_fantasia">
+            <mat-error *ngIf="isInvalid('nome_fantasia')">Campo obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>CNPJ</mat-label>
+            <input matInput type="text" formControlName="cnpj" mask="00.000.000/0000-00">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>IE</mat-label>
+            <input matInput type="text" formControlName="inscricao" maxlength="10">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>CEP</mat-label>
+            <input matInput type="text" formControlName="cep" name="cep" mask="00.000-000" (input)="buscarCep()">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="wide-span">
+            <mat-label>Endereço</mat-label>
+            <input matInput type="text" formControlName="endereco" name="endereco">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Número</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="numero"
+              name="numero"
+              min="0"
+              step="1"
+              onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '+';">
+            <mat-error *ngIf="isInvalid('numero')">Número inválido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Complemento</mat-label>
+            <input matInput type="text" formControlName="complemento" name="complemento">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Bairro</mat-label>
+            <input matInput type="text" formControlName="bairro" name="bairro">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="wide-span">
+            <mat-label>Cidade</mat-label>
+            <input matInput type="text" formControlName="cidade" name="cidade">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>UF</mat-label>
+            <input matInput type="text" formControlName="uf" name="uf">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Telefone</mat-label>
+            <input matInput type="text" formControlName="telefone" name="telefone" mask="(00) 0000-0000">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Celular</mat-label>
+            <input matInput type="text" formControlName="celular" name="celular" mask="(00) 00000-0000">
+            <mat-error *ngIf="isInvalid('celular')">Informe pelo menos 11 dígitos</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" name="email">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-span">
+            <mat-label>Contato</mat-label>
+            <input matInput type="text" formControlName="contato" name="contato">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="card section-card">
+        <div class="card-header py-3 mb-2 section-heading">
+          <h3>Dados do Atendimento</h3>
+        </div>
+
+        <div class="form-grid form-grid-atendimento">
+          <mat-form-field appearance="fill">
+            <mat-label>Início do Contrato</mat-label>
+            <input matInput [matDatepicker]="pickerInicio" formControlName="data_inicio" placeholder="Selecione a data">
+            <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+            <mat-error *ngIf="cadastroForm.get('data_inicio')?.hasError('required')">Campo obrigatório</mat-error>
+            <mat-error *ngIf="hasDateRangeError('data_inicio')">A data inicial não pode ser maior que a data final</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Fim do Contrato</mat-label>
+            <input matInput [matDatepicker]="pickerFim" [min]="minDate" formControlName="data_fim" placeholder="Selecione a data">
+            <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFim></mat-datepicker>
+            <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('required')">Campo obrigatório</mat-error>
+            <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataPassada')">A data final não pode ser menor que hoje</mat-error>
+            <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataFinalMenorQueDataInicial')">A data final deve ser igual ou maior que a data inicial</mat-error>
+            <mat-error *ngIf="hasDateRangeError('data_fim')">A data final deve ser igual ou maior que a data inicial</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button mat-flat-button class="primary-action" type="button" (click)="cadastrarAtualizarEmpresa()">
+          Cadastrar
+        </button>
+        <button mat-stroked-button class="secondary-action" type="button" (click)="limparFormulario()">
+          {{ id ? 'Restaurar Campos' : 'Limpar Formulário' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

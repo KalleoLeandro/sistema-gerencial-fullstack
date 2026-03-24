@@ -13,9 +13,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter 
 @Setter
-public class LoginDTO {
-	
-	private String nome;	
+public class LoginDTO {	
+	private String nome;
+	private String login;
+	private String senha;
 	private String perfil;
-
 }
+

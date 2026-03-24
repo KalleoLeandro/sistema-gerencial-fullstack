@@ -1,0 +1,31 @@
+export interface Avulso {
+    id: number;    
+    nome_cliente: string;
+    tipo_pessoa: string;
+    cpf_cnpj: string;
+    ie?: string;
+    razao_social: string;
+    contato?: string;
+    data_inicio: Date;
+    data_fim: Date;
+    executores: string; 
+    descricao?: string;
+    valor_servico?: number;
+    cep?: string;
+    endereco?: string;
+    numero?: number;
+    complemento?: string;
+    bairro?: string;
+    cidade?: string;
+    uf?: string;
+    telefone?: string;
+    celular?: string;
+    email?: string;
+    tipo_atendimento: string;
+    status_atendimento: number;
+    motivo_cancelamento: string;
+    observacoes?: string;
+    deslocamento: number;
+    valor_deslocamento: number;
+    total: number;
+}

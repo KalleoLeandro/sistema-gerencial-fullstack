@@ -1,0 +1,102 @@
+label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-weight: 700;
+    color: #705214;
+}
+
+h6 {
+  min-height: 3.25rem;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(217, 158, 4, 0.18);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffdf7 0%, #f7f2e3 100%);
+  color: rgba(33, 37, 41, 0.82);
+  line-height: 1.45;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+textarea {
+  resize: none;
+}
+
+.details-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.details-actions__select {
+    min-width: 220px;
+    max-width: 280px;
+}
+
+.card.h-100 {
+    border: 1px solid rgba(217, 158, 4, 0.14);
+    border-radius: 1.35rem;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.details-richtext {
+    padding: 1rem 1.125rem;
+    border: 1px solid rgba(217, 158, 4, 0.16);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #fffdf8 0%, #f8f3e7 100%);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    color: rgba(33, 37, 41, 0.8);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.details-observacoes {
+    margin-top: 0.5rem;
+    padding: 1rem 1.125rem;
+    border: 1px solid rgba(217, 158, 4, 0.16);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #fff9ea 0%, #f6ecd1 100%);
+    color: #5b4520;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.details-textarea {
+    display: block;
+    width: 100%;
+    min-height: 12rem;
+    padding: 1rem 1.125rem;
+    border: 1px solid rgba(217, 158, 4, 0.16);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #fffdf8 0%, #f8f3e7 100%);
+    color: rgba(33, 37, 41, 0.82);
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.details-textarea:focus {
+    outline: none;
+    border-color: rgba(24, 160, 123, 0.45);
+    box-shadow: 0 0 0 3px rgba(111, 214, 190, 0.18);
+}
+
+@media (max-width: 768px) {
+    .details-actions {
+        justify-content: flex-start;
+    }
+
+    .details-actions__select {
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
+
+.botaoModal{
+    display: none;
+    visibility: hidden;
+}

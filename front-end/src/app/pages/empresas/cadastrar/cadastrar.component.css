@@ -1,0 +1,148 @@
+.page-shell {
+  padding: 1.5rem;
+}
+
+.page-card {
+  margin-bottom: 1rem;
+}
+
+.page-heading,
+.section-heading {
+  background: transparent;
+}
+
+.page-heading h2,
+.section-heading h3 {
+  margin: 0;
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.empresa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.section-card {
+  box-shadow: none;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.form-grid-empresa {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.form-grid-empresa > mat-form-field,
+.form-grid > mat-form-field {
+  grid-column: span 3;
+  min-width: 0;
+}
+
+.form-grid-atendimento {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  justify-content: start;
+}
+
+.form-grid-atendimento > mat-form-field {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+.form-grid .wide-span {
+  grid-column: span 5;
+}
+
+.form-grid .full-span {
+  grid-column: span 6;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+.primary-action {
+  --mdc-filled-button-container-color: rgba(24, 160, 123, 0.92) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.56) !important;
+  background:
+    linear-gradient(180deg, rgba(101, 231, 191, 0.96), rgba(24, 160, 123, 0.92)),
+    linear-gradient(135deg, rgba(215, 246, 255, 0.22), rgba(255, 255, 255, 0.12)) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 12px 24px rgba(19, 97, 125, 0.14) !important;
+}
+
+.secondary-action {
+  border-color: #D99E04;
+  color: #7c5a16;
+}
+
+#id {
+  display: none;
+}
+
+:host ::ng-deep .mat-mdc-form-field {
+  width: 100%;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  background: #f8fafc;
+}
+
+:host ::ng-deep .mdc-line-ripple::before,
+:host ::ng-deep .mdc-line-ripple::after {
+  border-bottom-color: #D99E04 !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label,
+:host ::ng-deep .mat-mdc-form-field .mdc-floating-label--float-above {
+  color: #7c5a16 !important;
+}
+
+@media screen and (max-width: 1200px) {
+  .form-grid-empresa {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid .wide-span,
+  .form-grid .full-span,
+  .form-grid > mat-form-field {
+    grid-column: span 1;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .page-shell {
+    padding: 1rem;
+  }
+
+  .empresa-form,
+  .form-grid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .form-grid-atendimento,
+  .form-grid-empresa {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid-atendimento mat-form-field {
+    grid-column: span 1;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}

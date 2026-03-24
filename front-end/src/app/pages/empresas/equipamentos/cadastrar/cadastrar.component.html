@@ -1,0 +1,108 @@
+<div class="page-shell">
+  <div class="card page-card">
+    <div class="card-header py-3 mb-2 page-heading">
+      <h2>Cadastro de Equipamentos</h2>
+    </div>
+    <form [formGroup]="cadastroForm" class="equipamento-form">
+        <input type="hidden" name="id" id="id" formControlName="id">
+
+        <div class="card section-card">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Dados do Equipamento</h3>
+          </div>
+
+        <div class="form-grid">
+          <mat-form-field appearance="fill">
+            <mat-label>Setor</mat-label>
+            <mat-select formControlName="setor">
+              <mat-option value="">--Selecione uma opcao--</mat-option>
+              <mat-option *ngFor="let item of setores" [value]="item">{{ item }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="cadastroForm.controls['setor'].touched && cadastroForm.controls['setor'].invalid">
+              Campo obrigatorio
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Tipo Equipamento</mat-label>
+            <mat-select formControlName="tipo_equipamento">
+              <mat-option value="">--Selecione uma opcao--</mat-option>
+              <mat-option *ngFor="let item of tipo_equipamento" [value]="item">{{ item }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="cadastroForm.controls['tipo_equipamento'].touched && cadastroForm.controls['tipo_equipamento'].invalid">
+              Campo obrigatorio
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="span-4">
+            <mat-label>Nome da Maquina</mat-label>
+            <input matInput type="text" formControlName="nome_maquina" name="nome_maquina">
+            <mat-error *ngIf="cadastroForm.controls['nome_maquina'].touched && cadastroForm.controls['nome_maquina'].invalid">
+              Campo obrigatorio
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
+            <mat-label>Placa Mae</mat-label>
+            <input matInput type="text" formControlName="placa_mae" name="placa_mae">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <mat-label>Marca</mat-label>
+            <input matInput type="text" formControlName="marca" name="marca">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <mat-label>Modelo</mat-label>
+            <input matInput type="text" formControlName="modelo" name="modelo">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <mat-label>Numero de Serie</mat-label>
+            <input matInput type="text" formControlName="numero_serie" name="numero_serie">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Processador</mat-label>
+            <input matInput type="text" formControlName="processador" name="processador">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Memoria</mat-label>
+            <input matInput type="text" formControlName="memoria" name="memoria">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>HD/SSD</mat-label>
+            <input matInput type="text" formControlName="hd_ssd" name="hd_ssd">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].valid">
+            <mat-label>{{ cadastroForm.controls['tipo_equipamento'].value === 'Desktop' ? 'Fonte' : 'Carregador' }}</mat-label>
+            <input matInput type="text" formControlName="fonte" name="fonte">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
+            <mat-label>Gabinete</mat-label>
+            <input matInput type="text" formControlName="gabinete" name="gabinete">
+          </mat-form-field>
+
+          <div class="span-12 editor-shell">
+            <label>Observacoes</label>
+            <textarea formControlName="observacoes" class="editor-textarea" rows="8"
+              placeholder="Digite a descricao"></textarea>
+          </div>
+        </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-flat-button class="btn btn-primary" (click)="$event.preventDefault(); cadastrarAtualizarEquipamento()">
+            {{ id ? 'Atualizar' : 'Cadastrar' }}
+          </button>
+          <button mat-stroked-button class="btn btn-warning" (click)="$event.preventDefault(); limparFormulario()">
+            {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
+          </button>
+        </div>
+      </form>
+  </div>
+</div>

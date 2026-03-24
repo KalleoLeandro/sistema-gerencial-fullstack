@@ -4,6 +4,7 @@ import { LoginService } from '@services/login/login.service';
 import { Response } from 'express';
 import * as utils from '@utils/utils';
 import { CustomError } from '@errors/custom-error/custom-error';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('LoginController', () => {
   let controller: LoginController;
@@ -13,24 +14,15 @@ describe('LoginController', () => {
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
     res.cookie = jest.fn().mockReturnValue(res);
+    res.clearCookie = jest.fn().mockReturnValue(res);
     return res as Response;
   };
 
-  const mockReq = {    
-    json: jest.fn(),
-    cookies: jest.fn()
-  } as any;
-
   const mockLoginService = {
     validarLogin: jest.fn(),
-    validarToken: jest.fn()
+    validarToken: jest.fn(),
+    refreshToken: jest.fn()
   };
-
-  const mockRes = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn(),
-    cookie: jest.fn()
-  } as any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,29 +36,21 @@ describe('LoginController', () => {
     }).compile();
 
     controller = module.get<LoginController>(LoginController);
-
-    jest.mock('@utils/utils', () => ({
-      logger: {
-        info: jest.fn(),
-        error: jest.fn(),
-      },
-      decriptografia: jest.fn(),
-    }));
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('POST /validar-login - deve lançar erro se o hash estiver ausente', async () => {
+  it('POST /auth/login - deve lanÃ§ar erro se o hash estiver ausente', async () => {
     const res = mockResponse();
 
     await expect(controller.validarLogin({ hash: '' } as any, res))
       .rejects
-      .toThrow(new CustomError('Hash inválido ou ausente', 500));
+      .toThrow(new CustomError('Hash invÃ¡lido ou ausente', 500));
   });
 
-  it('POST /validar-login - deve lançar erro se o hash não for descriptografado', async () => {
+  it('POST /auth/login - deve lanÃ§ar erro se o hash nÃ£o for descriptografado', async () => {
     const res = mockResponse();
     jest.spyOn(utils, 'decriptografia').mockReturnValue('');
 
@@ -75,31 +59,65 @@ describe('LoginController', () => {
       .toThrow(new CustomError('Falha ao descriptografar o hash', 500));
   });
 
-  it('POST /validar-login - deve chamar o LoginService e retornar o JSON com status correto', async () => {
+  it('POST /auth/login - deve chamar o LoginService e setar cookies', async () => {
     const res = mockResponse();
-
-    const decrypted = JSON.stringify({ user: 'admin', password: '123' });
+    const decrypted = JSON.stringify({ login: 'admin', senha: '123' });
     jest.spyOn(utils, 'decriptografia').mockReturnValue(decrypted);
 
-    const retorno = { status: 200, token: "abc", userName: 'admin', expiration: 20000, message: "Login ok" };
-    mockLoginService.validarLogin.mockResolvedValue(retorno);
+    mockLoginService.validarLogin.mockResolvedValue({
+      status: 200,
+      token: 'access',
+      refreshToken: 'refresh',
+      userName: 'admin',
+      perfil: 'admin',
+      expiration: '2026-03-23 10:00:00',
+      refreshExpiration: '2026-03-23 17:00:00'
+    });
 
     await controller.validarLogin({ hash: 'validHash' } as any, res);
 
+    expect(res.cookie).toHaveBeenCalledTimes(2);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ status: 200, userName: 'admin', expiration: 20000, message: "Login ok" });
-    expect(res.cookie).toHaveBeenCalledWith('jwt', retorno.token, expect.any(Object));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      status: 200,
+      userName: 'admin',
+      perfil: 'admin'
+    }));
   });
 
-  it('POST /validar-token - deve chamar o LoginService e retornar o status válido para o token', async () => {
+  it('GET /auth/me - deve retornar a sessÃ£o atual', async () => {
     const res = mockResponse();
+    const req = { user: { valid: true, status: 200, userName: 'admin', perfil: 'admin' } } as any;
 
-    mockReq.cookies = { jwt: 'token123' };
-    mockLoginService.validarToken.mockResolvedValue(true);
-
-    await controller.validarToken(mockReq, res);
+    await controller.me(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(true);
-  }); 
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ valid: true }));
+  });
+
+  it('POST /auth/refresh - deve renovar tokens', async () => {
+    const res = mockResponse();
+    const req = { cookies: { refresh_token: 'refresh123' } } as any;
+    mockLoginService.refreshToken.mockResolvedValue({
+      status: 200,
+      token: 'novo-access',
+      refreshToken: 'novo-refresh',
+      userName: 'admin',
+      perfil: 'admin'
+    });
+
+    await controller.refresh(req, res);
+
+    expect(res.cookie).toHaveBeenCalledTimes(2);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('POST /auth/refresh - deve rejeitar refresh invÃ¡lido', async () => {
+    const res = mockResponse();
+    const req = { cookies: { refresh_token: 'refresh123' } } as any;
+    mockLoginService.refreshToken.mockResolvedValue({ status: 401 });
+
+    await expect(controller.refresh(req, res)).rejects.toThrow(UnauthorizedException);
+    expect(res.clearCookie).toHaveBeenCalledTimes(2);
+  });
 });

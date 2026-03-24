@@ -1,0 +1,177 @@
+﻿<div class="container-fluid">
+  <div class="card mb-4">
+    <div class="card-header py-3 mb-2">
+      <h6 class="m-0 font-weight-bold text-secondary">Cadastro de Atendimentos</h6>
+    </div>
+    <div class="col-12">
+      <form [formGroup]="cadastroForm" class="app-form">
+        <input type="hidden" name="id" id="id" formControlName="id">
+
+        <div class="card-header py-3 mb-2">
+          <h6 class="m-0 font-weight-bold text-secondary">Dados do Atendimento</h6>
+        </div>
+
+        <div class="app-form-grid">
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Data Inicio</mat-label>
+            <input matInput [matDatepicker]="inicioDatePicker" [ngModel]="inicioData" (ngModelChange)="onInicioDataChange($event)" [ngModelOptions]="{standalone: true}">
+            <mat-datepicker-toggle matIconSuffix [for]="inicioDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #inicioDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Hora Inicio</mat-label>
+            <input matInput [matTimepicker]="inicioTimePicker" [ngModel]="inicioHora" (ngModelChange)="onInicioHoraChange($event)" [ngModelOptions]="{standalone: true}">
+            <mat-timepicker-toggle matIconSuffix [for]="inicioTimePicker"></mat-timepicker-toggle>
+            <mat-timepicker #inicioTimePicker></mat-timepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Data Fim</mat-label>
+            <input matInput [matDatepicker]="fimDatePicker" [ngModel]="fimData" (ngModelChange)="onFimDataChange($event)" [ngModelOptions]="{standalone: true}" [min]="getMinFimData()">
+            <mat-datepicker-toggle matIconSuffix [for]="fimDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #fimDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Hora Fim</mat-label>
+            <input matInput [matTimepicker]="fimTimePicker" [ngModel]="fimHora" (ngModelChange)="onFimHoraChange($event)" [ngModelOptions]="{standalone: true}" [matTimepickerMin]="getMinFimHora()">
+            <mat-timepicker-toggle matIconSuffix [for]="fimTimePicker"></mat-timepicker-toggle>
+            <mat-timepicker #fimTimePicker></mat-timepicker>
+            <mat-error *ngIf="cadastroForm.hasError('intervaloInvalido')">A data/hora final nao pode ser menor que a inicial</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Tipo de Atendimento</mat-label>
+            <mat-select formControlName="tipo_atendimento">
+              <mat-option value="">--Selecione uma opcao--</mat-option>
+              <mat-option *ngFor="let item of tipo_atendimento" [value]="item">{{ item }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="cadastroForm.controls['tipo_atendimento'].touched && cadastroForm.controls['tipo_atendimento'].invalid">Campo obrigatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Solicitante</mat-label>
+            <input matInput type="text" formControlName="solicitante" name="solicitante">
+            <mat-error *ngIf="cadastroForm.controls['solicitante'].touched && cadastroForm.controls['solicitante'].invalid">Campo obrigatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="app-field span-3">
+            <mat-label>Valor do Servico</mat-label>
+            <input matInput type="text" formControlName="valor_servico" name="valor_servico" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left', max: 10000}" (input)="onChangePreco($event)">
+            <mat-error *ngIf="cadastroForm.controls['valor_servico'].touched && cadastroForm.controls['valor_servico'].invalid">Campo obrigatorio</mat-error>
+          </mat-form-field>
+
+          <div class="span-8 executor-row">
+            <div class="executor-meta">
+              <label>Executores</label>
+              <div class="input-wrapper">
+                <span class="item-lateral">
+                  <button type="button" id="botaoModalBusca" data-bs-toggle="modal" data-bs-target="#modalBusca"><i class="fa-solid fa-search"></i></button>
+                </span>
+              </div>
+              <small *ngIf="cadastroForm.controls['executores'].touched && cadastroForm.controls['executores'].invalid" class="text-danger">Campo obrigatorio</small>
+            </div>
+
+            <table class="table table-borderless executor-table" *ngIf="listaExecutores()">
+              <tbody>
+                @for(item of listaExecutores(); track item.id){
+                <tr>
+                  <td>{{ item.nome }}</td>
+                  <td><button type="button" (click)="removerExecutor(item.id)"><i class="fa-solid fa-xmark"></i></button></td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="span-12 app-editor-shell">
+            <label>Descricao</label>
+            <textarea formControlName="descricao" class="app-editor-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+          </div>
+
+          <div class="span-12">
+            <label>Observacoes</label>
+            <div class="app-observacoes-historico">{{ historicoObservacoes }}</div>
+          </div>
+        </div>
+
+        <div class="app-form-actions">
+          <button mat-flat-button class="btn btn-primary" (click)="$event.preventDefault(); cadastrarAtualizarNovoAtendimento()">{{ id ? 'Atualizar' : 'Cadastrar' }}</button>
+          <button mat-stroked-button class="btn btn-warning" (click)="$event.preventDefault(); limparFormulario()">{{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalBusca" tabindex="-1" aria-labelledby="modalBusca" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBusca">Cadastro de Atendimentos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="col-12">
+          <table class="table" *ngIf="listaExecutores()">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Selecionar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(item of executores(); track item.id){
+              <tr>
+                <td>{{ item.nome }}</td>
+                <td><button type="button" (click)="setExecutor(item)"><i class="fa-solid fa-check"></i></button></td>
+              </tr>
+              }
+              <tr>
+                <td>Outros</td>
+                <td><button type="button" (click)="setExecutor({ id: 0, nome: '' })"><i class="fa-solid fa-check"></i></button></td>
+              </tr>
+              <tr *ngIf="mostrarOutro()">
+                <td colspan="2">
+                  <mat-form-field appearance="fill" class="app-field span-6">
+                    <mat-label>Informe o nome</mat-label>
+                    <input matInput type="text" [ngModel]="outroNome()" (ngModelChange)="outroNome.set($event)" [ngModelOptions]="{standalone: true}">
+                  </mat-form-field>
+                  <button mat-flat-button class="btn btn-primary btn-sm modal-confirm-button" (click)="confirmarOutro()" [disabled]="!outroNome()">Adicionar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="close-modal-escolha" class="btn btn-secondary modal-close-button" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalJustificativaData" tabindex="-1" aria-labelledby="modalJustificativaDataLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalJustificativaDataLabel">Justificar alteracao de horario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div [formGroup]="cadastroForm">
+          <mat-form-field appearance="fill" class="app-field span-12">
+            <mat-label>Justificativa</mat-label>
+            <textarea matInput formControlName="justificativa_alteracao_data" rows="4" placeholder="Informe o motivo da alteracao"></textarea>
+            <mat-error *ngIf="cadastroForm.controls['justificativa_alteracao_data'].touched && !cadastroForm.controls['justificativa_alteracao_data'].value">Campo obrigatorio</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close-button" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary modal-confirm-button" (click)="confirmarJustificativaAlteracao()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>

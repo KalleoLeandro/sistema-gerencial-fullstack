@@ -16,6 +16,11 @@ import br.com.sistema_gerencial.exceptions.schemas.DefaultErrorResponse;
 @ControllerAdvice
 public class GlobalExceptionHandler {    
 
+	/**
+	 * Executa o metodo handleDefaultError.
+	 * @param ex valor do parametro ex.
+	 * @return resultado da operacao.
+	 */
 	@ExceptionHandler(DefaultErrorException.class)
     public ResponseEntity<DefaultErrorResponse> handleDefaultError(DefaultErrorException ex) {
         DefaultErrorResponse response = new DefaultErrorResponse();
@@ -26,6 +31,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus()).body(response);
     }
     
+    /**
+     * Executa o metodo handleValidationExceptions.
+     * @param ex valor do parametro ex.
+     * @return resultado da operacao.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> invalidFields = new ArrayList<>();
@@ -40,8 +50,9 @@ public class GlobalExceptionHandler {
         apiError.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         apiError.setStatus(HttpStatus.BAD_REQUEST.value());
         apiError.setError("Bad Request");
-        apiError.setMessage("Erros de validação: " + invalidFields);     
+        apiError.setMessage("Erros de validaÃ§Ã£o: " + invalidFields);     
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 }
+

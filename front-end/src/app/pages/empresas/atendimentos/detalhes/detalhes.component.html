@@ -1,0 +1,150 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card h-100 mb-4" id="atendimento-detalhes-pdf">
+        <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
+            <h6 class="m-0 font-weight-bold text-secondary">Detalhes do Atendimento - N°{{atendimento?.id}}</h6>
+            <button mat-flat-button type="button" class="btn btn-primary pdf-hide" (click)="exportarPdf()">
+                Exportar PDF
+            </button>
+        </div>
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+                <ul class="nav nav-tabs flex-grow-1" id="tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">Dados do Atendimento</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="mt-2 p-4">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel"
+                        aria-labelledby="home-tab">
+                        <div class="details-actions pdf-hide">
+                            <button mat-flat-button type="button" class="btn btn-action-edit" *ngIf="!mostrarSelecao"
+                                (click)="alterarAtendimento()">Alterar</button>
+                            <button mat-flat-button type="button" class="btn btn-status-change"
+                                *ngIf="!mostrarSelecao && atendimento?.status_atendimento !== 3 && atendimento?.status_atendimento !== 4"
+                                (click)="mostrarSelecao = true">Mudar Status</button>
+                            <button mat-flat-button type="button" class="btn btn-status-change" *ngIf="mostrarSelecao"
+                                (click)="alterarStatusAtendimento()">Salvar Status</button>
+                            <select class="form-control details-actions__select" [(ngModel)]="statusSelecionado" *ngIf="mostrarSelecao">
+                                <option [ngValue]="null">--Selecione uma opcao</option>
+                                <option *ngFor="let item of status_atendimento" [ngValue]="item.id">
+                                    {{ item.descricao }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Data Inicio</label>
+                                <h6>{{ atendimento?.data_inicio | date:'dd/MM/yyyy HH:mm' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Data Fim</label>
+                                <h6>{{ atendimento?.data_fim | date:'dd/MM/yyyy HH:mm' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Solicitante</label>
+                                <h6>{{ atendimento?.solicitante }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Valor do Servico</label>
+                                <h6>{{ atendimento?.valor_servico | currency:'BRL':'symbol':'1.2-2' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Tipo de Atendimento</label>
+                                <h6>{{ atendimento?.tipo_atendimento }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Status do Atendimento</label>
+                                <h6>{{ atendimento?.status_atendimento! | statusAtendimento }}</h6>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row g-4 mt-2 mb-4">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Executores</label>
+                                @for(item of listaExecutores; track item){
+                                <h6>{{ item?.nome}}</h6>
+                                }
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row g-4 mt-2 mb-4">
+                            <div class="col-12">
+                                <label>Descricao</label>
+                                <br>
+                                <div class="details-richtext"
+                                    [innerHTML]="atendimento?.descricao">{{ atendimento?.descricao }}</div>
+                            </div>
+                        </div>
+                        <div class="row g-4 mt-2 mb-4" *ngIf="atendimento?.observacoes">
+                            <div class="col-12">
+                                <label>Observacoes</label>
+                                <div class="details-observacoes">{{ atendimento?.observacoes }}</div>
+                            </div>
+                        </div>
+                        <div class="row g-4 mt-2 mb-4" *ngIf="motivo_cancelamento">
+                            <div class="col-12">
+                                <label>Motivo do Cancelamento</label>
+                                <br>
+                                <div class="details-richtext"
+                                    [innerHTML]="atendimento?.motivo_cancelamento">{{ atendimento?.motivo_cancelamento }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal">
+    <button type="button" id="botaoModal" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalConfirmacaoEmpresa"></button>
+    <button type="button" id="botaoModalMotivoCancelamento" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalMotivoCancelamento"></button>
+</div>
+
+<div class="modal fade" id="modalConfirmacaoEmpresa" tabindex="-1" aria-labelledby="modalConfirmacaoEmpresa" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConfirmacaoEmpresa">Cadastro de Atendimentos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span>{{resposta}}</span>
+            </div>
+            <div class="modal-footer">
+                <button mat-flat-button *ngIf="excluir" type="button" class="btn btn-action-delete" (click)="excluirAtendimento()">Excluir</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="redirecionar()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMotivoCancelamento" tabindex="-1" aria-labelledby="modalMotivoCancelamento" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMotivoCancelamento">Cadastro de Atendimento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="statusSelecionado !== 0">
+                <label>Descreva o motivo do cancelamento</label>
+                <textarea [(ngModel)]="motivo_cancelamento" class="details-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+            </div>
+            <div class="modal-body" *ngIf="statusSelecionado === 0">
+                <span>{{resposta}}</span>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="motivo_cancelamento && statusSelecionado !== 0" type="button" class="btn btn-danger" (click)="salvarStatusAtendimento()">Salvar</button>
+                <button type="button" *ngIf="statusSelecionado !== 0" class="btn btn-secondary" data-bs-dismiss="modal" (click)="statusSelecionado = null">Cancelar</button>
+                <button type="button" *ngIf="statusSelecionado === 0" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- End of Main Content -->

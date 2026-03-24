@@ -1,21 +1,23 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { LoginService } from './login.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
-import { environment } from '@environments/environment';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { LoginService } from './login.service';
 
 describe('LoginService', () => {
   let service: LoginService;
   let httpMock: HttpTestingController;
-  const baseUrl = environment.BFF;
 
   beforeEach(() => {
+    sessionStorage.clear();
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        LoginService
-      ]
+      ],
     });
 
     service = TestBed.inject(LoginService);
@@ -24,194 +26,146 @@ describe('LoginService', () => {
 
   afterEach(() => {
     httpMock.verify();
+    sessionStorage.clear();
   });
 
-  // ---------------------------------------------------------------------
-  // ✅ validarLogin
-  // ---------------------------------------------------------------------
-  it('deve chamar validarLogin (POST) com sucesso', () => {
-    const mockResponse = { token: '123', userName: 'User', status: 200, message: 'Login Ok' };
-
-    service.validarLogin('hashTest').subscribe(res => {
-      expect(res).toEqual(mockResponse);
+  it('deve enviar o formulario para validar login com credentials', () => {
+    const form = new FormGroup({
+      login: new FormControl('maria'),
+      senha: new FormControl('123'),
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/validar-login`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ hash: 'hashTest' });
-    req.flush(mockResponse);
+    service.validarLogin(form).subscribe();
+
+    const request = httpMock.expectOne('/api/login/validar-login');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.withCredentials).toBeTrue();
+    expect(request.request.body).toEqual({ login: 'maria', senha: '123' });
+    request.flush({ userName: 'Maria', perfil: 'ADMIN' });
   });
 
-  it('deve tratar erro em validarLogin', () => {
-    service.validarLogin('hashTest').subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
+  it('deve buscar usuarios paginados', () => {
+    service.buscarLoginsPorPagina(10, 2).subscribe();
 
-    const req = httpMock.expectOne(`${baseUrl}/validar-login`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
+    const request = httpMock.expectOne('/api/login/listar?page=2&limit=10');
+    expect(request.request.method).toBe('GET');
+    request.flush({ data: [], total: 0 });
   });
 
-  // ---------------------------------------------------------------------
-  // ✅ validarToken
-  // ---------------------------------------------------------------------
-  it('deve chamar validarToken (POST) com sucesso', () => {
-    service.validarToken().subscribe(res => {
-      expect(res).toBeTrue();
+  it('deve executar os demais endpoints de login', () => {
+    const form = new FormGroup({
+      nome: new FormControl('Maria'),
+      login: new FormControl('maria'),
+      senha: new FormControl('123'),
+      perfil: new FormControl('ADMIN')
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/validar-token`);
-    expect(req.request.method).toBe('POST');
-    req.flush(true);
+    service.refreshToken().subscribe();
+    let request = httpMock.expectOne('/api/login/refresh');
+    expect(request.request.method).toBe('POST');
+    request.flush({});
+
+    service.logout().subscribe();
+    request = httpMock.expectOne('/api/login/logout');
+    expect(request.request.method).toBe('POST');
+    request.flush({});
+
+    service.validarToken().subscribe();
+    request = httpMock.expectOne('/api/login/validar-token');
+    expect(request.request.method).toBe('POST');
+    request.flush(true);
+
+    service.getPerfil().subscribe();
+    request = httpMock.expectOne('/api/login/retorna-perfil');
+    expect(request.request.method).toBe('GET');
+    request.flush({ role: 'ADMIN' });
+
+    service.cadastrarUsuario(form).subscribe();
+    request = httpMock.expectOne('/api/login/cadastrar');
+    expect(request.request.method).toBe('POST');
+    request.flush({});
+
+    service.atualizarUsuario(form).subscribe();
+    request = httpMock.expectOne('/api/login/atualizar');
+    expect(request.request.method).toBe('PUT');
+    request.flush({});
+
+    service.buscarPorId(3).subscribe();
+    request = httpMock.expectOne('/api/login/buscar-por-id/3');
+    expect(request.request.method).toBe('GET');
+    request.flush({});
+
+    service.buscarPorToken().subscribe();
+    request = httpMock.expectOne('/api/login/buscar-por-token');
+    expect(request.request.method).toBe('GET');
+    request.flush({});
+
+    service.buscarPorNome('Maria').subscribe();
+    request = httpMock.expectOne('/api/login/buscar-por-nome?nome=Maria');
+    expect(request.request.method).toBe('GET');
+    request.flush([]);
+
+    service.buscarTodos().subscribe();
+    request = httpMock.expectOne('/api/login/listar-todos');
+    expect(request.request.method).toBe('GET');
+    request.flush([]);
+
+    service.excluirLogin(4).subscribe();
+    request = httpMock.expectOne('/api/login/excluir/4');
+    expect(request.request.method).toBe('DELETE');
+    request.flush({});
   });
 
-  it('deve tratar erro em validarToken', () => {
-    service.validarToken().subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
+  it('deve persistir e limpar metadados da sessao', () => {
+    service.persistSessionMetadata({ userName: 'Maria', perfil: 'DEV' });
 
-    const req = httpMock.expectOne(`${baseUrl}/validar-token`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
+    expect(sessionStorage.getItem('userName')).toBe('Maria');
+    expect(sessionStorage.getItem('perfil')).toBe('DEV');
+
+    service.clearSessionMetadata();
+
+    expect(sessionStorage.getItem('userName')).toBeNull();
+    expect(sessionStorage.getItem('perfil')).toBeNull();
   });
 
-  // ---------------------------------------------------------------------
-  // ✅ getPerfil
-  // ---------------------------------------------------------------------
-  it('deve chamar getPerfil (POST) com sucesso', () => {
-    service.getPerfil('token').subscribe(res => {
-      expect(res).toBeTrue();
-    });
+  it('deve reutilizar role quando perfil nao vier na resposta', () => {
+    service.persistSessionMetadata({ userName: 'Joao', role: 'COMERCIAL' });
 
-    const req = httpMock.expectOne(`${baseUrl}/retorna-perfil`);
-    expect(req.request.method).toBe('POST');
-    req.flush(true);
+    expect(sessionStorage.getItem('userName')).toBe('Joao');
+    expect(sessionStorage.getItem('perfil')).toBe('COMERCIAL');
   });
 
-  it('deve tratar erro em getPerfil', () => {
-    service.getPerfil('token').subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
+  it('deve reaproveitar dados ja salvos quando a resposta vier parcial', () => {
+    sessionStorage.setItem('userName', 'Ana');
+    sessionStorage.setItem('perfil', 'USER');
 
-    const req = httpMock.expectOne(`${baseUrl}/retorna-perfil`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
+    service.persistSessionMetadata({});
+
+    expect(sessionStorage.getItem('userName')).toBe('Ana');
+    expect(sessionStorage.getItem('perfil')).toBe('USER');
   });
 
-  // ---------------------------------------------------------------------
-  // ✅ buscarUsuarioPorId
-  // ---------------------------------------------------------------------
-  it('deve chamar buscarUsuarioPorId (GET) com sucesso', () => {
-    service.buscarUsuarioPorId(5).subscribe(res => {
-      expect(res).toEqual({ id: 5 });
-    });
+  it('deve limpar metadados para string vazia quando nao houver fallback', () => {
+    service.persistSessionMetadata({});
 
-    const req = httpMock.expectOne(`${baseUrl}/buscar-login-por-id/5`);
-    expect(req.request.method).toBe('GET');
-    req.flush({ id: 5 });
+    expect(sessionStorage.getItem('userName')).toBe('');
+    expect(sessionStorage.getItem('perfil')).toBe('');
   });
 
-  it('deve tratar erro em buscarUsuarioPorId', () => {
-    service.buscarUsuarioPorId(5).subscribe({
-      error: err => expect(err.status).toBe(500)
+  it('deve propagar erro de autenticacao', () => {
+    let capturedError: HttpErrorResponse | undefined;
+    const form = new FormGroup({
+      login: new FormControl('maria'),
+      senha: new FormControl('123'),
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/buscar-login-por-id/5`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
-  });
-
-  // ---------------------------------------------------------------------
-  // ✅ atualizarUsuario
-  // ---------------------------------------------------------------------
-  it('deve chamar atualizarUsuario (PUT) com sucesso', () => {
-    const mockForm: any = { getRawValue: () => ({ nome: 'Test' }) };
-
-    service.atualizarUsuario(mockForm).subscribe(res => {
-      expect(res).toEqual({});
+    service.validarLogin(form).subscribe({
+      error: (error) => capturedError = error
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/atualizar-login`);
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ nome: 'Test' });
-    req.flush({});
-  });
+    const request = httpMock.expectOne('/api/login/validar-login');
+    request.flush({ message: 'nao autorizado' }, { status: 401, statusText: 'Unauthorized' });
 
-  it('deve tratar erro em atualizarUsuario', () => {
-    const mockForm: any = { getRawValue: () => ({ nome: 'Test' }) };
-
-    service.atualizarUsuario(mockForm).subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/atualizar-login`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
-  });
-
-  // ---------------------------------------------------------------------
-  // ✅ cadastrarUsuario
-  // ---------------------------------------------------------------------
-  it('deve chamar cadastrarUsuario (POST) com sucesso', () => {
-    const mockForm: any = { getRawValue: () => ({ nome: 'NovoUser' }) };
-
-    service.cadastrarUsuario(mockForm).subscribe(res => {
-      expect(res).toEqual({});
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/cadastrar-login`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ nome: 'NovoUser' });
-    req.flush({});
-  });
-
-  it('deve tratar erro em cadastrarUsuario', () => {
-    const mockForm: any = { getRawValue: () => ({ nome: 'NovoUser' }) };
-
-    service.cadastrarUsuario(mockForm).subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/cadastrar-login`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
-  });
-
-  // ---------------------------------------------------------------------
-  // ✅ buscarLoginsPorPagina
-  // ---------------------------------------------------------------------
-  it('deve chamar buscarLoginsPorPagina (GET) com sucesso', () => {
-    service.buscarLoginsPorPagina(1, 10).subscribe(res => {
-      expect(res).toEqual([]);
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/buscar-usuarios-por-pagina?page=1&limit=10`);
-    expect(req.request.method).toBe('GET');
-    req.flush([]);
-  });
-
-  it('deve tratar erro em buscarLoginsPorPagina', () => {
-    service.buscarLoginsPorPagina(1, 10).subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/buscar-usuarios-por-pagina?page=1&limit=10`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
-  });
-
-  // ---------------------------------------------------------------------
-  // ✅ excluirUsuario
-  // ---------------------------------------------------------------------
-  it('deve chamar excluirUsuario (DELETE) com sucesso', () => {
-    service.excluirUsuario(9).subscribe(res => {
-      expect(res).toEqual({});
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/excluir-login/9`);
-    expect(req.request.method).toBe('DELETE');
-    req.flush({});
-  });
-
-  it('deve tratar erro em excluirUsuario', () => {
-    service.excluirUsuario(9).subscribe({
-      error: err => expect(err.status).toBe(500)
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/excluir-login/9`);
-    req.flush({}, { status: 500, statusText: 'Server Error' });
+    expect(capturedError?.status).toBe(401);
   });
 });

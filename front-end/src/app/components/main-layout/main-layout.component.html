@@ -1,0 +1,106 @@
+<div class="relative min-h-screen overflow-hidden">
+  <div class="aero-orb left-[-7rem] top-[6rem] h-40 w-40 bg-white/60"></div>
+  <div class="aero-orb right-[12%] top-[4rem] h-32 w-32 bg-cyan-100/70"></div>
+  <div class="aero-orb bottom-[10%] right-[22%] h-44 w-44 bg-emerald-200/65"></div>
+  <div class="aero-orb left-[18%] top-[24%] h-24 w-24 bg-lime-100/50"></div>
+
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <header class="aero-glass rounded-none border-x-0 border-t-0 px-4 py-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            mat-button
+            class="hamburger-toggle !min-w-0 !rounded-full !px-3"
+            aria-label="Alternar menu lateral"
+            (click)="toggleSidebar()"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div class="flex items-center gap-3 text-center">
+            <img src="/leal-informatica-logo.svg" alt="Logo Leal Informatica" class="h-12 w-auto rounded-[1rem] border border-white/65 bg-white/55 p-1.5 shadow-[0_10px_24px_rgba(17,96,161,0.08)] sm:h-14" />
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.26em] text-emerald-800/80">Operacao assistida</p>
+              <h2 class="text-2xl font-black text-sky-950">Centro de gestao</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center">
+          <div class="aero-panel aero-panel-green rounded-full px-4 py-2 text-sm text-teal-950/75">
+            {{ welcomeLabel() }}
+          </div>
+          <button type="button" mat-flat-button color="primary" class="!rounded-full !px-5" (click)="logout()">
+            Sair
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex flex-1">
+      <aside
+        class="aero-glass fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col rounded-none border-y-0 border-l-0 px-4 py-6 transition-[transform,opacity,width,padding] duration-300 lg:static"
+        [class.translate-x-0]="sidebarOpen()"
+        [class.-translate-x-[120%]]="!sidebarOpen()"
+        [class.lg:w-0]="isDesktop() && !sidebarOpen()"
+        [class.lg:overflow-hidden]="isDesktop() && !sidebarOpen()"
+        [class.lg:px-0]="isDesktop() && !sidebarOpen()"
+        [class.lg:py-0]="isDesktop() && !sidebarOpen()"
+        [class.lg:opacity-0]="isDesktop() && !sidebarOpen()"
+      >
+        <div class="mb-6 flex items-start justify-between">
+          <div class="flex-1 text-center">
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-emerald-800/80">Leal Informatica</p>
+            <h1 class="mt-2 text-2xl font-black text-sky-950">Painel principal</h1>
+          </div>
+          <button type="button" mat-button class="lg:!hidden" (click)="closeSidebar()">Fechar</button>
+        </div>
+
+        <div class="aero-panel aero-panel-blue mb-6 rounded-[1.5rem] p-4 text-center">
+          <p class="text-sm font-semibold text-sky-900">Ambiente conectado</p>
+          <p class="mt-1 text-sm leading-6 text-sky-900/70">
+            Acompanhe fluxos, acessos e indicadores em uma interface leve e continua.
+          </p>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+          <a
+            *ngFor="let item of visibleNavItems()"
+            [routerLink]="item.route"
+            routerLinkActive="aero-panel aero-panel-green text-sky-950 shadow-[0_10px_24px_rgba(17,96,161,0.12)]"
+            [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+            class="flex items-center justify-center gap-2 rounded-[1.2rem] border border-transparent px-4 py-3 text-center text-sm font-semibold text-sky-900/75 transition hover:border-white/70 hover:bg-white/55 hover:text-teal-950"
+            (click)="closeSidebar()"
+          >
+            <span>{{ item.label }}</span>
+            <span *ngIf="item.badge" class="rounded-full bg-emerald-100/90 px-2 py-1 text-[11px] font-bold text-emerald-800">{{ item.badge }}</span>
+          </a>
+        </nav>
+
+      </aside>
+
+      <main class="min-w-0 flex-1 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="aero-glass min-h-full rounded-[2rem] p-4 sm:p-6 lg:p-8">
+          <router-outlet></router-outlet>
+        </div>
+      </main>
+    </div>
+
+    <footer class="aero-glass rounded-none border-x-0 border-b-0 px-5 py-2 text-sm text-sky-900/70">
+      <div class="mx-auto flex max-w-6xl flex-col items-center justify-center gap-1 text-center">
+        <p>&copy; {{ currentYear }} Leal Informatica</p>
+        <p>Interface principal com estetica Frutiger Aero para operacao de TI e servicos gerenciais.</p>
+      </div>
+    </footer>
+  </div>
+
+  <div
+    *ngIf="sidebarOpen()"
+    class="fixed inset-0 z-30 bg-sky-950/20 backdrop-blur-[2px] lg:hidden"
+    (click)="closeSidebar()"
+  ></div>
+
+  <app-toast></app-toast>
+</div>
