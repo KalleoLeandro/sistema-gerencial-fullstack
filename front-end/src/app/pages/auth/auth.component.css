@@ -18,10 +18,11 @@
 
 .login-card {
   display: grid;
-  width: min(1024px, 100%);
+  width: min(1180px, 100%);
+  min-height: min(760px, calc(100vh - 4rem));
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.58);
-  border-radius: 2rem;
+  border-radius: 2.2rem;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(219, 248, 238, 0.42)),
     linear-gradient(180deg, rgba(214, 241, 255, 0.14), rgba(90, 196, 163, 0.08));
@@ -34,21 +35,31 @@
 
 .login-brand-panel,
 .login-form-panel {
-  padding: 2rem;
+  padding: 2.4rem;
 }
 
 .login-brand-panel {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 2rem;
+  align-items: center;
+  justify-content: center;
   color: #0f3d69;
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(221, 247, 240, 0.26));
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.86), transparent 20%),
+    radial-gradient(circle at 78% 75%, rgba(177, 236, 214, 0.34), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(221, 247, 240, 0.28));
+  position: relative;
 }
 
-.login-kicker,
+.login-brand-panel::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 8%;
+  height: 84%;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(148, 204, 220, 0.72), rgba(255, 255, 255, 0));
+}
+
 .login-form-kicker {
   margin: 0;
   color: #177a5d;
@@ -58,82 +69,55 @@
   text-transform: uppercase;
 }
 
-.login-brand-copy h1,
 .login-form-header h2 {
   margin-top: 0.85rem;
   font-weight: 800;
 }
 
-.login-brand-copy h1 {
-  color: #0f3d69;
-  font-size: clamp(2rem, 3vw, 3rem);
-  line-height: 1.08;
-}
-
-.login-description {
-  margin: 1rem 0 0;
-  max-width: 30rem;
-  color: rgba(15, 61, 105, 0.8);
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
-.login-highlight {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.64);
-  border-radius: 1.5rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(222, 243, 255, 0.36)),
-    linear-gradient(135deg, rgba(191, 231, 255, 0.18), rgba(141, 225, 190, 0.14));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    0 16px 36px rgba(19, 97, 125, 0.08);
-}
-
-.login-logo-ring {
-  display: flex;
-  min-height: 6rem;
-  width: 7.75rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(217, 243, 255, 0.68)),
-    linear-gradient(135deg, rgba(189, 233, 255, 0.22), rgba(255, 255, 255, 0.14));
-}
-
-.login-logo {
-  height: 4.7rem;
-  width: auto;
-  object-fit: contain;
-}
-
-.login-highlight-copy {
+.login-brand-stage {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 5vw, 4rem) clamp(2rem, 5vw, 4rem);
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  background:
+    radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.94), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(222, 243, 255, 0.42)),
+    linear-gradient(135deg, rgba(191, 231, 255, 0.16), rgba(141, 225, 190, 0.16));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 20px 44px rgba(19, 97, 125, 0.08);
 }
 
-.login-highlight-copy strong {
+.login-brand-title {
+  margin: 0;
+  max-width: 22ch;
   color: #0f3d69;
-  font-size: 1rem;
+  font-size: clamp(1.45rem, 2vw, 2.15rem);
+  font-weight: 800;
+  line-height: 1.12;
+  text-align: center;
 }
 
-.login-highlight-copy span {
-  color: rgba(15, 61, 105, 0.74);
-  font-size: 0.92rem;
-  line-height: 1.6;
+.login-brand-logo {
+  width: min(100%, 24rem);
+  max-height: min(72vh, 32rem);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 40px rgba(15, 77, 107, 0.16));
 }
 
 .login-form-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-inline: clamp(2rem, 5vw, 4rem);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(222, 243, 255, 0.44)),
     linear-gradient(135deg, rgba(191, 231, 255, 0.12), rgba(141, 225, 190, 0.12));
@@ -241,7 +225,7 @@
 
 @media (min-width: 960px) {
   .login-card {
-    grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .login-brand-panel,
@@ -251,7 +235,19 @@
 }
 
 @media (max-width: 959px) {
+  .login-card {
+    min-height: auto;
+  }
+
   .login-brand-panel {
     padding-bottom: 1.25rem;
+  }
+
+  .login-brand-panel::after {
+    display: none;
+  }
+
+  .login-brand-stage {
+    min-height: 16rem;
   }
 }

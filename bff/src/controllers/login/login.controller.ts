@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
-import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { ApiCookieAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProxyService } from '@services/proxy/proxy.service';
 import { Request, Response } from 'express';
 
@@ -58,8 +58,10 @@ export class LoginController {
   @Get('listar')
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Lista usuarios paginados' })
+  @ApiQuery({ name: 'page', required: true, type: Number })
+  @ApiQuery({ name: 'limit', required: true, type: Number })
   @ApiResponse({ status: 200, description: 'Usuarios listados com sucesso' })
-  listar(@Req() req: Request, @Res() res: Response) {
+  listar(@Query('page') _page: string, @Query('limit') _limit: string, @Req() req: Request, @Res() res: Response) {
     return this.proxyService.forward(req, res, 'GET', '/login/listar');
   }
 
@@ -82,8 +84,9 @@ export class LoginController {
   @Get('buscar-por-nome')
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Busca usuarios por nome' })
+  @ApiQuery({ name: 'nome', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Usuarios encontrados com sucesso' })
-  buscarPorNome(@Req() req: Request, @Res() res: Response) {
+  buscarPorNome(@Query('nome') _nome: string, @Req() req: Request, @Res() res: Response) {
     return this.proxyService.forward(req, res, 'GET', '/login/buscar-por-nome');
   }
 

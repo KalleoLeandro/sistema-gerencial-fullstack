@@ -1,41 +1,34 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AuthComponent } from './auth.component';
-import { AuthService } from 'app/services/auth/auth.service';
-import { ToastService } from 'app/services/toast/toast.service';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-describe('AuthComponent', () => {
+import { AuthComponent } from './auth.component';
+import { LoginService } from '@services/login.service';
+import { ToastService } from '@services/toast.service';
 
+describe('AuthComponent', () => {
   let component: AuthComponent;
   let fixture: ComponentFixture<AuthComponent>;
-
-  let authServiceMock: any;
-  let toastServiceMock: any;
-  let router: Router;
+  let loginService: jasmine.SpyObj<LoginService>;
+  let router: jasmine.SpyObj<Router>;
+  let toastService: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
-
-    authServiceMock = {
-      validarAuth: jasmine.createSpy('validarAuth')
-    };
-
-    toastServiceMock = {
-      show: jasmine.createSpy('show')
-    };
+    loginService = jasmine.createSpyObj<LoginService>('LoginService', ['validarLogin', 'persistSessionMetadata']);
+    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    toastService = jasmine.createSpyObj<ToastService>('ToastService', ['error']);
 
     await TestBed.configureTestingModule({
       imports: [AuthComponent],
       providers: [
-        { provide: AuthService, useValue: authServiceMock },
-        { provide: ToastService, useValue: toastServiceMock },
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } }
+        { provide: LoginService, useValue: loginService },
+        { provide: Router, useValue: router },
+        { provide: ToastService, useValue: toastService }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
@@ -43,80 +36,51 @@ describe('AuthComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('nÃ£o deve chamar API se form invÃ¡lido', () => {
-    component.AuthForm.patchValue({
-      login: '',
-      senha: ''
-    });
+  it('nao deve chamar API se form invalido', () => {
+    spyOn(component.AuthForm, 'markAllAsTouched');
 
     component.entrar();
 
-    expect(authServiceMock.validarAuth).not.toHaveBeenCalled();
+    expect(component.AuthForm.markAllAsTouched).toHaveBeenCalled();
+    expect(loginService.validarLogin).not.toHaveBeenCalled();
   });
 
-  it('deve fazer login admin e navegar para /selecao', () => {
-    authServiceMock.validarAuth.and.returnValue(of({
-      userName: 'Kalleo',
-      perfil: 'admin'
-    }));
-
-    component.AuthForm.patchValue({
-      login: 'admin',
-      senha: '123'
-    });
+  it('deve persistir a sessao e navegar para /dashboard', () => {
+    loginService.validarLogin.and.returnValue(of({ userName: 'Kalleo', perfil: 'ADMIN' } as any));
+    component.AuthForm.patchValue({ login: 'admin', senha: '123' });
 
     component.entrar();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/selecao']);
-  });
-
-  it('deve fazer login user e navegar para /', () => {
-    authServiceMock.validarAuth.and.returnValue(of({
-      userName: 'Kalleo',
-      perfil: 'user'
-    }));
-
-    component.AuthForm.patchValue({
-      login: 'user',
-      senha: '123'
-    });
-
-    component.entrar();
-
-    expect(router.navigate).toHaveBeenCalledWith(['/']);
+    expect(loginService.persistSessionMetadata).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('deve tratar erro 401', () => {
-    authServiceMock.validarAuth.and.returnValue(
-      throwError(() => ({ status: 401 }))
+    loginService.validarLogin.and.returnValue(
+      throwError(() => ({
+        status: 401,
+        error: { message: 'Credenciais invalidas' }
+      }))
     );
-
-    component.AuthForm.patchValue({
-      login: 'user',
-      senha: '123'
-    });
+    component.AuthForm.patchValue({ login: 'user', senha: '123' });
 
     component.entrar();
 
     expect(component.AuthForm.value.login).toBe('');
     expect(component.AuthForm.value.senha).toBe('');
-    expect(toastServiceMock.show).toHaveBeenCalledWith('Login e/ou senha invÃ¡lidos');
+    expect(toastService.error).toHaveBeenCalledWith('Credenciais invalidas');
   });
 
-  it('deve tratar erro genÃ©rico', () => {
-    authServiceMock.validarAuth.and.returnValue(
+  it('deve tratar erro generico', () => {
+    loginService.validarLogin.and.returnValue(
       throwError(() => ({ status: 500 }))
     );
-
-    component.AuthForm.patchValue({
-      login: 'user',
-      senha: '123'
-    });
+    component.AuthForm.patchValue({ login: 'user', senha: '123' });
 
     component.entrar();
 
-    expect(toastServiceMock.show).toHaveBeenCalledWith(
-      'Erro ao efetuar o login. A API pode estar fora do ar ou o caminho de destino do recurso foi modificado'
+    expect(toastService.error).toHaveBeenCalledWith(
+      'Erro ao efetuar o login. A API pode estar fora do ar ou o recurso foi alterado.'
     );
   });
-});
+}

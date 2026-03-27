@@ -1,0 +1,28 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>LI favicon</title>
+  <defs>
+    <linearGradient id="faviconBg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFFFF8"/>
+      <stop offset="0.5" stop-color="#BEEBDE"/>
+      <stop offset="1" stop-color="#8DD7E8"/>
+    </linearGradient>
+    <linearGradient id="faviconText" x1="18" y1="16" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#0E7490"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#faviconBg)"/>
+  <rect x="4.75" y="4.75" width="54.5" height="54.5" rx="15.25" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+  <text
+    x="32"
+    y="40"
+    text-anchor="middle"
+    fill="url(#faviconText)"
+    font-family="'Segoe UI', Arial, sans-serif"
+    font-size="24"
+    font-weight="800"
+    letter-spacing="1.5"
+  >
+    LI
+  </text>
+</svg>

@@ -10,7 +10,14 @@ describe('authGuard', () => {
   let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    loginService = jasmine.createSpyObj<LoginService>('LoginService', ['validarToken', 'clearSessionMetadata']);
+    loginService = jasmine.createSpyObj<LoginService>('LoginService', [
+      'validarToken',
+      'clearSessionMetadata',
+      'refreshToken',
+      'persistSessionMetadata',
+      'isLogoutRequested'
+    ]);
+    loginService.isLogoutRequested.and.returnValue(false);
     router = jasmine.createSpyObj<Router>('Router', ['createUrlTree']);
     router.createUrlTree.and.returnValue({} as UrlTree);
 
@@ -30,6 +37,21 @@ describe('authGuard', () => {
     result$.subscribe((result: boolean | UrlTree) => {
       expect(result).toBeTrue();
       expect(loginService.clearSessionMetadata).not.toHaveBeenCalled();
+      done();
+    });
+  });
+
+  it('redireciona para login quando houve logout local', (done) => {
+    const tree = {} as UrlTree;
+    router.createUrlTree.and.returnValue(tree);
+    loginService.isLogoutRequested.and.returnValue(true);
+
+    const result$ = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any)) as Observable<boolean | UrlTree>;
+
+    result$.subscribe((result: boolean | UrlTree) => {
+      expect(result).toBe(tree);
+      expect(loginService.clearSessionMetadata).toHaveBeenCalled();
+      expect(loginService.validarToken).not.toHaveBeenCalled();
       done();
     });
   });

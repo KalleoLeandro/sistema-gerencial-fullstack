@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
-import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { ApiCookieAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProxyService } from '@services/proxy/proxy.service';
 import { Request, Response } from 'express';
 
@@ -18,8 +18,17 @@ export class AtendimentoController {
 
   @Get('listar')
   @ApiOperation({ summary: 'Lista atendimentos paginados' })
+  @ApiQuery({ name: 'page', required: true, type: Number })
+  @ApiQuery({ name: 'limit', required: true, type: Number })
+  @ApiQuery({ name: 'id', required: true, type: Number })
   @ApiResponse({ status: 200, description: 'Atendimentos listados com sucesso' })
-  listar(@Req() req: Request, @Res() res: Response) {
+  listar(
+    @Query('page') _page: string,
+    @Query('limit') _limit: string,
+    @Query('id') _id: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
     return this.proxyService.forward(req, res, 'GET', '/atendimento/listar');
   }
 
@@ -39,8 +48,16 @@ export class AtendimentoController {
 
   @Put('alterar-status')
   @ApiOperation({ summary: 'Altera o status de um atendimento' })
+  @ApiQuery({ name: 'id', required: true, type: Number })
+  @ApiQuery({ name: 'status', required: true, type: Number })
   @ApiResponse({ status: 204, description: 'Status alterado com sucesso' })
-  alterarStatus(@Body() body: unknown, @Req() req: Request, @Res() res: Response) {
+  alterarStatus(
+    @Body() body: unknown,
+    @Query('id') _id: string,
+    @Query('status') _status: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
     return this.proxyService.forward(req, res, 'PUT', '/atendimento/alterar-status', body);
   }
 

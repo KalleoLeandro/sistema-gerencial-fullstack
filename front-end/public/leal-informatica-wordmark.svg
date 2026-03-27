@@ -1,0 +1,21 @@
+<svg width="360" height="72" viewBox="0 0 360 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Leal Informatica</title>
+  <desc>Wordmark textual da Leal Informatica sem fundo.</desc>
+  <defs>
+    <linearGradient id="lealWordmarkGradient" x1="24" y1="12" x2="320" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#0E7490"/>
+    </linearGradient>
+  </defs>
+  <text
+    x="18"
+    y="46"
+    fill="url(#lealWordmarkGradient)"
+    font-family="'Segoe UI', 'Trebuchet MS', Arial, sans-serif"
+    font-size="28"
+    font-weight="700"
+    letter-spacing="0.6"
+  >
+    Leal Informática
+  </text>
+</svg>

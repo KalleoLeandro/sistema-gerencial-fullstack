@@ -26,3 +26,15 @@
   border-radius: 999px;
   background: linear-gradient(90deg, rgba(17, 96, 161, 0.96), rgba(12, 145, 134, 0.92));
 }
+
+.link {
+  color: #082f49;
+  text-decoration: none;
+}
+
+.link:visited,
+.link:hover,
+.link:active,
+.link:focus {
+  color: #082f49;
+}

@@ -21,6 +21,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      if (loginService.isLogoutRequested()) {
+        loginService.clearSessionMetadata();
+        return throwError(() => error);
+      }
+
       if (!refreshRequest$) {
         refreshRequest$ = loginService.refreshToken().pipe(
           shareReplay(1),

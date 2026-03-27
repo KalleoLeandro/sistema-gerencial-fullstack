@@ -33,14 +33,15 @@ export class MainLayoutComponent implements OnInit {
   protected sidebarOpen = signal(false);
   protected isDesktop = signal(false);
   protected currentYear = new Date().getFullYear();
+  protected userName = signal(sessionStorage.getItem('userName') || '');
   protected perfil = signal(sessionStorage.getItem('perfil') || '');
 
   protected readonly navItems: NavItem[] = [
     { label: 'Dashboard', route: '/dashboard', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Agenda', route: '/agenda', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Empresas', route: '/empresas/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
-    { label: 'Ordens de servico', route: '/avulsos/listar', badge: 'OS', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
-    { label: 'Usuarios', route: '/usuarios/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] }
+    { label: 'Ordens de servico', route: '/avulsos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
+    { label: 'Usuarios', route: '/usuarios/listar', roles: ['ADMIN', 'DEV'] }
   ];
 
   ngOnInit(): void {
@@ -49,7 +50,7 @@ export class MainLayoutComponent implements OnInit {
       next: (response) => {
         const perfil = response.role || '';
         this.perfil.set(perfil);
-        this.loginService.persistSessionMetadata({ perfil });
+        this.loginService.persistSessionMetadata({ userName: this.userName(), perfil });
       },
       error: () => undefined
     });
@@ -75,8 +76,8 @@ export class MainLayoutComponent implements OnInit {
   }
 
   protected welcomeLabel(): string {
-    const perfil = this.perfil().trim();
-    return perfil ? `Bem vindo ${perfil}` : 'Bem vindo';
+    const userName = this.userName().trim();
+    return userName ? `Bem vindo ${userName}` : 'Bem vindo';
   }
 
   protected toggleSidebar(): void {
@@ -90,6 +91,8 @@ export class MainLayoutComponent implements OnInit {
   }
 
   protected logout(): void {
+    this.loginService.markLogoutRequested();
+
     this.loginService.logout().subscribe({
       next: () => {
         this.loginService.clearSessionMetadata();

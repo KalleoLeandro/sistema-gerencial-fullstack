@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
-import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { ApiCookieAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProxyService } from '@services/proxy/proxy.service';
 import { Request, Response } from 'express';
 
@@ -18,15 +18,28 @@ export class AvulsoController {
 
   @Get('listar')
   @ApiOperation({ summary: 'Lista chamados avulsos paginados' })
+  @ApiQuery({ name: 'page', required: true, type: Number })
+  @ApiQuery({ name: 'limit', required: true, type: Number })
   @ApiResponse({ status: 200, description: 'Chamados avulsos listados com sucesso' })
-  listar(@Req() req: Request, @Res() res: Response) {
+  listar(@Query('page') _page: string, @Query('limit') _limit: string, @Req() req: Request, @Res() res: Response) {
     return this.proxyService.forward(req, res, 'GET', '/avulso/listar');
   }
 
   @Get('listar-com-pesquisa')
   @ApiOperation({ summary: 'Lista chamados avulsos com pesquisa' })
+  @ApiQuery({ name: 'page', required: true, type: Number })
+  @ApiQuery({ name: 'limit', required: true, type: Number })
+  @ApiQuery({ name: 'pesquisa', required: true, type: String })
+  @ApiQuery({ name: 'tipoConsulta', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Chamados avulsos listados com sucesso' })
-  listarComPesquisa(@Req() req: Request, @Res() res: Response) {
+  listarComPesquisa(
+    @Query('page') _page: string,
+    @Query('limit') _limit: string,
+    @Query('pesquisa') _pesquisa: string,
+    @Query('tipoConsulta') _tipoConsulta: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
     return this.proxyService.forward(req, res, 'GET', '/avulso/listar-com-pesquisa');
   }
 
@@ -46,8 +59,16 @@ export class AvulsoController {
 
   @Put('alterar-status')
   @ApiOperation({ summary: 'Altera o status de um chamado avulso' })
+  @ApiQuery({ name: 'id', required: true, type: Number })
+  @ApiQuery({ name: 'status', required: true, type: Number })
   @ApiResponse({ status: 204, description: 'Status alterado com sucesso' })
-  alterarStatus(@Body() body: unknown, @Req() req: Request, @Res() res: Response) {
+  alterarStatus(
+    @Body() body: unknown,
+    @Query('id') _id: string,
+    @Query('status') _status: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
     return this.proxyService.forward(req, res, 'PUT', '/avulso/alterar-status', body);
   }
 

@@ -10,6 +10,7 @@ import { Observable, catchError, shareReplay, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class LoginService {
+  private readonly logoutMarkerKey = 'logoutRequested';
   private httpClient = inject(HttpClient);
   private url = `${environment.apiUrl}`;
 
@@ -74,6 +75,7 @@ export class LoginService {
     const userName = response.userName ?? sessionStorage.getItem('userName') ?? '';
     const perfil = response.perfil ?? ('role' in response ? response.role : undefined) ?? sessionStorage.getItem('perfil') ?? '';
 
+    sessionStorage.removeItem(this.logoutMarkerKey);
     sessionStorage.setItem('userName', userName);
     sessionStorage.setItem('perfil', perfil);
   }
@@ -81,6 +83,18 @@ export class LoginService {
   public clearSessionMetadata(): void {
     sessionStorage.removeItem('userName');
     sessionStorage.removeItem('perfil');
+  }
+
+  public markLogoutRequested(): void {
+    sessionStorage.setItem(this.logoutMarkerKey, 'true');
+  }
+
+  public clearLogoutRequested(): void {
+    sessionStorage.removeItem(this.logoutMarkerKey);
+  }
+
+  public isLogoutRequested(): boolean {
+    return sessionStorage.getItem(this.logoutMarkerKey) === 'true';
   }
 
   private handleError(error: HttpErrorResponse) {

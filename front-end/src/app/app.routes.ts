@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guard/auth.guard';
+import { loginGuard } from './guard/login.guard';
 import { roleGuard } from './guard/role.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
+    canActivate: [loginGuard],
     loadComponent: () => import('@pages/auth/auth.component').then((c) => c.AuthComponent)
   },
   {
@@ -108,6 +110,8 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV'] },
         children: [
           {
             path: 'cadastrar',
