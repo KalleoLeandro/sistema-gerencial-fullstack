@@ -513,6 +513,19 @@ public class DashboardRepository {
 					UNION ALL
 
 					SELECT
+						'AGENDAMENTO' AS tipo,
+						ag.id AS referencia_id,
+						NULL AS empresa_id,
+						ag.titulo AS titulo,
+						CONCAT(ag.tipo_tarefa, ' - ', COALESCE(ag.detalhes, 'Sem detalhes')) AS subtitulo,
+						ag.data_agendamento AS data_evento,
+						ag.concluido AS concluido
+					FROM agendamentos ag
+					WHERE ag.data_agendamento IS NOT NULL
+
+					UNION ALL
+
+					SELECT
 						'ATENDIMENTO' AS tipo,
 						at.id AS referencia_id,
 						at.id_empresa AS empresa_id,

@@ -9,6 +9,7 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 
   if (authService.isLogoutRequested()) {
     authService.clearSessionMetadata();
+    authService.clearLogoutRequested();
     return of(router.createUrlTree(['login']));
   }
 

@@ -1,0 +1,61 @@
+<div class="container-fluid">
+  <div class="card h-100 mb-4">
+    <div class="card-header py-3 mb-2">
+      <div class="page-header">
+        <div>
+          <p class="page-kicker">Agenda</p>
+          <h1 class="page-title">Detalhes do agendamento</h1>
+          <p class="page-description">Resumo do compromisso salvo localmente na sua agenda.</p>
+        </div>
+
+        <div class="page-actions">
+          <a mat-stroked-button class="btn btn-warning" routerLink="/agenda">
+            Voltar
+          </a>
+          <a
+            *ngIf="agendamento"
+            mat-flat-button
+            class="btn btn-primary"
+            [routerLink]="['/agenda/cadastrar', agendamento.id]">
+            Alterar
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="details-shell" *ngIf="agendamento">
+      <div class="details-grid">
+        <div class="details-item details-item--wide">
+          <label>Título</label>
+          <h6>{{ agendamento.titulo }}</h6>
+        </div>
+
+        <div class="details-item">
+          <label>Tipo de tarefa</label>
+          <h6>{{ agendamento.tipo_tarefa }}</h6>
+        </div>
+
+        <div class="details-item">
+          <label>Data do agendamento</label>
+          <h6>{{ formatarData(agendamento.data_agendamento) }}</h6>
+        </div>
+
+        <div class="details-item">
+          <label>Status</label>
+          <h6 [class.is-overdue]="atrasado">{{ status }}{{ atrasado ? ' • Em atraso' : '' }}</h6>
+        </div>
+
+        <div class="details-item details-item--full">
+          <label>Detalhes</label>
+          <div class="details-richtext">{{ agendamento.detalhes }}</div>
+        </div>
+      </div>
+
+      <div class="details-footer">
+        <button mat-stroked-button type="button" class="btn btn-danger" (click)="excluir()">
+          Excluir agendamento
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

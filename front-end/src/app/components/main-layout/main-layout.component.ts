@@ -4,6 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ToastComponent } from '@components/toast/toast.component';
 import { LoginService } from '@services/login.service';
+import { EMPTY, forkJoin, switchMap } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 type NavItem = {
   label: string;
@@ -29,6 +31,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly loginService = inject(LoginService);
   private readonly desktopBreakpoint = 1024;
+  private validatingSession = false;
 
   protected sidebarOpen = signal(false);
   protected isDesktop = signal(false);
@@ -46,14 +49,7 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.handleViewport();
-    this.loginService.getPerfil().subscribe({
-      next: (response) => {
-        const perfil = response.role || '';
-        this.perfil.set(perfil);
-        this.loginService.persistSessionMetadata({ userName: this.userName(), perfil });
-      },
-      error: () => undefined
-    });
+    this.validarSessaoAtual();
   }
 
   @HostListener('window:resize')
@@ -68,6 +64,11 @@ export class MainLayoutComponent implements OnInit {
     }
 
     this.sidebarOpen.set(isDesktop);
+  }
+
+  @HostListener('window:focus')
+  handleWindowFocus(): void {
+    this.validarSessaoAtual();
   }
 
   protected visibleNavItems(): NavItem[] {
@@ -95,13 +96,68 @@ export class MainLayoutComponent implements OnInit {
 
     this.loginService.logout().subscribe({
       next: () => {
-        this.loginService.clearSessionMetadata();
-        this.router.navigate(['/login']);
+        this.encerrarSessaoLocal();
       },
       error: () => {
-        this.loginService.clearSessionMetadata();
-        this.router.navigate(['/login']);
+        this.encerrarSessaoLocal();
       }
     });
+  }
+
+  private validarSessaoAtual(): void {
+    if (this.validatingSession || this.loginService.isLogoutRequested()) {
+      return;
+    }
+
+    this.validatingSession = true;
+
+    this.loginService.validarToken().pipe(
+      switchMap((isAuthenticated) => {
+        if (isAuthenticated) {
+          return this.carregarDadosSessao();
+        }
+
+        return this.loginService.refreshToken().pipe(
+          switchMap((response) => {
+            this.loginService.persistSessionMetadata(response);
+            return this.carregarDadosSessao();
+          })
+        );
+      }),
+      catchError(() => {
+        this.encerrarSessaoLocal();
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.validatingSession = false;
+      })
+    ).subscribe({
+      next: ({ perfil, usuario }) => {
+        const role = perfil?.role || '';
+        const userName = usuario?.nome || '';
+
+        this.userName.set(userName);
+        this.perfil.set(role);
+        this.loginService.persistSessionMetadata({ userName, perfil: role });
+      }
+    });
+  }
+
+  private carregarDadosSessao() {
+    return forkJoin({
+      perfil: this.loginService.getPerfil(),
+      usuario: this.loginService.buscarPorToken()
+    });
+  }
+
+  private encerrarSessaoLocal(): void {
+    this.loginService.markLogoutRequested();
+    this.loginService.clearSessionMetadata();
+    this.userName.set('');
+    this.perfil.set('');
+
+    if (this.router.url !== '/login') {
+      this.router.navigate(['/login']);
+    }
   }
 }

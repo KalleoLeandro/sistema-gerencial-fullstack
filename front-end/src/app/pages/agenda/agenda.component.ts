@@ -1,13 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventInput } from '@fullcalendar/core';
@@ -16,7 +11,6 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import { AgendaEvento } from '@models/agenda-evento';
 import { DashboardService } from '@services/dashboard.service';
-import { ToastService } from '@services/toast.service';
 
 type AgendaFiltroTipo = 'FINALIZACAO_CONTRATO' | 'AGENDAMENTO' | 'ORDEM_SERVICO' | 'ATENDIMENTO' | 'MANUTENCAO';
 
@@ -31,37 +25,19 @@ interface AgendaFiltro {
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
     MatChipsModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     FullCalendarModule
   ],
   templateUrl: './agenda.component.html',
   styleUrl: './agenda.component.css'
 })
 export class AgendaComponent implements OnInit {
-  private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly dashboardService = inject(DashboardService);
-  private readonly toastService = inject(ToastService);
 
   public agendaEventos: AgendaEvento[] = [];
-  public agendamentosLocais: AgendaEvento[] = [];
-  public mostrarFormularioAgendamento = false;
-  public agendamentoEmEdicaoId: number | null = null;
-  public readonly tiposTarefa: string[] = [
-    'Visita técnica',
-    'Compra de material',
-    'Entrega',
-    'Reunião',
-    'Instalação',
-    'Retorno ao cliente'
-  ];
   public readonly filtros: AgendaFiltro[] = [
     { key: 'FINALIZACAO_CONTRATO', label: 'Finalização de contrato', ativo: true },
     { key: 'AGENDAMENTO', label: 'Agendamentos', ativo: true },
@@ -69,13 +45,6 @@ export class AgendaComponent implements OnInit {
     { key: 'ATENDIMENTO', label: 'Atendimentos', ativo: true },
     { key: 'MANUTENCAO', label: 'Manutenção', ativo: true }
   ];
-
-  public agendamentoForm = this.formBuilder.group({
-    titulo: ['', Validators.required],
-    tipoTarefa: ['', Validators.required],
-    data: [null as Date | null, Validators.required],
-    detalhes: ['', Validators.required]
-  });
 
   public calendarioOptions: CalendarOptions = {
     plugins: [dayGridPlugin, listPlugin],
@@ -115,52 +84,7 @@ export class AgendaComponent implements OnInit {
   }
 
   public abrirCadastroAgendamento(): void {
-    this.mostrarFormularioAgendamento = true;
-    this.agendamentoEmEdicaoId = null;
-    this.agendamentoForm.reset();
-  }
-
-  public cancelarCadastroAgendamento(): void {
-    this.mostrarFormularioAgendamento = false;
-    this.agendamentoEmEdicaoId = null;
-    this.agendamentoForm.reset();
-  }
-
-  public salvarAgendamentoLocal(): void {
-    if (this.agendamentoForm.invalid) {
-      this.agendamentoForm.markAllAsTouched();
-      return;
-    }
-
-    const { titulo, tipoTarefa, data, detalhes } = this.agendamentoForm.getRawValue();
-    const dataEvento = data ? new Date(data) : null;
-
-    if (!dataEvento) {
-      this.agendamentoForm.controls['data'].markAsTouched();
-      return;
-    }
-
-    const agendamento: AgendaEvento = {
-      tipo: 'AGENDAMENTO',
-      referenciaId: this.agendamentoEmEdicaoId ?? Date.now(),
-      empresaId: null,
-      titulo: titulo?.trim() || '',
-      subtitulo: `${tipoTarefa} | ${detalhes?.trim() || ''}`,
-      dataEvento: new Date(dataEvento.getFullYear(), dataEvento.getMonth(), dataEvento.getDate(), 12, 0, 0).toISOString(),
-      concluido: false
-    };
-
-    if (this.agendamentoEmEdicaoId) {
-      this.agendamentosLocais = this.agendamentosLocais.map((item) =>
-        item.referenciaId === this.agendamentoEmEdicaoId ? agendamento : item
-      );
-    } else {
-      this.agendamentosLocais = [agendamento, ...this.agendamentosLocais];
-    }
-
-    this.atualizarEventosCalendario();
-    this.toastService.success(this.agendamentoEmEdicaoId ? 'Agendamento local atualizado.' : 'Agendamento adicionado apenas no frontend.');
-    this.cancelarCadastroAgendamento();
+    this.router.navigate(['/agenda/cadastrar']);
   }
 
   public atualizarFiltro(tipo: AgendaFiltroTipo, ativo: boolean): void {
@@ -175,8 +99,8 @@ export class AgendaComponent implements OnInit {
   }
 
   public navegarParaDetalhe(evento: AgendaEvento): void {
-    if (this.isAgendamentoLocal(evento)) {
-      this.editarAgendamentoLocal(evento.referenciaId);
+    if (evento.tipo === 'AGENDAMENTO') {
+      this.router.navigate(['/agenda/detalhes', evento.referenciaId]);
       return;
     }
 
@@ -204,18 +128,6 @@ export class AgendaComponent implements OnInit {
   public get eventosFiltrados(): AgendaEvento[] {
     const tiposAtivos = new Set(this.filtros.filter((filtro) => filtro.ativo).map((filtro) => filtro.key));
     return this.todosEventos.filter((evento) => tiposAtivos.has(evento.tipo as AgendaFiltroTipo));
-  }
-
-  public get tituloFormularioAgendamento(): string {
-    return this.agendamentoEmEdicaoId ? 'Editar agendamento' : 'Novo agendamento';
-  }
-
-  public get subtituloFormularioAgendamento(): string {
-    return this.agendamentoEmEdicaoId ? 'Edição local' : 'Cadastro local';
-  }
-
-  public get textoAcaoFormularioAgendamento(): string {
-    return this.agendamentoEmEdicaoId ? 'Salvar alterações' : 'Adicionar à agenda';
   }
 
   public descricaoTipo(tipo: string): string {
@@ -287,30 +199,7 @@ export class AgendaComponent implements OnInit {
   }
 
   private get todosEventos(): AgendaEvento[] {
-    return [...this.agendamentosLocais, ...this.agendaEventos];
-  }
-
-  private editarAgendamentoLocal(referenciaId: number): void {
-    const agendamento = this.agendamentosLocais.find((item) => item.referenciaId === referenciaId);
-
-    if (!agendamento) {
-      return;
-    }
-
-    const [tipoTarefa, ...detalhes] = agendamento.subtitulo.split(' | ');
-
-    this.agendamentoEmEdicaoId = agendamento.referenciaId;
-    this.mostrarFormularioAgendamento = true;
-    this.agendamentoForm.setValue({
-      titulo: agendamento.titulo,
-      tipoTarefa: tipoTarefa || '',
-      data: agendamento.dataEvento ? new Date(agendamento.dataEvento) : null,
-      detalhes: detalhes.join(' | ')
-    });
-  }
-
-  private isAgendamentoLocal(evento: AgendaEvento): boolean {
-    return evento.tipo === 'AGENDAMENTO' && this.agendamentosLocais.some((item) => item.referenciaId === evento.referenciaId);
+    return this.agendaEventos;
   }
 
   private resolverCorEvento(concluido: boolean): string {

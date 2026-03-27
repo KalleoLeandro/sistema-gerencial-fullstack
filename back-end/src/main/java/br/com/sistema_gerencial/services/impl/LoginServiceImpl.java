@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +101,12 @@ public class LoginServiceImpl implements LoginService {
 		try {
 			if (token == null || token.isBlank()) {
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				return authentication != null && authentication.isAuthenticated();
+				return authentication != null
+						&& authentication.isAuthenticated()
+						&& !(authentication instanceof AnonymousAuthenticationToken)
+						&& authentication.getPrincipal() instanceof String principal
+						&& !principal.isBlank()
+						&& !"anonymousUser".equalsIgnoreCase(principal);
 			}
 			return jwtUtils.validateAccessToken(token);
 		} catch (Exception e) {

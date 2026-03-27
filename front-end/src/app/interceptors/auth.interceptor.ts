@@ -56,7 +56,11 @@ function shouldTryRefresh(url: string, status: number): boolean {
   }
 
   return !url.includes('/login/validar-login')
+    && !url.includes('/login/validar-token')
     && !url.includes('/login/refresh')
+    && !url.includes('/login/logout')
+    && !url.includes('/login/buscar-por-token')
+    && !url.includes('/login/retorna-perfil')
     && !url.includes('/auth/login')
     && !url.includes('/auth/refresh');
 }

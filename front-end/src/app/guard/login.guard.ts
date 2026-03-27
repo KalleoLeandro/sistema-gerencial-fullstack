@@ -9,6 +9,7 @@ export const loginGuard: CanActivateFn = () => {
 
   if (loginService.isLogoutRequested()) {
     loginService.clearSessionMetadata();
+    loginService.clearLogoutRequested();
     return of(true);
   }
 

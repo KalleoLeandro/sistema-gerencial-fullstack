@@ -1,0 +1,71 @@
+<div class="container-fluid">
+  <div class="card mb-4">
+    <div class="card-header py-3 mb-2">
+      <div class="page-header">
+        <div>
+          <p class="page-kicker">Agenda</p>
+          <h1 class="page-title">{{ tituloPagina }}</h1>
+          <p class="page-description">{{ subtituloPagina }}</p>
+        </div>
+
+        <a mat-stroked-button class="btn btn-warning" routerLink="/agenda">
+          Voltar para agenda
+        </a>
+      </div>
+    </div>
+
+    <mat-card class="form-card">
+      <form [formGroup]="cadastroForm" class="agenda-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Título da tarefa</mat-label>
+          <input matInput formControlName="titulo" placeholder="Ex.: Visita ao cliente XPTO">
+          <mat-error *ngIf="cadastroForm.controls['titulo'].touched && cadastroForm.controls['titulo'].invalid">
+            Campo obrigatório
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Tipo de tarefa</mat-label>
+          <mat-select formControlName="tipoTarefa">
+            <mat-option value="">--Selecione uma opção--</mat-option>
+            <mat-option *ngFor="let tipo of tiposTarefa" [value]="tipo">{{ tipo }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="cadastroForm.controls['tipoTarefa'].touched && cadastroForm.controls['tipoTarefa'].invalid">
+            Campo obrigatório
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Data</mat-label>
+          <input matInput [matDatepicker]="agendamentoDatePicker" formControlName="data">
+          <mat-datepicker-toggle matIconSuffix [for]="agendamentoDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #agendamentoDatePicker></mat-datepicker>
+          <mat-error *ngIf="cadastroForm.controls['data'].touched && cadastroForm.controls['data'].invalid">
+            Campo obrigatório
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="span-full">
+          <mat-label>Detalhes</mat-label>
+          <textarea matInput formControlName="detalhes" rows="6" placeholder="Descreva os detalhes da tarefa"></textarea>
+          <mat-error *ngIf="cadastroForm.controls['detalhes'].touched && cadastroForm.controls['detalhes'].invalid">
+            Campo obrigatório
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-note span-full">
+          Este cadastro é salvo localmente no navegador enquanto o fluxo backend de agendamentos não estiver disponível.
+        </div>
+
+        <div class="form-actions span-full">
+          <button mat-flat-button type="button" class="btn btn-primary" (click)="salvar()">
+            {{ agendamentoId ? 'Salvar alterações' : 'Cadastrar agendamento' }}
+          </button>
+          <button mat-stroked-button type="button" class="btn btn-warning" (click)="limpar()">
+            {{ agendamentoId ? 'Restaurar dados' : 'Limpar formulário' }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</div>
