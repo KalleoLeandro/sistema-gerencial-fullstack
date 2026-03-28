@@ -68,7 +68,7 @@ describe('AuthComponent', () => {
 
     expect(component.AuthForm.value.login).toBe('');
     expect(component.AuthForm.value.senha).toBe('');
-    expect(toastService.error).toHaveBeenCalledWith('Credenciais invalidas');
+    expect(toastService.error).toHaveBeenCalledWith('Login e/ou senha invalidos');
   });
 
   it('deve tratar erro generico', () => {
@@ -83,4 +83,4 @@ describe('AuthComponent', () => {
       'Erro ao efetuar o login. A API pode estar fora do ar ou o recurso foi alterado.'
     );
   });
-}
+});

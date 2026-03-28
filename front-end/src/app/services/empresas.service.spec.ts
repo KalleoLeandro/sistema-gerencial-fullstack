@@ -3,12 +3,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { FormControl, FormGroup } from '@angular/forms';
+import { environment } from '@environments/environment';
 
 import { EmpresasService } from './empresas.service';
 
 describe('EmpresasService', () => {
   let service: EmpresasService;
   let httpMock: HttpTestingController;
+  const apiUrl = environment.apiUrl;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -32,42 +34,42 @@ describe('EmpresasService', () => {
     });
 
     service.cadastrarEmpresa(form).subscribe();
-    let request = httpMock.expectOne('/api/empresa/cadastrar');
+    let request = httpMock.expectOne(`${apiUrl}/empresa/cadastrar`);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ nome: 'ACME' });
     request.flush({});
 
     service.atualizarEmpresa(form).subscribe();
-    request = httpMock.expectOne('/api/empresa/atualizar');
+    request = httpMock.expectOne(`${apiUrl}/empresa/atualizar`);
     expect(request.request.method).toBe('PUT');
     request.flush({});
   });
 
   it('consulta empresa por diferentes filtros e por id', () => {
     service.buscarEmpresasPorPagina(2, 10).subscribe();
-    let request = httpMock.expectOne('/api/empresa/listar?page=2&limit=10');
+    let request = httpMock.expectOne(`${apiUrl}/empresa/listar?page=2&limit=10`);
     expect(request.request.method).toBe('GET');
     request.flush({});
 
     service.buscarEmpresasPorPaginaENome(1, 5, 'Acme').subscribe();
-    request = httpMock.expectOne('/api/empresa/listar-por-nome?page=1&limit=5&nome=Acme');
+    request = httpMock.expectOne(`${apiUrl}/empresa/listar-por-nome?page=1&limit=5&nome=Acme`);
     expect(request.request.method).toBe('GET');
     request.flush({});
 
     service.buscarPorId(9).subscribe();
-    request = httpMock.expectOne('/api/empresa/buscar-por-id/9');
+    request = httpMock.expectOne(`${apiUrl}/empresa/buscar-por-id/9`);
     expect(request.request.method).toBe('GET');
     request.flush({});
   });
 
   it('envia exclusao e salvamento da infraestrutura', () => {
     service.excluirEmpresa(4).subscribe();
-    let request = httpMock.expectOne('/api/empresa/excluir/4');
+    let request = httpMock.expectOne(`${apiUrl}/empresa/excluir/4`);
     expect(request.request.method).toBe('DELETE');
     request.flush({});
 
     service.salvarDadosInfra('rack principal', 4).subscribe();
-    request = httpMock.expectOne('/api/empresa/salvar-infra/4');
+    request = httpMock.expectOne(`${apiUrl}/empresa/salvar-infra/4`);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toBe('rack principal');
     request.flush({});
@@ -80,7 +82,7 @@ describe('EmpresasService', () => {
       error: (error) => capturedError = error
     });
 
-    const request = httpMock.expectOne('/api/empresa/buscar-por-id/12');
+    const request = httpMock.expectOne(`${apiUrl}/empresa/buscar-por-id/12`);
     request.flush({ message: 'falha' }, { status: 404, statusText: 'Not Found' });
 
     expect(capturedError?.status).toBe(404);

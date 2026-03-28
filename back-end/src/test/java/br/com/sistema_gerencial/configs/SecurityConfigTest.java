@@ -7,10 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import br.com.sistema_gerencial.config.CorsConfig;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -21,16 +24,27 @@ class SecurityConfigTest {
     private SecurityFilterChain securityFilterChain;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private CorsConfigurationSource corsConfigurationSource;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private CorsConfig corsConfig;
 
     @Test
     void deveCriarBeansDeSeguranca() {
         assertNotNull(securityFilterChain);
-        assertNotNull(authenticationManager);
-        assertNotNull(passwordEncoder);
-        assertTrue(passwordEncoder.matches("senha123", passwordEncoder.encode("senha123")));
+        assertNotNull(corsConfigurationSource);
+        assertNotNull(corsConfig);
+    }
+
+    @Test
+    void deveConfigurarCorsComCredenciaisEMetodosPadrao() {
+        CorsConfiguration configuration = corsConfig.corsConfigurationSource()
+                .getCorsConfiguration(new MockHttpServletRequest("GET", "/login/validar-login"));
+
+        assertNotNull(configuration);
+        assertTrue(Boolean.TRUE.equals(configuration.getAllowCredentials()));
+        assertTrue(configuration.getAllowedMethods().contains("GET"));
+        assertTrue(configuration.getAllowedMethods().contains("POST"));
+        assertTrue(configuration.getAllowedOriginPatterns().contains("http://localhost:*"));
     }
 }

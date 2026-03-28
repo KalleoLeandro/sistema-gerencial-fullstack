@@ -2,8 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 
-import { loginGuard } from './login.guard';
 import { LoginService } from '@services/login.service';
+
+import { loginGuard } from './login.guard';
 
 describe('loginGuard', () => {
   let loginService: jasmine.SpyObj<LoginService>;
@@ -15,9 +16,11 @@ describe('loginGuard', () => {
       'refreshToken',
       'persistSessionMetadata',
       'clearSessionMetadata',
-      'isLogoutRequested'
+      'isLogoutRequested',
+      'clearLogoutRequested'
     ]);
     loginService.isLogoutRequested.and.returnValue(false);
+
     router = jasmine.createSpyObj<Router>('Router', ['createUrlTree']);
     router.createUrlTree.and.returnValue({} as UrlTree);
 
@@ -36,7 +39,7 @@ describe('loginGuard', () => {
 
     const result$ = TestBed.runInInjectionContext(() => loginGuard({} as any, {} as any)) as Observable<boolean | UrlTree>;
 
-    result$.subscribe((result: boolean | UrlTree) => {
+    result$.subscribe((result) => {
       expect(result).toBe(tree);
       expect(router.createUrlTree).toHaveBeenCalledWith(['/dashboard']);
       done();
@@ -48,9 +51,10 @@ describe('loginGuard', () => {
 
     const result$ = TestBed.runInInjectionContext(() => loginGuard({} as any, {} as any)) as Observable<boolean | UrlTree>;
 
-    result$.subscribe((result: boolean | UrlTree) => {
+    result$.subscribe((result) => {
       expect(result).toBeTrue();
       expect(loginService.clearSessionMetadata).toHaveBeenCalled();
+      expect(loginService.clearLogoutRequested).toHaveBeenCalled();
       expect(loginService.validarToken).not.toHaveBeenCalled();
       done();
     });
@@ -62,7 +66,7 @@ describe('loginGuard', () => {
 
     const result$ = TestBed.runInInjectionContext(() => loginGuard({} as any, {} as any)) as Observable<boolean | UrlTree>;
 
-    result$.subscribe((result: boolean | UrlTree) => {
+    result$.subscribe((result) => {
       expect(result).toBeTrue();
       expect(loginService.clearSessionMetadata).toHaveBeenCalled();
       done();
@@ -78,7 +82,7 @@ describe('loginGuard', () => {
 
     const result$ = TestBed.runInInjectionContext(() => loginGuard({} as any, {} as any)) as Observable<boolean | UrlTree>;
 
-    result$.subscribe((result: boolean | UrlTree) => {
+    result$.subscribe((result) => {
       expect(result).toBe(tree);
       expect(loginService.persistSessionMetadata).toHaveBeenCalledWith(response);
       expect(router.createUrlTree).toHaveBeenCalledWith(['/dashboard']);

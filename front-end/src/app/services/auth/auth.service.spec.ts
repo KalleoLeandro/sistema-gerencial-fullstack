@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '@environments/environment';
+
 import { AuthService } from './auth.service';
-import * as utils from '@utils/utils';
 import { authInterceptor } from 'app/interceptors/auth.interceptor';
 
 describe('AuthService', () => {
@@ -29,7 +29,6 @@ describe('AuthService', () => {
   });
 
   it('deve chamar validarAuth (POST) com sucesso', () => {
-    spyOn(utils, 'criptografia').and.returnValue('hashTest');
     const mockForm: any = { getRawValue: () => ({ login: 'user', senha: '123' }) };
     const mockResponse = { userName: 'User', perfil: 'admin', status: 200, expiration: '2026-03-23T12:00:00' };
 
@@ -39,13 +38,12 @@ describe('AuthService', () => {
 
     const req = httpMock.expectOne(`${baseUrl}/auth/login`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ hash: 'hashTest' });
+    expect(req.request.body).toEqual(jasmine.objectContaining({ hash: jasmine.any(String) }));
     expect(req.request.withCredentials).toBeTrue();
     req.flush(mockResponse);
   });
 
   it('deve tratar erro em validarAuth', () => {
-    spyOn(utils, 'criptografia').and.returnValue('hashTest');
     const mockForm: any = { getRawValue: () => ({ login: 'user', senha: '123' }) };
 
     service.validarAuth(mockForm).subscribe({

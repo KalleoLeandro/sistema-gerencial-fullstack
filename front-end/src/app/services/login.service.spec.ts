@@ -3,12 +3,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { FormControl, FormGroup } from '@angular/forms';
+import { environment } from '@environments/environment';
 
 import { LoginService } from './login.service';
 
 describe('LoginService', () => {
   let service: LoginService;
   let httpMock: HttpTestingController;
+  const apiUrl = environment.apiUrl;
 
   beforeEach(() => {
     sessionStorage.clear();
@@ -37,7 +39,7 @@ describe('LoginService', () => {
 
     service.validarLogin(form).subscribe();
 
-    const request = httpMock.expectOne('/api/login/validar-login');
+    const request = httpMock.expectOne(`${apiUrl}/login/validar-login`);
     expect(request.request.method).toBe('POST');
     expect(request.request.withCredentials).toBeTrue();
     expect(request.request.body).toEqual({ login: 'maria', senha: '123' });
@@ -47,7 +49,7 @@ describe('LoginService', () => {
   it('deve buscar usuarios paginados', () => {
     service.buscarLoginsPorPagina(10, 2).subscribe();
 
-    const request = httpMock.expectOne('/api/login/listar?page=2&limit=10');
+    const request = httpMock.expectOne(`${apiUrl}/login/listar?page=2&limit=10`);
     expect(request.request.method).toBe('GET');
     request.flush({ data: [], total: 0 });
   });
@@ -61,57 +63,57 @@ describe('LoginService', () => {
     });
 
     service.refreshToken().subscribe();
-    let request = httpMock.expectOne('/api/login/refresh');
+    let request = httpMock.expectOne(`${apiUrl}/login/refresh`);
     expect(request.request.method).toBe('POST');
     request.flush({});
 
     service.logout().subscribe();
-    request = httpMock.expectOne('/api/login/logout');
+    request = httpMock.expectOne(`${apiUrl}/login/logout`);
     expect(request.request.method).toBe('POST');
     request.flush({});
 
     service.validarToken().subscribe();
-    request = httpMock.expectOne('/api/login/validar-token');
+    request = httpMock.expectOne(`${apiUrl}/login/validar-token`);
     expect(request.request.method).toBe('POST');
     request.flush(true);
 
     service.getPerfil().subscribe();
-    request = httpMock.expectOne('/api/login/retorna-perfil');
+    request = httpMock.expectOne(`${apiUrl}/login/retorna-perfil`);
     expect(request.request.method).toBe('GET');
     request.flush({ role: 'ADMIN' });
 
     service.cadastrarUsuario(form).subscribe();
-    request = httpMock.expectOne('/api/login/cadastrar');
+    request = httpMock.expectOne(`${apiUrl}/login/cadastrar`);
     expect(request.request.method).toBe('POST');
     request.flush({});
 
     service.atualizarUsuario(form).subscribe();
-    request = httpMock.expectOne('/api/login/atualizar');
+    request = httpMock.expectOne(`${apiUrl}/login/atualizar`);
     expect(request.request.method).toBe('PUT');
     request.flush({});
 
     service.buscarPorId(3).subscribe();
-    request = httpMock.expectOne('/api/login/buscar-por-id/3');
+    request = httpMock.expectOne(`${apiUrl}/login/buscar-por-id/3`);
     expect(request.request.method).toBe('GET');
     request.flush({});
 
     service.buscarPorToken().subscribe();
-    request = httpMock.expectOne('/api/login/buscar-por-token');
+    request = httpMock.expectOne(`${apiUrl}/login/buscar-por-token`);
     expect(request.request.method).toBe('GET');
     request.flush({});
 
     service.buscarPorNome('Maria').subscribe();
-    request = httpMock.expectOne('/api/login/buscar-por-nome?nome=Maria');
+    request = httpMock.expectOne(`${apiUrl}/login/buscar-por-nome?nome=Maria`);
     expect(request.request.method).toBe('GET');
     request.flush([]);
 
     service.buscarTodos().subscribe();
-    request = httpMock.expectOne('/api/login/listar-todos');
+    request = httpMock.expectOne(`${apiUrl}/login/listar-todos`);
     expect(request.request.method).toBe('GET');
     request.flush([]);
 
     service.excluirLogin(4).subscribe();
-    request = httpMock.expectOne('/api/login/excluir/4');
+    request = httpMock.expectOne(`${apiUrl}/login/excluir/4`);
     expect(request.request.method).toBe('DELETE');
     request.flush({});
   });
@@ -163,7 +165,7 @@ describe('LoginService', () => {
       error: (error) => capturedError = error
     });
 
-    const request = httpMock.expectOne('/api/login/validar-login');
+    const request = httpMock.expectOne(`${apiUrl}/login/validar-login`);
     request.flush({ message: 'nao autorizado' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(capturedError?.status).toBe(401);

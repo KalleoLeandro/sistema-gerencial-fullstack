@@ -32,7 +32,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleDefaultErrorException() {
-        DefaultErrorException exception = new DefaultErrorException("Erro interno", HttpStatus.INTERNAL_SERVER_ERROR);        
+        DefaultErrorException exception = new DefaultErrorException("Erro interno", HttpStatus.INTERNAL_SERVER_ERROR);
 
         ResponseEntity<DefaultErrorResponse> response = globalExceptionHandler.handleDefaultError(exception);
 
@@ -45,7 +45,7 @@ public class GlobalExceptionHandlerTest {
     void testHandleValidationExceptions() {
         BindingResult bindingResult = mock(BindingResult.class);
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
-        
+
         FieldError fieldError = new FieldError("objectName", "campoTeste", "Campo é obrigatório");
         org.mockito.Mockito.when(bindingResult.getFieldErrors()).thenReturn(Collections.singletonList(fieldError));
 
@@ -57,4 +57,3 @@ public class GlobalExceptionHandlerTest {
         assertEquals("Erros de validação: [campoTeste: Campo é obrigatório]", response.getBody().getMessage());
     }
 }
-

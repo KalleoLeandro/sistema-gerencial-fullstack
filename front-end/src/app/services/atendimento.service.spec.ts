@@ -3,12 +3,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { FormControl, FormGroup } from '@angular/forms';
+import { environment } from '@environments/environment';
 
 import { AtendimentoService } from './atendimento.service';
 
 describe('AtendimentoService', () => {
   let service: AtendimentoService;
   let httpMock: HttpTestingController;
+  const apiUrl = environment.apiUrl;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -29,19 +31,19 @@ describe('AtendimentoService', () => {
     });
 
     service.cadastrarAtendimento(form).subscribe();
-    let request = httpMock.expectOne('/api/atendimento/cadastrar');
+    let request = httpMock.expectOne(`${apiUrl}/atendimento/cadastrar`);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ descricao: 'Chamado' });
     expect(request.request.withCredentials).toBeTrue();
     request.flush({});
 
     service.atualizarAtendimento(form).subscribe();
-    request = httpMock.expectOne('/api/atendimento/atualizar');
+    request = httpMock.expectOne(`${apiUrl}/atendimento/atualizar`);
     expect(request.request.method).toBe('PUT');
     request.flush({});
 
     service.alterarStatusAtendimento(4, 2, null as any).subscribe();
-    request = httpMock.expectOne((req) => req.url === '/api/atendimento/alterar-status');
+    request = httpMock.expectOne((req) => req.url === `${apiUrl}/atendimento/alterar-status`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.params.get('id')).toBe('4');
     expect(request.request.params.get('status')).toBe('2');
@@ -49,17 +51,17 @@ describe('AtendimentoService', () => {
     request.flush({});
 
     service.buscarAtendimentosPorPagina(2, 10, 8).subscribe();
-    request = httpMock.expectOne('/api/atendimento/listar?page=2&limit=10&id=8');
+    request = httpMock.expectOne(`${apiUrl}/atendimento/listar?page=2&limit=10&id=8`);
     expect(request.request.method).toBe('GET');
     request.flush({});
 
     service.buscarPorId(9).subscribe();
-    request = httpMock.expectOne('/api/atendimento/buscar-por-id/9');
+    request = httpMock.expectOne(`${apiUrl}/atendimento/buscar-por-id/9`);
     expect(request.request.method).toBe('GET');
     request.flush({});
 
     service.excluirHistoricoAtendimento(7).subscribe();
-    request = httpMock.expectOne('/api/atendimento/excluir/7');
+    request = httpMock.expectOne(`${apiUrl}/atendimento/excluir/7`);
     expect(request.request.method).toBe('DELETE');
     request.flush({});
   });
@@ -71,7 +73,7 @@ describe('AtendimentoService', () => {
       error: (error) => capturedError = error
     });
 
-    const request = httpMock.expectOne('/api/atendimento/buscar-por-id/99');
+    const request = httpMock.expectOne(`${apiUrl}/atendimento/buscar-por-id/99`);
     request.flush({ message: 'falha' }, { status: 500, statusText: 'Server Error' });
 
     expect(capturedError?.status).toBe(500);

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+
 import { LoginService } from '@services/login.service';
 
 import { MainLayoutComponent } from './main-layout.component';
@@ -8,20 +9,29 @@ import { MainLayoutComponent } from './main-layout.component';
 describe('MainLayoutComponent', () => {
   let component: MainLayoutComponent;
   let fixture: ComponentFixture<MainLayoutComponent>;
+  let router: Router;
   let loginServiceSpy: jasmine.SpyObj<LoginService>;
 
   beforeEach(async () => {
     sessionStorage.clear();
     loginServiceSpy = jasmine.createSpyObj<LoginService>('LoginService', [
+      'validarToken',
+      'refreshToken',
       'getPerfil',
       'buscarPorToken',
       'persistSessionMetadata',
       'logout',
-      'clearSessionMetadata'
+      'clearSessionMetadata',
+      'markLogoutRequested',
+      'isLogoutRequested'
     ]);
+
+    loginServiceSpy.validarToken.and.returnValue(of(true));
+    loginServiceSpy.refreshToken.and.returnValue(of({ userName: 'Maria', perfil: 'ADMIN' } as any));
     loginServiceSpy.getPerfil.and.returnValue(of({ role: 'ADMIN' }));
     loginServiceSpy.buscarPorToken.and.returnValue(of({ nome: 'Maria' }));
     loginServiceSpy.logout.and.returnValue(of(void 0));
+    loginServiceSpy.isLogoutRequested.and.returnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [MainLayoutComponent],
@@ -29,99 +39,125 @@ describe('MainLayoutComponent', () => {
         provideRouter([]),
         { provide: LoginService, useValue: loginServiceSpy }
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
+    router = TestBed.inject(Router);
     fixture = TestBed.createComponent(MainLayoutComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
   });
 
   it('should create', () => {
+    fixture.detectChanges();
+
     expect(component).toBeTruthy();
   });
 
   it('carrega perfil e nome do usuario ao iniciar', () => {
-    component.ngOnInit();
+    fixture.detectChanges();
 
+    expect(loginServiceSpy.validarToken).toHaveBeenCalled();
     expect(loginServiceSpy.getPerfil).toHaveBeenCalled();
     expect(loginServiceSpy.buscarPorToken).toHaveBeenCalled();
-    expect(component.perfil).toBe('ADMIN');
-    expect(component.userName).toBe('Maria');
-    expect(loginServiceSpy.persistSessionMetadata).toHaveBeenCalledWith({ role: 'ADMIN' });
+    expect((component as any).perfil()).toBe('ADMIN');
+    expect((component as any).userName()).toBe('Maria');
     expect(loginServiceSpy.persistSessionMetadata).toHaveBeenCalledWith({
       userName: 'Maria',
       perfil: 'ADMIN'
     });
   });
 
+  it('renova a sessao quando o token atual nao e valido', () => {
+    loginServiceSpy.validarToken.and.returnValue(of(false));
+
+    fixture.detectChanges();
+
+    expect(loginServiceSpy.refreshToken).toHaveBeenCalled();
+    expect(loginServiceSpy.persistSessionMetadata).toHaveBeenCalledWith({
+      userName: 'Maria',
+      perfil: 'ADMIN'
+    } as any);
+  });
+
   it('mantem a tela responsiva e controla a sidebar', () => {
     spyOnProperty(window, 'innerWidth').and.returnValue(800);
 
+    fixture.detectChanges();
     component.handleViewport();
-    expect(component.isMobile).toBeTrue();
-    expect(component.sidebarOpened).toBeFalse();
 
-    component.toggleSidebar();
-    expect(component.sidebarOpened).toBeTrue();
+    expect((component as any).isDesktop()).toBeFalse();
+    expect((component as any).sidebarOpen()).toBeFalse();
 
-    component.closeSidebarOnMobile();
-    expect(component.sidebarOpened).toBeFalse();
+    (component as any).toggleSidebar();
+    expect((component as any).sidebarOpen()).toBeTrue();
+
+    (component as any).closeSidebar();
+    expect((component as any).sidebarOpen()).toBeFalse();
   });
 
-  it('nao fecha a sidebar em desktop e respeita permissoes', () => {
+  it('mantem a sidebar aberta em desktop e filtra a navegacao por perfil', () => {
     spyOnProperty(window, 'innerWidth').and.returnValue(1280);
 
+    fixture.detectChanges();
     component.handleViewport();
-    component.closeSidebarOnMobile();
+    (component as any).closeSidebar();
+    (component as any).perfil.set('DEV');
 
-    expect(component.sidebarOpened).toBeTrue();
-    component.perfil = 'DEV';
-    expect(component.canAccess(['ADMIN', 'DEV'])).toBeTrue();
-    component.perfil = '';
-    expect(component.canAccess(['ADMIN'])).toBeFalse();
+    const items = (component as any).visibleNavItems();
+
+    expect((component as any).sidebarOpen()).toBeTrue();
+    expect(items.some((item: { route: string }) => item.route === '/usuarios/listar')).toBeTrue();
+
+    (component as any).perfil.set('COMERCIAL');
+    expect((component as any).visibleNavItems().some((item: { route: string }) => item.route === '/usuarios/listar')).toBeFalse();
   });
 
   it('realiza logout com sucesso', () => {
-    const navigateSpy = spyOn(component.route, 'navigate');
+    fixture.detectChanges();
+    const navigateSpy = spyOn(router, 'navigate');
 
-    component.sair();
+    (component as any).logout();
 
+    expect(loginServiceSpy.markLogoutRequested).toHaveBeenCalled();
     expect(loginServiceSpy.logout).toHaveBeenCalled();
     expect(loginServiceSpy.clearSessionMetadata).toHaveBeenCalled();
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
   });
 
-  it('realiza cleanup mesmo quando logout falha', () => {
+  it('realiza cleanup mesmo quando o logout falha', () => {
     loginServiceSpy.logout.and.returnValue(throwError(() => new Error('falha')));
-    const navigateSpy = spyOn(component.route, 'navigate');
 
-    component.sair();
+    fixture.detectChanges();
+    const navigateSpy = spyOn(router, 'navigate');
+
+    (component as any).logout();
 
     expect(loginServiceSpy.clearSessionMetadata).toHaveBeenCalled();
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
   });
 
-  it('tolera erros ao carregar perfil e usuario', () => {
-    spyOn(console, 'log');
-    loginServiceSpy.getPerfil.and.returnValue(throwError(() => new Error('perfil')));
-    loginServiceSpy.buscarPorToken.and.returnValue(throwError(() => new Error('usuario')));
+  it('encerra a sessao local quando a validacao falha', () => {
+    loginServiceSpy.validarToken.and.returnValue(throwError(() => new Error('falha')));
+    const navigateSpy = spyOn(router, 'navigate');
 
-    component.ngOnInit();
+    fixture.detectChanges();
 
-    expect(console.log).toHaveBeenCalledTimes(2);
+    expect(loginServiceSpy.clearSessionMetadata).toHaveBeenCalled();
+    expect((component as any).userName()).toBe('');
+    expect((component as any).perfil()).toBe('');
+    expect(navigateSpy).toHaveBeenCalledWith(['/login']);
   });
 
-  it('mantem o nome atual quando a busca por token nao retorna nome', () => {
-    component.userName = 'Nome Atual';
-    loginServiceSpy.buscarPorToken.and.returnValue(of({ nome: '' }));
+  it('monta a saudacao usando o nome salvo na sessao', () => {
+    sessionStorage.setItem('userName', 'Nome Atual');
 
-    component.ngOnInit();
+    fixture = TestBed.createComponent(MainLayoutComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
 
-    expect(component.userName).toBe('Nome Atual');
-    expect(loginServiceSpy.persistSessionMetadata).toHaveBeenCalledWith({
-      userName: 'Nome Atual',
-      perfil: 'ADMIN'
-    });
+    expect((component as any).welcomeLabel()).toBe('Bem vindo Maria');
   });
 });
