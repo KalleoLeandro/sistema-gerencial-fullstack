@@ -65,6 +65,20 @@ export class DashboardController {
     return this.proxyService.forward(req, res, 'GET', '/dashboard/retornar-por-mes');
   }
 
+  @Get('retornar-produtos-em-falta')
+  @ApiOperation({ summary: 'Retorna a quantidade de produtos em falta' })
+  @ApiResponse({ status: 200, description: 'Indicador retornado com sucesso' })
+  retornarProdutosEmFalta(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/dashboard/retornar-produtos-em-falta');
+  }
+
+  @Get('retornar-vendas-por-mes')
+  @ApiOperation({ summary: 'Retorna a serie mensal de vendas' })
+  @ApiResponse({ status: 200, description: 'Serie retornada com sucesso' })
+  retornarVendasPorMes(@Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'GET', '/dashboard/retornar-vendas-por-mes');
+  }
+
   @Get('retornar-proporcao-atendimento')
   @ApiOperation({ summary: 'Retorna a proporcao de atendimentos por tipo' })
   @ApiResponse({ status: 200, description: 'Serie retornada com sucesso' })

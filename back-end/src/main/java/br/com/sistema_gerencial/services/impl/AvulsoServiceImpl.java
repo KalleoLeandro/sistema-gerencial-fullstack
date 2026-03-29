@@ -14,6 +14,7 @@ import br.com.sistema_gerencial.models.requests.CadastrarAvulsoRequest;
 import br.com.sistema_gerencial.models.response.AvulsoResponse;
 import br.com.sistema_gerencial.repositories.AvulsoRepository;
 import br.com.sistema_gerencial.services.AvulsoService;
+import br.com.sistema_gerencial.services.FluxoComercialService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,6 +23,7 @@ public class AvulsoServiceImpl implements AvulsoService {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	private final AvulsoRepository repository;
+	private final FluxoComercialService fluxoComercialService;
 
 	/**
 	 * Executa o metodo cadastrar.
@@ -31,7 +33,8 @@ public class AvulsoServiceImpl implements AvulsoService {
 	@Transactional
 	public void cadastrar(CadastrarAvulsoRequest request) {
 		request.setObservacoes(montarHistoricoObservacoes(null, request.getObservacoes(), null, true, null));
-		repository.cadastrar(request);
+		int idAvulso = repository.cadastrar(request);
+		fluxoComercialService.gerarOrcamentoParaOrigem("AVULSO", idAvulso);
 	}
 
 	/**

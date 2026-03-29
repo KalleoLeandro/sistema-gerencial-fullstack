@@ -280,6 +280,33 @@ public class DashboardRepository {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	/**
+	 * Executa o metodo retornarTotalProdutosEmFalta.
+	 * @return resultado da operacao.
+	 */
+	public int retornarTotalProdutosEmFalta() {
+		String sql = """
+				SELECT COUNT(*)
+				FROM produtos
+				WHERE ativo = TRUE
+				  AND estoque_atual < estoque_minimo
+				""";
+
+		try {
+			Integer valor = namedParameterJdbcTemplate.queryForObject(
+					sql,
+			        new MapSqlParameterSource(),
+			        Integer.class
+			);
+
+			return valor == null ? 0 : valor;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			throw new DefaultErrorException("Erro ao consultar os produtos em falta na base de dados.",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	/**
 	 * Executa o metodo retornarTotalPorMes.
@@ -292,7 +319,7 @@ public class DashboardRepository {
 			    "    CASE mes_num " +
 			    "        WHEN 1 THEN 'janeiro' " +
 			    "        WHEN 2 THEN 'fevereiro' " +
-			    "        WHEN 3 THEN 'marÃ§o' " +
+			    "        WHEN 3 THEN 'marco' " +
 			    "        WHEN 4 THEN 'abril' " +
 			    "        WHEN 5 THEN 'maio' " +
 			    "        WHEN 6 THEN 'junho' " +
@@ -330,6 +357,51 @@ public class DashboardRepository {
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 			throw new DefaultErrorException("Erro ao gravar os dados na base", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Executa o metodo retornarTotalVendasPorMes.
+	 * @return resultado da operacao.
+	 */
+	public List<LucroDTO> retornarTotalVendasPorMes() {
+		String sql = """
+				SELECT
+				    meses.mes_num,
+				    CASE meses.mes_num
+				        WHEN 1 THEN 'janeiro'
+				        WHEN 2 THEN 'fevereiro'
+				        WHEN 3 THEN 'marco'
+				        WHEN 4 THEN 'abril'
+				        WHEN 5 THEN 'maio'
+				        WHEN 6 THEN 'junho'
+				        WHEN 7 THEN 'julho'
+				        WHEN 8 THEN 'agosto'
+				        WHEN 9 THEN 'setembro'
+				        WHEN 10 THEN 'outubro'
+				        WHEN 11 THEN 'novembro'
+				        WHEN 12 THEN 'dezembro'
+				    END AS mes,
+				    COALESCE(SUM(v.total_geral), 0) AS valor
+				FROM (
+				    SELECT 1 AS mes_num UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+				    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+				    UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+				) meses
+				LEFT JOIN vendas v
+				    ON MONTH(v.data_venda) = meses.mes_num
+				   AND v.data_venda >= DATE_FORMAT(NOW(), '%Y-01-01')
+				   AND v.data_venda < DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 YEAR), '%Y-01-01')
+				GROUP BY meses.mes_num
+				ORDER BY meses.mes_num
+				""";
+
+		try {
+			return namedParameterJdbcTemplate.query(sql, lucroMapper);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			throw new DefaultErrorException("Erro ao consultar as vendas por mes na base de dados.",
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -374,7 +446,7 @@ public class DashboardRepository {
 			    "    CASE mes_num " +
 			    "        WHEN 1 THEN 'janeiro' " +
 			    "        WHEN 2 THEN 'fevereiro' " +
-			    "        WHEN 3 THEN 'marÃ§o' " +
+			    "        WHEN 3 THEN 'marco' " +
 			    "        WHEN 4 THEN 'abril' " +
 			    "        WHEN 5 THEN 'maio' " +
 			    "        WHEN 6 THEN 'junho' " +

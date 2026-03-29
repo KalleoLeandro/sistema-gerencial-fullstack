@@ -1,8 +1,9 @@
-<div class="page-shell">
-  <div class="card page-card">
-    <div class="card-header py-3 mb-2 page-heading">
-      <h2>Cadastro de Empresas</h2>
-    </div>
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando empresa...' : 'Cadastrando empresa...'">
+  <div class="page-shell">
+    <div class="card page-card">
+      <div class="card-header py-3 mb-2 page-heading">
+        <h2>Cadastro de Empresas</h2>
+      </div>
 
     <form [formGroup]="cadastroForm" class="empresa-form">
       <input type="text" name="id" id="id" formControlName="id">
@@ -27,7 +28,7 @@
 
           <mat-form-field appearance="fill">
             <mat-label>CNPJ</mat-label>
-            <input matInput type="text" formControlName="cnpj" mask="00.000.000/0000-00">
+            <input matInput type="text" formControlName="cnpj" mask="00.000.000/0000-00" (input)="buscarCnpj()">
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -137,6 +138,7 @@
           {{ id ? 'Restaurar Campos' : 'Limpar Formulário' }}
         </button>
       </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
+</app-form-submit-loader>

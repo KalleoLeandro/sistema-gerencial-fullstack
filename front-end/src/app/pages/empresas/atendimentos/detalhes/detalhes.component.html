@@ -23,6 +23,8 @@
                         <div class="details-actions pdf-hide">
                             <button mat-flat-button type="button" class="btn btn-action-edit" *ngIf="!mostrarSelecao"
                                 (click)="alterarAtendimento()">Alterar</button>
+                            <button mat-flat-button type="button" class="btn btn-primary"
+                                (click)="abrirFluxoComercial()">Orcamento / Venda</button>
                             <button mat-flat-button type="button" class="btn btn-status-change"
                                 *ngIf="!mostrarSelecao && atendimento?.status_atendimento !== 3 && atendimento?.status_atendimento !== 4"
                                 (click)="mostrarSelecao = true">Mudar Status</button>

@@ -1,0 +1,55 @@
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando produto...' : 'Cadastrando produto...'">
+  <div class="container-fluid">
+    <div class="card page-card">
+      <div class="page-header">
+        <div>
+          <small class="eyebrow">Catalogo</small>
+          <h2>{{ id ? 'Editar produto' : 'Novo produto' }}</h2>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <mat-form-field appearance="fill">
+          <mat-label>Codigo</mat-label>
+          <input matInput [(ngModel)]="form.codigo" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Nome</mat-label>
+          <input matInput [(ngModel)]="form.nome" />
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full">
+          <mat-label>Descricao</mat-label>
+          <textarea matInput [(ngModel)]="form.descricao" rows="4"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Unidade</mat-label>
+          <input matInput [(ngModel)]="form.unidade_medida" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Valor de custo</mat-label>
+          <input matInput [(ngModel)]="form.valor_custo" type="text" currencyMask [options]="moneyMaskOptions" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Valor de venda</mat-label>
+          <input matInput [(ngModel)]="form.valor_venda" type="text" currencyMask [options]="moneyMaskOptions" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Estoque atual</mat-label>
+          <input matInput [(ngModel)]="form.estoque_atual" type="number" min="0" step="0.001" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Estoque minimo</mat-label>
+          <input matInput [(ngModel)]="form.estoque_minimo" type="number" min="0" step="0.001" />
+        </mat-form-field>
+        <div class="toggle-field">
+          <mat-checkbox [(ngModel)]="form.ativo">Produto ativo</mat-checkbox>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button mat-flat-button type="button" class="btn btn-light" (click)="voltar()">Voltar</button>
+        <button mat-flat-button type="button" class="btn btn-primary" (click)="salvar()" [disabled]="salvando">Salvar</button>
+      </div>
+    </div>
+  </div>
+</app-form-submit-loader>

@@ -78,6 +78,12 @@ export class DetalhesComponent implements AfterViewInit, OnDestroy {
     )
   }
 
+  public abrirFluxoComercial() {
+    this.router.navigate(['/comercial/orcamento'], {
+      queryParams: { origemTipo: 'AVULSO', origemId: this.id }
+    });
+  }
+
   public modalExcluirAvulso() {
     this.excluir = true;
     this.resposta = "Tem certeza que deseja excluir esse atendimento(Essa operação é irreversível)?";

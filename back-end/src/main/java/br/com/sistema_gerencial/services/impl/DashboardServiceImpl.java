@@ -102,6 +102,17 @@ public class DashboardServiceImpl implements DashboardService{
 	}
 
 	/**
+	 * Executa o metodo retornarProdutosEmFalta.
+	 * @return resultado da operacao.
+	 */
+	@Override
+	public Map<String, Object> retornarProdutosEmFalta() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("total", repository.retornarTotalProdutosEmFalta());
+		return map;
+	}
+
+	/**
 	 * Executa o metodo retornarTotalLucrosPorMes.
 	 * @return resultado da operacao.
 	 */
@@ -112,6 +123,15 @@ public class DashboardServiceImpl implements DashboardService{
 		}
 
 		return repository.retornarTotalChamadosPorMesPorExecutor(resolveExecutorNome());
+	}
+
+	/**
+	 * Executa o metodo retornarTotalVendasPorMes.
+	 * @return resultado da operacao.
+	 */
+	@Override
+	public List<LucroDTO> retornarTotalVendasPorMes() {
+		return repository.retornarTotalVendasPorMes();
 	}
 
 	/**

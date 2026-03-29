@@ -129,6 +129,20 @@ public class DashboardController {
 	public ResponseEntity<Map<String, Object>> retornarChamadosAtendidosPorMim(){		
 		return ResponseEntity.status(HttpStatus.OK).body(dashboardService.retornarTotalChamadosAtendidosPorMim());
 	}
+
+	/**
+	 * Executa o metodo retornarProdutosEmFalta.
+	 * @return resultado da operacao.
+	 */
+	@GetMapping("/retornar-produtos-em-falta")
+	@Operation(summary = "Retorna produtos em falta", description = "Retorna a quantidade de produtos abaixo do estoque minimo.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Indicador retornado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+			@ApiResponse(responseCode = "401", description = "Sessao invalida ou expirada", content = @Content),
+			@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultErrorResponse.class))) })
+	public ResponseEntity<Map<String, Object>> retornarProdutosEmFalta(){		
+		return ResponseEntity.status(HttpStatus.OK).body(dashboardService.retornarProdutosEmFalta());
+	}
 	
 	/**
 	 * Executa o metodo retornarTotalPorMes.
@@ -142,6 +156,20 @@ public class DashboardController {
 			@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultErrorResponse.class))) })
 	public ResponseEntity<List<LucroDTO>> retornarTotalPorMes(){		
 		return ResponseEntity.status(HttpStatus.OK).body(dashboardService.retornarTotalLucrosPorMes());
+	}
+
+	/**
+	 * Executa o metodo retornarVendasPorMes.
+	 * @return resultado da operacao.
+	 */
+	@GetMapping("/retornar-vendas-por-mes")
+	@Operation(summary = "Retorna vendas por mes", description = "Retorna a serie mensal de vendas para exibicao no dashboard.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Serie retornada com sucesso", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LucroDTO.class)))),
+			@ApiResponse(responseCode = "401", description = "Sessao invalida ou expirada", content = @Content),
+			@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultErrorResponse.class))) })
+	public ResponseEntity<List<LucroDTO>> retornarVendasPorMes(){		
+		return ResponseEntity.status(HttpStatus.OK).body(dashboardService.retornarTotalVendasPorMes());
 	}
 	
 	/**

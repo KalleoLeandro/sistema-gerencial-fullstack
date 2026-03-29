@@ -21,6 +21,14 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://root:root@localhost:27017/sistema_gerencial_auditoria?authSource=admin}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
 logging:
   file:
     name: logs/application.log
@@ -47,6 +55,11 @@ jwt:
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,http://10.*.*.*:*,http://192.168.*.*:*,http://172.16.*.*:*,http://172.17.*.*:*,http://172.18.*.*:*,http://172.19.*.*:*,http://172.20.*.*:*,http://172.21.*.*:*,http://172.22.*.*:*,http://172.23.*.*:*,http://172.24.*.*:*,http://172.25.*.*:*,http://172.26.*.*:*,http://172.27.*.*:*,http://172.28.*.*:*,http://172.29.*.*:*,http://172.30.*.*:*,http://172.31.*.*:*,https://localhost:*,https://127.0.0.1:*,https://10.*.*.*:*,https://192.168.*.*:*,https://172.16.*.*:*,https://172.17.*.*:*,https://172.18.*.*:*,https://172.19.*.*:*,https://172.20.*.*:*,https://172.21.*.*:*,https://172.22.*.*:*,https://172.23.*.*:*,https://172.24.*.*:*,https://172.25.*.*:*,https://172.26.*.*:*,https://172.27.*.*:*,https://172.28.*.*:*,https://172.29.*.*:*,https://172.30.*.*:*,https://172.31.*.*:*}
+  comercial:
+    exchange: ${APP_COMERCIAL_EXCHANGE:fluxo-comercial.exchange}
+    queue: ${APP_COMERCIAL_QUEUE:fluxo-comercial.queue}
+    routing-key: ${APP_COMERCIAL_ROUTING_KEY:fluxo.comercial}
+    outbox-batch-size: ${APP_COMERCIAL_OUTBOX_BATCH_SIZE:20}
 
 management:
   endpoints:

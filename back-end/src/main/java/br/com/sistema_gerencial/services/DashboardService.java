@@ -45,12 +45,24 @@ public interface DashboardService {
 	 * @return resultado da operacao.
 	 */
 	public Map<String, Object> retornarTotalChamadosAtendidosPorMim();
+
+	/**
+	 * Executa o metodo retornarProdutosEmFalta.
+	 * @return resultado da operacao.
+	 */
+	public Map<String, Object> retornarProdutosEmFalta();
 	
 	/**
 	 * Executa o metodo retornarTotalLucrosPorMes.
 	 * @return resultado da operacao.
 	 */
 	public List<LucroDTO> retornarTotalLucrosPorMes();
+
+	/**
+	 * Executa o metodo retornarTotalVendasPorMes.
+	 * @return resultado da operacao.
+	 */
+	public List<LucroDTO> retornarTotalVendasPorMes();
 	
 	/**
 	 * Executa o metodo retornarQuantidadeAtendimentosPorTipo.

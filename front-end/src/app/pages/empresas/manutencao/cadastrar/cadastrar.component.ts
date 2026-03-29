@@ -10,6 +10,7 @@ import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 
+import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { LoginService } from '@services/login.service';
 import { ManutencaoService } from '@services/manutencao.service';
 import { ToastService } from '@services/toast.service';
@@ -20,7 +21,7 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CurrencyMaskModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTimepickerModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CurrencyMaskModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTimepickerModule, FormSubmitLoaderComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })
@@ -61,6 +62,7 @@ export class CadastrarComponent implements AfterViewInit, OnDestroy {
   }, { validators: [this.intervaloDatasValidator()] });
 
   public resposta = '';
+  public salvando = false;
   private originalDataInicio = '';
   private originalDataFim = '';
   private movedModals: Array<{ element: HTMLElement; parent: ParentNode; nextSibling: Node | null }> = [];
@@ -102,25 +104,41 @@ export class CadastrarComponent implements AfterViewInit, OnDestroy {
   }
 
   public cadastrar() {
+    if (this.salvando) {
+      return;
+    }
+
     this.sincronizarDatas();
     this.cadastroForm.controls['justificativa_alteracao_data'].patchValue('');
+    this.salvando = true;
     this.manutencaoService.cadastrarManutencao(this.cadastroForm).subscribe({
       next: () => {
         this.toastService.success('Dados cadastrados com sucesso!');
         this.navegarAposSalvar();
       },
-      error: err => this.toastService.error(getHttpErrorMessage(err, 'Erro ao cadastrar a manutencao!'))
+      error: err => {
+        this.salvando = false;
+        this.toastService.error(getHttpErrorMessage(err, 'Erro ao cadastrar a manutencao!'));
+      }
     });
   }
 
   public atualizar() {
+    if (this.salvando) {
+      return;
+    }
+
     this.sincronizarDatas();
+    this.salvando = true;
     this.manutencaoService.atualizarManutencao(this.cadastroForm).subscribe({
       next: () => {
         this.toastService.success('Dados atualizados com sucesso!');
         this.navegarAposSalvar();
       },
-      error: err => this.toastService.error(getHttpErrorMessage(err, 'Erro ao atualizar a manutencao!'))
+      error: err => {
+        this.salvando = false;
+        this.toastService.error(getHttpErrorMessage(err, 'Erro ao atualizar a manutencao!'));
+      }
     });
   }
 

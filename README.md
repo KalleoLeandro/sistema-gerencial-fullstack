@@ -8,6 +8,8 @@ Aplicacao full stack com frontend Angular, BFF em NestJS e backend Spring Boot. 
 - BFF: NestJS na porta `3000`, responsavel por receber chamadas do frontend, encaminhar cookies/autorizacao e repassar para o backend.
 - Backend: Spring Boot na porta `8080`, com contexto `/api`.
 - Banco: MySQL `sistema_gerencial_fullstack`.
+- Auditoria/documentos: MongoDB `sistema_gerencial_auditoria`.
+- Mensageria: RabbitMQ com painel de administracao.
 
 ## URLs uteis
 
@@ -17,6 +19,9 @@ Aplicacao full stack com frontend Angular, BFF em NestJS e backend Spring Boot. 
 - Swagger alternativo BFF: `http://localhost:3000/api-docs`
 - Backend base: `http://localhost:8080/api`
 - Swagger backend: `http://localhost:8080/api/swagger-ui.html`
+- MongoDB: `mongodb://root:root@localhost:27017`
+- RabbitMQ AMQP: `amqp://guest:guest@localhost:5672`
+- RabbitMQ painel: `http://localhost:15672`
 
 ## Build validada
 

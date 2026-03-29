@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { AgendamentoService } from '@services/agendamento.service';
 import { ToastService } from '@services/toast.service';
 
@@ -23,7 +24,8 @@ import { ToastService } from '@services/toast.service';
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    FormSubmitLoaderComponent
   ],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
@@ -36,6 +38,7 @@ export class CadastrarComponent implements OnInit {
   private readonly toastService = inject(ToastService);
 
   public agendamentoId: number | null = null;
+  public salvando = false;
   public readonly tiposTarefa = this.agendamentoService.tiposTarefa;
 
   public cadastroForm = this.formBuilder.group({
@@ -57,6 +60,10 @@ export class CadastrarComponent implements OnInit {
   }
 
   public salvar(): void {
+    if (this.salvando) {
+      return;
+    }
+
     if (this.cadastroForm.invalid) {
       this.cadastroForm.markAllAsTouched();
       return;
@@ -67,12 +74,16 @@ export class CadastrarComponent implements OnInit {
       ? this.agendamentoService.atualizar(payload)
       : this.agendamentoService.cadastrar(payload);
 
+    this.salvando = true;
     request$.subscribe({
       next: () => {
         this.toastService.success(this.agendamentoId ? 'Agendamento atualizado com sucesso.' : 'Agendamento cadastrado com sucesso.');
         this.router.navigate(this.agendamentoId ? ['/agenda/detalhes', this.agendamentoId] : ['/agenda']);
       },
-      error: () => this.toastService.error('Não foi possível salvar o agendamento.')
+      error: () => {
+        this.salvando = false;
+        this.toastService.error('NÃ£o foi possÃ­vel salvar o agendamento.');
+      }
     });
   }
 
@@ -92,7 +103,7 @@ export class CadastrarComponent implements OnInit {
   public get subtituloPagina(): string {
     return this.agendamentoId
       ? 'Ajuste os dados do compromisso salvo no backend.'
-      : 'Preencha as informações para incluir um novo compromisso na agenda.';
+      : 'Preencha as informaÃ§Ãµes para incluir um novo compromisso na agenda.';
   }
 
   private carregarAgendamento(): void {
@@ -110,7 +121,7 @@ export class CadastrarComponent implements OnInit {
         });
       },
       error: () => {
-        this.toastService.error('Agendamento não encontrado.');
+        this.toastService.error('Agendamento nÃ£o encontrado.');
         this.router.navigate(['/agenda']);
       }
     });

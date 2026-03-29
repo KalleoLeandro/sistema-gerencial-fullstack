@@ -1,4 +1,5 @@
 ﻿<div class="container-fluid">
+  <app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando atendimento avulso...' : 'Cadastrando atendimento avulso...'">
   <div class="card mb-4">
     <div class="card-header py-3 mb-2">
       <h6 class="m-0 font-weight-bold text-secondary">Cadastro de Atendimentos Avulsos</h6>
@@ -36,7 +37,7 @@
 
           <mat-form-field appearance="fill" class="span-2 cpf-field form-row-side">
             <mat-label>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</mat-label>
-            <input matInput type="text" formControlName="cpf_cnpj" [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'">
+            <input matInput type="text" formControlName="cpf_cnpj" [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'" (input)="buscarCnpj()">
           </mat-form-field>
 
           <mat-form-field appearance="fill" class="app-field span-3" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
@@ -203,6 +204,7 @@
       </form>
     </div>
   </div>
+  </app-form-submit-loader>
 </div>
 
 <div class="modal fade" id="modalJustificativaData" tabindex="-1" aria-labelledby="modalJustificativaDataLabel" aria-hidden="true">

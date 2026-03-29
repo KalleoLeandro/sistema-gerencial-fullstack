@@ -40,8 +40,16 @@ export class DashboardService {
     return this.httpClient.get<any>(`${this.url}/dashboard/retornar-chamados-atendidos-por-mim`, this.httpOptions).pipe(catchError(this.handleError));
   }
 
+  public retornarProdutosEmFalta(_token?: string): Observable<any> {
+    return this.httpClient.get<any>(`${this.url}/dashboard/retornar-produtos-em-falta`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
   public retornarLucrosPorMes(_token?: string): Observable<any> {
     return this.httpClient.get<any>(`${this.url}/dashboard/retornar-por-mes`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public retornarVendasPorMes(_token?: string): Observable<any> {
+    return this.httpClient.get<any>(`${this.url}/dashboard/retornar-vendas-por-mes`, this.httpOptions).pipe(catchError(this.handleError));
   }
 
   public retornarQuantidadeAtendimentosPorTipo(_token?: string): Observable<any> {

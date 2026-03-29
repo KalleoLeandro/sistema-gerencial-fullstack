@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { NgxMaskDirective } from 'ngx-mask';
 import { EmpresasService } from '@services/empresas.service';
 import { ToastService } from '@services/toast.service';
@@ -24,7 +25,8 @@ import { getHttpErrorMessage } from 'app/utils/http-error.util';
     MatCardModule,
     MatDatepickerModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    FormSubmitLoaderComponent
   ],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
@@ -63,6 +65,8 @@ export class CadastrarComponent {
 
   public resposta = '';
   public id: number | null = null;
+  public salvando = false;
+  private ultimoCnpjConsultado = '';
 
   constructor() {
     this.id = this.activatedRoute.snapshot.paramMap.get('id') as unknown as number;
@@ -105,6 +109,23 @@ export class CadastrarComponent {
         }
       });
     }
+  }
+
+  public buscarCnpj() {
+    const cnpj = (this.cadastroForm.controls['cnpj'].value || '').replace(/\D/g, '');
+    if (cnpj.length !== 14 || cnpj === this.ultimoCnpjConsultado) {
+      return;
+    }
+
+    this.ultimoCnpjConsultado = cnpj;
+    this.utilsService.buscarDadosPorCnpj(cnpj).subscribe({
+      next: (response) => {
+        this.preencherDadosPorCnpj(response);
+      },
+      error: () => {
+        this.ultimoCnpjConsultado = '';
+      }
+    });
   }
 
   public imprimir() {
@@ -173,8 +194,13 @@ export class CadastrarComponent {
   }
 
   public cadastrarAtualizarEmpresa() {
+    if (this.salvando) {
+      return;
+    }
+
     if (this.verificarFormularioValido()) {
       this.verificarDatas();
+      this.salvando = true;
       this.id !== null && this.id !== undefined
         ? this.empresaService.atualizarEmpresa(this.cadastroForm).subscribe({
           next: () => {
@@ -182,6 +208,7 @@ export class CadastrarComponent {
             this.redirecionar();
           },
           error: (error) => {
+            this.salvando = false;
             this.toastService.error(getHttpErrorMessage(error, 'Erro ao atualizar a empresa!'));
           }
         })
@@ -191,6 +218,7 @@ export class CadastrarComponent {
             this.redirecionar();
           },
           error: (error) => {
+            this.salvando = false;
             this.toastService.error(getHttpErrorMessage(error, 'Erro ao cadastrar a empresa!'));
           }
         });
@@ -277,6 +305,66 @@ export class CadastrarComponent {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     return hoje;
+  }
+
+  private preencherDadosPorCnpj(response: any): void {
+    const estabelecimento = response?.estabelecimento ?? {};
+    const inscricaoEstadual = estabelecimento?.inscricoes_estaduais?.find((item: any) => item?.ativo)?.inscricao_estadual
+      || estabelecimento?.inscricoes_estaduais?.[0]?.inscricao_estadual
+      || '';
+    const endereco = [estabelecimento?.tipo_logradouro, estabelecimento?.logradouro]
+      .filter((item: string | null | undefined) => !!item)
+      .join(' ');
+    const telefone = this.formatarTelefone(estabelecimento?.ddd1, estabelecimento?.telefone1);
+    const nomeFantasia = estabelecimento?.nome_fantasia || response?.razao_social || '';
+
+    this.patchSePossuirValor('razao_social', response?.razao_social);
+    this.patchSePossuirValor('nome_fantasia', nomeFantasia);
+    this.patchSePossuirValor('inscricao', inscricaoEstadual);
+    this.patchSePossuirValor('cep', this.formatarCep(estabelecimento?.cep));
+    this.patchSePossuirValor('endereco', endereco);
+    this.patchSePossuirValor('numero', this.normalizeNumber(estabelecimento?.numero));
+    this.patchSePossuirValor('complemento', estabelecimento?.complemento);
+    this.patchSePossuirValor('bairro', estabelecimento?.bairro);
+    this.patchSePossuirValor('cidade', estabelecimento?.cidade?.nome);
+    this.patchSePossuirValor('uf', estabelecimento?.estado?.sigla);
+    this.patchSePossuirValor('telefone', telefone);
+    this.patchSePossuirValor('email', estabelecimento?.email);
+  }
+
+  private patchSePossuirValor(controlName: string, value: any): void {
+    if (value === null || value === undefined || value === '') {
+      return;
+    }
+
+    this.cadastroForm.get(controlName)?.patchValue(value);
+  }
+
+  private formatarCep(cep: string | null | undefined): string {
+    const digits = (cep || '').replace(/\D/g, '');
+    return digits.length === 8 ? `${digits.slice(0, 2)}.${digits.slice(2, 5)}-${digits.slice(5)}` : '';
+  }
+
+  private formatarTelefone(ddd: string | null | undefined, telefone: string | null | undefined): string {
+    const digits = `${ddd || ''}${telefone || ''}`.replace(/\D/g, '');
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+
+    if (digits.length === 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+
+    return '';
+  }
+
+  private normalizeNumber(numero: string | null | undefined): number | null {
+    if (!numero) {
+      return null;
+    }
+
+    const digits = `${numero}`.replace(/\D/g, '');
+    return digits ? Number(digits) : null;
   }
 }
 

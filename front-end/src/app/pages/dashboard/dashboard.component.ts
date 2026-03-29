@@ -19,6 +19,7 @@ import Chart from 'chart.js/auto';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  private readonly meses = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
   private dashboardService = inject(DashboardService);
   private loginService = inject(LoginService);
   private router = inject(Router);
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public lucroAno = 0;
   public contratosEncerrando = 0;
   public chamadosCancelados = 0;
+  public produtosEmFalta = 0;
 
   public chamadosMes = 0;
   public chamadosAtrasados = 0;
@@ -66,6 +68,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private areaChart: Chart | null = null;
   private tipoChart: Chart | null = null;
+  private vendasChart: Chart | null = null;
 
   public ngOnInit(): void {
     this.loginService.getPerfil().subscribe({
@@ -84,6 +87,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public ngOnDestroy(): void {
     this.areaChart?.destroy();
     this.tipoChart?.destroy();
+    this.vendasChart?.destroy();
   }
 
   public get isAdmin(): boolean {
@@ -107,6 +111,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.carregarGraficoTipoAtendimento();
 
     if (this.isAdmin) {
+      this.carregarGraficoVendas();
       this.carregarMetricasAdmin();
       return;
     }
@@ -147,6 +152,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dashboardService.retornarChamadosCancelados().subscribe({
       next: (response) => {
         this.chamadosCancelados = response.total || 0;
+      },
+      error: (error: any) => console.log(error)
+    });
+
+    this.dashboardService.retornarProdutosEmFalta().subscribe({
+      next: (response) => {
+        this.produtosEmFalta = response.total || 0;
       },
       error: (error: any) => console.log(error)
     });
@@ -195,6 +207,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
         const valores = response.map((item: { quantidade: number }) => item.quantidade);
         this.renderTipoChart(labels, valores);
+      },
+      error: (error: any) => console.log(error)
+    });
+  }
+
+  private carregarGraficoVendas(): void {
+    this.dashboardService.retornarVendasPorMes().subscribe({
+      next: (response) => {
+        const serie = this.normalizarSerieMensal(response);
+        const labels = serie.map((item) => item.mes);
+        const valores = serie.map((item) => item.valor);
+        this.renderVendasChart(labels, valores);
       },
       error: (error: any) => console.log(error)
     });
@@ -272,6 +296,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  private renderVendasChart(labels: string[], valores: number[]): void {
+    this.vendasChart?.destroy();
+    this.vendasChart = new Chart('vendas-mes', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Vendas por mes',
+          data: valores,
+          backgroundColor: 'rgba(217, 158, 4, 0.22)',
+          borderColor: 'rgb(217, 158, 4)',
+          borderWidth: 1,
+          borderRadius: 14
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  private normalizarSerieMensal(response: Array<{ mes: string; valor: number }>): Array<{ mes: string; valor: number }> {
+    const mapa = new Map<string, number>();
+    (response || []).forEach((item) => {
+      const chave = (item.mes || '').trim().toLowerCase();
+      mapa.set(chave, Number(item.valor || 0));
+    });
+
+    return this.meses.map((mes) => ({
+      mes,
+      valor: mapa.get(mes) ?? 0
+    }));
+  }
+
+  public navegarParaProdutosEmFalta(): void {
+    this.router.navigate(['/produtos/em-falta']);
   }
 
   public navegarParaEmpresa(idEmpresa: number): void {

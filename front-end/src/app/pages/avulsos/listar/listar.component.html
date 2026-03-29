@@ -4,40 +4,40 @@
       <h6 class="m-0 font-weight-bold text-secondary">Lista de Ordem de Servicos</h6>
     </div>
     <div class="col-12">
-      <div class="d-flex justify-content-start p-2 gap-2">
-        <mat-form-field appearance="fill" class="search-field col-7" *ngIf="tipo_consulta == 'nome'">
+      <div class="filters-bar">
+        <mat-form-field appearance="fill" class="search-field" *ngIf="tipo_consulta == 'nome'">
           <mat-label>Pesquisa</mat-label>
           <input matInput type="search" placeholder="Digite parte do nome do cliente" aria-label="Pesquisar" [(ngModel)]="dadosPesquisa" (input)="verificarVazio()" />
         </mat-form-field>
-        <mat-form-field appearance="fill" class="search-field col-7" *ngIf="tipo_consulta == 'cpf'">
+        <mat-form-field appearance="fill" class="search-field" *ngIf="tipo_consulta == 'cpf'">
           <mat-label>Pesquisa</mat-label>
           <input matInput type="search" placeholder="Digite parte do CPF do cliente" aria-label="Pesquisar" mask="000.000.000-00" [(ngModel)]="dadosPesquisa" (input)="verificarVazio()" />
         </mat-form-field>
-        <mat-form-field appearance="fill" class="search-field col-7" *ngIf="tipo_consulta == 'cnpj'">
+        <mat-form-field appearance="fill" class="search-field" *ngIf="tipo_consulta == 'cnpj'">
           <mat-label>Pesquisa</mat-label>
           <input matInput type="search" placeholder="Digite parte do CNPJ do cliente" aria-label="Pesquisar" mask="00.000.000/0000-00" [(ngModel)]="dadosPesquisa" (input)="verificarVazio()" />
         </mat-form-field>
-        <mat-form-field appearance="fill" class="search-field col-7" *ngIf="tipo_consulta == 'data_inicio'">
+        <mat-form-field appearance="fill" class="search-field" *ngIf="tipo_consulta == 'data_inicio'">
           <mat-label>Pesquisa</mat-label>
           <input matInput [matDatepicker]="pickerDataInicio" [ngModel]="dataInicioPesquisa" (ngModelChange)="onDataInicioPesquisaChange($event)" [ngModelOptions]="{ standalone: true }" placeholder="Selecione a data do atendimento" aria-label="Pesquisar" />
           <mat-datepicker-toggle matIconSuffix [for]="pickerDataInicio"></mat-datepicker-toggle>
           <mat-datepicker #pickerDataInicio></mat-datepicker>
         </mat-form-field>
-        <mat-form-field appearance="fill" class="search-field col-7" *ngIf="tipo_consulta == 'executor_interno'">
+        <mat-form-field appearance="fill" class="search-field" *ngIf="tipo_consulta == 'executor_interno'">
           <mat-label>Pesquisa</mat-label>
           <input matInput type="search" placeholder="Digite parte do nome do executor interno" aria-label="Pesquisar" [(ngModel)]="dadosPesquisa" (input)="verificarVazio()" />
         </mat-form-field>
-        <mat-form-field appearance="fill" class="search-field col-7" *ngIf="tipo_consulta == 'executor_externo'">
+        <mat-form-field appearance="fill" class="search-field" *ngIf="tipo_consulta == 'executor_externo'">
           <mat-label>Pesquisa</mat-label>
           <input matInput type="search" placeholder="Digite parte do nome do executor externo" aria-label="Pesquisar" [(ngModel)]="dadosPesquisa" (input)="verificarVazio()" />
         </mat-form-field>
-        <mat-form-field appearance="fill" class="type-field col-3">
+        <mat-form-field appearance="fill" class="type-field">
           <mat-label>Tipo de pesquisa</mat-label>
           <mat-select [(ngModel)]="tipo_consulta" (selectionChange)="limparPesquisa()">
             <mat-option *ngFor="let item of atributo; let i = index" [value]="item.nome">{{ item.descricao }}</mat-option>
           </mat-select>
         </mat-form-field>
-        <div class="col-1 d-flex flex-column justify-content-end">
+        <div class="search-action">
           <button mat-flat-button type="button" class="btn btn-success" (click)="carregarHistoricoAvulsos()">
             Pesquisar
           </button>

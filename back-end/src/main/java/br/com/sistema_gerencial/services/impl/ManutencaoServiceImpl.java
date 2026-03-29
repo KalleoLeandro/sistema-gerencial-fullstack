@@ -13,6 +13,7 @@ import br.com.sistema_gerencial.models.requests.AtualizarManutencaoRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarManutencaoRequest;
 import br.com.sistema_gerencial.models.response.ManutencaoResponse;
 import br.com.sistema_gerencial.repositories.ManutencaoRepository;
+import br.com.sistema_gerencial.services.FluxoComercialService;
 import br.com.sistema_gerencial.services.ManutencaoService;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,7 @@ public class ManutencaoServiceImpl implements ManutencaoService {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	private final ManutencaoRepository repository;
+	private final FluxoComercialService fluxoComercialService;
 
 	/**
 	 * Executa o metodo cadastrar.
@@ -31,7 +33,8 @@ public class ManutencaoServiceImpl implements ManutencaoService {
 	@Transactional
 	public void cadastrar(CadastrarManutencaoRequest request) {
 		request.setObservacoes(montarHistoricoObservacoes(null, request.getObservacoes(), null, true, null));
-		repository.cadastrar(request);
+		int idManutencao = repository.cadastrar(request);
+		fluxoComercialService.gerarOrcamentoParaOrigem("MANUTENCAO", idManutencao);
 	}
 
 	/**

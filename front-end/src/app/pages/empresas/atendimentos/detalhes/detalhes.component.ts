@@ -81,6 +81,12 @@ export class DetalhesComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  public abrirFluxoComercial() {
+    this.router.navigate(['/comercial/orcamento'], {
+      queryParams: { origemTipo: 'ATENDIMENTO', origemId: this.id }
+    });
+  }
+
   public modalExcluirAtendimento() {
     this.excluir = true;
     this.idExcluir = this.id;

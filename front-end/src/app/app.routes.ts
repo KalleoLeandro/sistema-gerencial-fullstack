@@ -126,6 +126,83 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'produtos',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+        children: [
+          {
+            path: 'listar',
+            loadComponent: () => import('@pages/produtos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'em-falta',
+            loadComponent: () => import('@pages/produtos/em-falta/em-falta.component').then((c) => c.EmFaltaComponent)
+          },
+          {
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/produtos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+          {
+            path: 'cadastrar/:id',
+            loadComponent: () => import('@pages/produtos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          }
+        ]
+      },
+      {
+        path: 'servicos',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+        children: [
+          {
+            path: 'listar',
+            loadComponent: () => import('@pages/servicos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/servicos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+          {
+            path: 'cadastrar/:id',
+            loadComponent: () => import('@pages/servicos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          }
+        ]
+      },
+      {
+        path: 'comercial',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+        children: [
+          {
+            path: 'orcamento',
+            data: { modo: 'orcamento' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+          {
+            path: 'pdv',
+            data: { modo: 'pdv' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+          {
+            path: 'orcamentos/listar',
+            loadComponent: () => import('@pages/comercial/orcamentos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'orcamentos/detalhes/:id',
+            data: { readonly: true, detalheTipo: 'orcamento', modo: 'orcamento' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+          {
+            path: 'vendas/listar',
+            loadComponent: () => import('@pages/comercial/vendas/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'vendas/detalhes/:id',
+            data: { readonly: true, detalheTipo: 'venda', modo: 'orcamento' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          }
+        ]
+      },
+      {
         path: 'usuarios',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'DEV'] },

@@ -17,6 +17,46 @@ services:
       timeout: 10s
       retries: 5
 
+  mongodb:
+    build:
+      context: ./ndb
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: sistema_gerencial_auditoria
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - minharede
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://root:root@127.0.0.1:27017/admin", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  rabbitmq:
+    build:
+      context: ./mensageria
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - minharede
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   back-end:
     build:
       context: ./back-end
@@ -28,10 +68,19 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/sistema_gerencial_fullstack
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/sistema_gerencial_auditoria?authSource=admin
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
 
   bff:
     build:
@@ -45,7 +94,7 @@ services:
       - back-end
     environment:
       - PORT=3000
-      - BACK_END=http://back-end:8080/api
+      - BACK_END=http://back-end:8080
 
   front-end-angular:
     build:
@@ -106,6 +155,8 @@ networks:
 
 volumes:
   mysql-data:
+  mongodb-data:
+  rabbitmq-data:
   prometheus-data:
   grafana_data:
   sonarqube_data:

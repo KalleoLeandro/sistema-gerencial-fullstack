@@ -1,21 +1,22 @@
-<div class="container-fluid">
-  <div class="card mb-4">
-    <div class="card-header py-3 mb-2">
-      <div class="page-header">
-        <div>
-          <p class="page-kicker">Agenda</p>
-          <h1 class="page-title">{{ tituloPagina }}</h1>
-          <p class="page-description">{{ subtituloPagina }}</p>
+<app-form-submit-loader [loading]="salvando" [message]="agendamentoId ? 'Atualizando agendamento...' : 'Cadastrando agendamento...'">
+  <div class="container-fluid">
+    <div class="card mb-4">
+      <div class="card-header py-3 mb-2">
+        <div class="page-header">
+          <div>
+            <p class="page-kicker">Agenda</p>
+            <h1 class="page-title">{{ tituloPagina }}</h1>
+            <p class="page-description">{{ subtituloPagina }}</p>
+          </div>
+
+          <a mat-stroked-button class="btn btn-warning" routerLink="/agenda">
+            Voltar para agenda
+          </a>
         </div>
-
-        <a mat-stroked-button class="btn btn-warning" routerLink="/agenda">
-          Voltar para agenda
-        </a>
       </div>
-    </div>
-
-    <mat-card class="form-card">
-      <form [formGroup]="cadastroForm" class="agenda-form">
+  
+      <mat-card class="form-card">
+        <form [formGroup]="cadastroForm" class="agenda-form">
         <mat-form-field appearance="fill">
           <mat-label>Título da tarefa</mat-label>
           <input matInput formControlName="titulo" placeholder="Ex.: Visita ao cliente XPTO">
@@ -65,7 +66,8 @@
             {{ agendamentoId ? 'Restaurar dados' : 'Limpar formulário' }}
           </button>
         </div>
-      </form>
-    </mat-card>
+        </form>
+      </mat-card>
+    </div>
   </div>
-</div>
+</app-form-submit-loader>

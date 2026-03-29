@@ -9,6 +9,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { AvulsoService } from '@services/avulso.service';
 import { LoginService } from '@services/login.service';
 import { ToastService } from '@services/toast.service';
@@ -22,7 +23,7 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgxMaskDirective, CurrencyMaskModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatTimepickerModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgxMaskDirective, CurrencyMaskModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatTimepickerModule, FormSubmitLoaderComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })
@@ -47,6 +48,8 @@ export class CadastrarComponent implements OnInit, AfterViewInit, OnDestroy {
   public fimData: Date | null = null;
   public fimHora: Date | null = null;
   public historicoObservacoes = '';
+  public salvando = false;
+  private ultimoCnpjConsultado = '';
   private originalDataInicio = '';
   private originalDataFim = '';
   private movedModals: Array<{ element: HTMLElement; parent: ParentNode; nextSibling: Node | null }> = [];
@@ -154,6 +157,7 @@ export class CadastrarComponent implements OnInit, AfterViewInit, OnDestroy {
       razao?.setValidators([Validators.required]);
     } else {
       razao?.setValue(null);
+      this.ultimoCnpjConsultado = '';
     }
 
     ie?.clearValidators();
@@ -175,6 +179,27 @@ export class CadastrarComponent implements OnInit, AfterViewInit, OnDestroy {
         error: error => console.log(error)
       });
     }
+  }
+
+  public buscarCnpj() {
+    if (this.cadastroForm.get('tipo_pessoa')?.value !== 'j') {
+      return;
+    }
+
+    const cnpj = (this.cadastroForm.controls['cpf_cnpj'].value || '').replace(/\D/g, '');
+    if (cnpj.length !== 14 || cnpj === this.ultimoCnpjConsultado) {
+      return;
+    }
+
+    this.ultimoCnpjConsultado = cnpj;
+    this.utilsService.buscarDadosPorCnpj(cnpj).subscribe({
+      next: (response) => {
+        this.preencherDadosPorCnpj(response);
+      },
+      error: () => {
+        this.ultimoCnpjConsultado = '';
+      }
+    });
   }
 
   public consultarExecutores() {
@@ -317,25 +342,41 @@ export class CadastrarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public cadastrar() {
+    if (this.salvando) {
+      return;
+    }
+
     this.sincronizarDatas();
     this.cadastroForm.controls['justificativa_alteracao_data'].patchValue('');
+    this.salvando = true;
     this.avulsoService.cadastrarAvulso(this.cadastroForm).subscribe({
       next: () => {
         this.toastService.success('Dados cadastrados com sucesso!');
         this.navegarAposSalvar();
       },
-      error: err => this.toastService.error(getHttpErrorMessage(err, 'Erro ao cadastrar o atendimento avulso!'))
+      error: err => {
+        this.salvando = false;
+        this.toastService.error(getHttpErrorMessage(err, 'Erro ao cadastrar o atendimento avulso!'));
+      }
     });
   }
 
   public atualizar() {
+    if (this.salvando) {
+      return;
+    }
+
     this.sincronizarDatas();
+    this.salvando = true;
     this.avulsoService.atualizarAvulso(this.cadastroForm).subscribe({
       next: () => {
         this.toastService.success('Dados atualizados com sucesso!');
         this.navegarAposSalvar();
       },
-      error: err => this.toastService.error(getHttpErrorMessage(err, 'Erro ao atualizar o atendimento avulso!'))
+      error: err => {
+        this.salvando = false;
+        this.toastService.error(getHttpErrorMessage(err, 'Erro ao atualizar o atendimento avulso!'));
+      }
     });
   }
 
@@ -547,5 +588,65 @@ export class CadastrarComponent implements OnInit, AfterViewInit, OnDestroy {
     const clone = new Date(data);
     clone.setHours(0, 0, 0, 0);
     return clone;
+  }
+
+  private preencherDadosPorCnpj(response: any): void {
+    const estabelecimento = response?.estabelecimento ?? {};
+    const inscricaoEstadual = estabelecimento?.inscricoes_estaduais?.find((item: any) => item?.ativo)?.inscricao_estadual
+      || estabelecimento?.inscricoes_estaduais?.[0]?.inscricao_estadual
+      || '';
+    const endereco = [estabelecimento?.tipo_logradouro, estabelecimento?.logradouro]
+      .filter((item: string | null | undefined) => !!item)
+      .join(' ');
+    const telefone = this.formatarTelefone(estabelecimento?.ddd1, estabelecimento?.telefone1);
+    const nomeFantasia = estabelecimento?.nome_fantasia || response?.razao_social || '';
+
+    this.patchSePossuirValor('razao_social', response?.razao_social);
+    this.patchSePossuirValor('nome_cliente', nomeFantasia);
+    this.patchSePossuirValor('ie', inscricaoEstadual);
+    this.patchSePossuirValor('cep', this.formatarCep(estabelecimento?.cep));
+    this.patchSePossuirValor('endereco', endereco);
+    this.patchSePossuirValor('numero', this.normalizeNumber(estabelecimento?.numero));
+    this.patchSePossuirValor('complemento', estabelecimento?.complemento);
+    this.patchSePossuirValor('bairro', estabelecimento?.bairro);
+    this.patchSePossuirValor('cidade', estabelecimento?.cidade?.nome);
+    this.patchSePossuirValor('uf', estabelecimento?.estado?.sigla);
+    this.patchSePossuirValor('telefone', telefone);
+    this.patchSePossuirValor('email', estabelecimento?.email);
+  }
+
+  private patchSePossuirValor(controlName: string, value: any): void {
+    if (value === null || value === undefined || value === '') {
+      return;
+    }
+
+    this.cadastroForm.get(controlName)?.patchValue(value);
+  }
+
+  private formatarCep(cep: string | null | undefined): string {
+    const digits = (cep || '').replace(/\D/g, '');
+    return digits.length === 8 ? `${digits.slice(0, 2)}.${digits.slice(2, 5)}-${digits.slice(5)}` : '';
+  }
+
+  private formatarTelefone(ddd: string | null | undefined, telefone: string | null | undefined): string {
+    const digits = `${ddd || ''}${telefone || ''}`.replace(/\D/g, '');
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+
+    if (digits.length === 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+
+    return '';
+  }
+
+  private normalizeNumber(numero: string | null | undefined): number | null {
+    if (!numero) {
+      return null;
+    }
+
+    const digits = `${numero}`.replace(/\D/g, '');
+    return digits ? Number(digits) : null;
   }
 }

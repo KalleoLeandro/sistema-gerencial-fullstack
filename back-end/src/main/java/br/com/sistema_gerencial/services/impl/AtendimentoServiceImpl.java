@@ -14,6 +14,7 @@ import br.com.sistema_gerencial.models.requests.CadastrarAtendimentoRequest;
 import br.com.sistema_gerencial.models.response.AtendimentoResponse;
 import br.com.sistema_gerencial.repositories.AtendimentoRepository;
 import br.com.sistema_gerencial.services.AtendimentoService;
+import br.com.sistema_gerencial.services.FluxoComercialService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,6 +23,7 @@ public class AtendimentoServiceImpl implements AtendimentoService {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	private final AtendimentoRepository repository;
+	private final FluxoComercialService fluxoComercialService;
 
 	/**
 	 * Executa o metodo cadastrar.
@@ -31,7 +33,8 @@ public class AtendimentoServiceImpl implements AtendimentoService {
 	@Transactional
 	public void cadastrar(CadastrarAtendimentoRequest request) {
 		request.setObservacoes(montarHistoricoObservacoes(null, request.getObservacoes(), null, true, null));
-		repository.cadastrarAtendimento(request);
+		int idAtendimento = repository.cadastrarAtendimento(request);
+		fluxoComercialService.gerarOrcamentoParaOrigem("ATENDIMENTO", idAtendimento);
 	}
 
 	/**

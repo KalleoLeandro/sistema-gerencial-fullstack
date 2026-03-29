@@ -1,9 +1,10 @@
-<div class="page-shell">
-  <div class="card page-card">
-    <div class="card-header py-3 mb-2 page-heading">
-      <h2>Cadastro de Usuarios</h2>
-    </div>
-    <form [formGroup]="cadastroForm" class="usuario-form">
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando usuario...' : 'Cadastrando usuario...'">
+  <div class="page-shell">
+    <div class="card page-card">
+      <div class="card-header py-3 mb-2 page-heading">
+        <h2>Cadastro de Usuarios</h2>
+      </div>
+      <form [formGroup]="cadastroForm" class="usuario-form">
         <input type="hidden" name="id" id="id" formControlName="id">
 
         <div class="card section-card">
@@ -59,5 +60,6 @@
           </button>
         </div>
       </form>
+    </div>
   </div>
-</div>
+</app-form-submit-loader>

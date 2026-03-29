@@ -1,0 +1,393 @@
+<div class="container-fluid">
+  <app-form-submit-loader [loading]="processando" [message]="mensagemProcessamento">
+  <div class="card comercial-card">
+    <div class="comercial-header">
+      <div>
+        <small class="eyebrow">Fluxo comercial</small>
+        <h2>{{ tituloTela }}</h2>
+        <p *ngIf="orcamento">{{ descricaoTela }}</p>
+      </div>
+      <button mat-flat-button type="button" class="btn btn-light" (click)="voltar()">Voltar</button>
+    </div>
+
+    <div *ngIf="orcamento as dados; else loadingState" class="content-stack">
+      <section class="summary-grid">
+        <article *ngIf="somenteLeitura" class="summary-card">
+          <span>Codigo</span>
+          <strong>{{ dados.codigo || 'Rascunho' }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>Status</span>
+          <strong>{{ dados.status }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>Cliente</span>
+          <strong>{{ dados.cliente_nome }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>Total atual</span>
+          <strong>{{ dados.total_geral | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </article>
+      </section>
+
+      <section class="editor-card">
+        <div class="editor-toolbar">
+          <h3>Itens do {{ modoPdv ? 'PDV' : 'orcamento' }}</h3>
+          <div *ngIf="!somenteLeitura" class="toolbar-actions">
+            <button mat-flat-button type="button" class="btn btn-outline-primary" (click)="adicionarItem('PRODUTO')" [disabled]="orcamentoBloqueado">Adicionar produto</button>
+            <button mat-flat-button type="button" class="btn btn-outline-primary" (click)="adicionarItem('SERVICO')" [disabled]="orcamentoBloqueado">Adicionar servico</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle comercial-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Catalogo</th>
+                <th>Selecao</th>
+                <th>Descricao</th>
+                <th>Qtd.</th>
+                <th>Vlr. unit.</th>
+                <th>% Desc.</th>
+                <th>Vlr. desc.</th>
+                <th>Total</th>
+                <th *ngIf="!somenteLeitura"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of itens; track item.chave; let i = $index) {
+                <tr>
+                  <td>
+                    <mat-form-field appearance="fill" class="table-field">
+                      <mat-label>Tipo</mat-label>
+                      <mat-select [(ngModel)]="item.tipo_item" (ngModelChange)="atualizarTipo(i)" [disabled]="orcamentoBloqueado">
+                        <mat-option value="PRODUTO">Produto</mat-option>
+                        <mat-option value="SERVICO">Servico</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field *ngIf="item.tipo_item === 'PRODUTO'" appearance="fill" class="table-field">
+                      <mat-label>Produto</mat-label>
+                      <input matInput [value]="produtoSelecionado(item)?.nome || 'Nenhum produto selecionado'" readonly />
+                    </mat-form-field>
+                    <mat-form-field *ngIf="item.tipo_item === 'SERVICO'" appearance="fill" class="table-field">
+                      <mat-label>Servico</mat-label>
+                      <input matInput [value]="servicoSelecionado(item)?.nome || 'Nenhum servico selecionado'" readonly />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <div *ngIf="item.tipo_item === 'PRODUTO'" class="product-picker">
+                      <button type="button" class="btn btn-outline-primary btn-sm" (click)="abrirBuscaProduto(i)" [disabled]="orcamentoBloqueado">Buscar</button>
+                      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limparProduto(i)" [disabled]="orcamentoBloqueado || !item.id_produto">Limpar</button>
+                    </div>
+                    <div *ngIf="item.tipo_item === 'SERVICO'" class="product-picker">
+                      <button type="button" class="btn btn-outline-primary btn-sm" (click)="abrirBuscaServico(i)" [disabled]="orcamentoBloqueado">Buscar</button>
+                      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limparServico(i)" [disabled]="orcamentoBloqueado || !item.id_servico">Limpar</button>
+                    </div>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="fill" class="table-field">
+                      <mat-label>Descricao</mat-label>
+                      <input matInput [(ngModel)]="item.descricao" [disabled]="orcamentoBloqueado" />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="fill" class="table-field">
+                      <mat-label>Quantidade</mat-label>
+                      <input matInput [(ngModel)]="item.quantidade" type="number" min="0" step="0.001" (ngModelChange)="recalcularItem(item)" [disabled]="orcamentoBloqueado" />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="fill" class="table-field">
+                      <mat-label>Valor unitario</mat-label>
+                      <input matInput [(ngModel)]="item.valor_unitario" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularItem(item)" [disabled]="orcamentoBloqueado" />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="fill" class="table-field">
+                      <mat-label>% desconto</mat-label>
+                      <input matInput [(ngModel)]="item.percentual_desconto" type="number" min="0" step="0.01" (ngModelChange)="recalcularItem(item)" [disabled]="orcamentoBloqueado" />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="fill" class="table-field">
+                      <mat-label>Valor desconto</mat-label>
+                      <input matInput [(ngModel)]="item.valor_desconto" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularItem(item)" [disabled]="orcamentoBloqueado" />
+                    </mat-form-field>
+                  </td>
+                  <td>{{ item.valor_total | currency:'BRL':'symbol':'1.2-2' }}</td>
+                  <td *ngIf="!somenteLeitura">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removerItem(i)" [disabled]="orcamentoBloqueado">Remover</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td [attr.colspan]="somenteLeitura ? 9 : 10" class="empty-state">
+                    {{ somenteLeitura ? 'Nenhum item registrado.' : 'Adicione itens para montar o ' + (modoPdv ? 'PDV' : 'orcamento') + '.' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="form-sections">
+        <div class="editor-card">
+          <h3>Resumo financeiro</h3>
+          <div class="form-grid">
+            <mat-form-field appearance="fill">
+              <mat-label>Validade</mat-label>
+              <input matInput [(ngModel)]="validadeEm" type="date" [disabled]="orcamentoBloqueado" />
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Desconto financeiro</mat-label>
+              <input matInput [(ngModel)]="descontoFinanceiro" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularResumo()" [disabled]="orcamentoBloqueado" />
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Acrescimo financeiro</mat-label>
+              <input matInput [(ngModel)]="acrescimoFinanceiro" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularResumo()" [disabled]="orcamentoBloqueado" />
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="full">
+              <mat-label>Observacoes</mat-label>
+              <textarea matInput [(ngModel)]="observacoes" rows="4" [disabled]="orcamentoBloqueado"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="totals-panel">
+            <div><span>Subtotal dos itens</span><strong>{{ subtotalItens | currency:'BRL':'symbol':'1.2-2' }}</strong></div>
+            <div><span>Total do {{ modoPdv ? 'PDV' : 'orcamento' }}</span><strong>{{ dados.total_geral | currency:'BRL':'symbol':'1.2-2' }}</strong></div>
+          </div>
+
+          <div *ngIf="!somenteLeitura" class="actions">
+            <button mat-flat-button type="button" class="btn btn-primary" (click)="salvarOrcamento()" [disabled]="orcamentoBloqueado">
+              {{ modoPdv ? 'Salvar PDV' : 'Salvar orcamento' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="editor-card">
+          <h3>{{ modoPdv ? 'Finalizar venda' : 'Acoes do orcamento' }}</h3>
+          <div class="form-grid">
+            <mat-form-field appearance="fill">
+              <mat-label>Forma de pagamento</mat-label>
+              <mat-select [(ngModel)]="formaPagamento" [disabled]="orcamentoBloqueado">
+                <mat-option value="PIX">PIX</mat-option>
+                <mat-option value="BOLETO">Boleto</mat-option>
+                <mat-option value="CARTAO">Cartao</mat-option>
+                <mat-option value="DINHEIRO">Dinheiro</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Parcelas</mat-label>
+              <input matInput [(ngModel)]="quantidadeParcelas" type="number" min="1" step="1" [disabled]="orcamentoBloqueado" />
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Primeiro vencimento</mat-label>
+              <input matInput [(ngModel)]="dataPrimeiroVencimento" type="date" [disabled]="orcamentoBloqueado" />
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Intervalo em dias</mat-label>
+              <input matInput [(ngModel)]="intervaloDias" type="number" min="1" step="1" [disabled]="orcamentoBloqueado" />
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="full" *ngIf="!modoPdv">
+              <mat-label>Motivo da rejeicao</mat-label>
+              <textarea matInput [(ngModel)]="motivoRejeicao" rows="3" [disabled]="dados.status === 'APROVADO' || dados.status === 'REJEITADO'"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div *ngIf="!somenteLeitura" class="actions">
+            <button *ngIf="podeReabrirOrcamento" mat-flat-button type="button" class="btn btn-outline-secondary" (click)="reabrirOrcamento()">
+              Reabrir orcamento
+            </button>
+            <button *ngIf="!modoPdv" mat-flat-button type="button" class="btn btn-danger" (click)="rejeitarOrcamento()" [disabled]="dados.status === 'APROVADO' || dados.status === 'REJEITADO'">
+              {{ dados.status === 'REJEITADO' ? 'Orcamento rejeitado' : 'Rejeitar orcamento' }}
+            </button>
+            <button mat-flat-button type="button" class="btn btn-success" (click)="aprovarOrcamento()" [disabled]="dados.status === 'APROVADO' || dados.status === 'REJEITADO'">
+              {{ dados.status === 'APROVADO' ? 'Orcamento aprovado' : (modoPdv ? 'Finalizar venda PDV' : 'Aprovar e gerar venda') }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="venda" class="editor-card">
+        <div class="editor-toolbar">
+          <h3>Venda gerada</h3>
+          <span class="sale-code">{{ venda.codigo }}</span>
+        </div>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span>Status</span>
+            <strong>{{ venda.status }}</strong>
+          </article>
+          <article class="summary-card">
+            <span>Total</span>
+            <strong>{{ venda.total_geral | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </article>
+          <article class="summary-card">
+            <span>Forma de pagamento</span>
+            <strong>{{ venda.forma_pagamento || '-' }}</strong>
+          </article>
+          <article class="summary-card">
+            <span>Parcelas</span>
+            <strong>{{ venda.quantidade_parcelas }}</strong>
+          </article>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Parcela</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Previsto</th>
+                <th>Pago</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (parcela of venda.parcelas; track parcela.id) {
+                <tr>
+                  <td>{{ parcela.numero_parcela }}</td>
+                  <td>{{ parcela.data_vencimento | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ parcela.status }}</td>
+                  <td>{{ parcela.valor_previsto | currency:'BRL':'symbol':'1.2-2' }}</td>
+                  <td>{{ parcela.valor_pago | currency:'BRL':'symbol':'1.2-2' }}</td>
+                  <td>{{ parcela.saldo_aberto | currency:'BRL':'symbol':'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  </app-form-submit-loader>
+</div>
+
+<ng-template #loadingState>
+  <div class="loading-state">{{ carregando ? (modoPdv ? 'Carregando PDV...' : 'Carregando orcamento...') : 'Orcamento indisponivel.' }}</div>
+</ng-template>
+
+<div class="modal fade" id="modalBuscaProduto" tabindex="-1" aria-labelledby="modalBuscaProdutoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBuscaProdutoLabel">Buscar produto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body product-search-modal">
+        <mat-form-field appearance="fill" class="search-field">
+          <mat-label>Pesquisar</mat-label>
+          <input matInput [(ngModel)]="produtoPesquisa" placeholder="Nome, codigo ou descricao" />
+        </mat-form-field>
+
+        <div class="table-responsive">
+          <table class="table align-middle comercial-table">
+            <thead>
+              <tr>
+                <th>Codigo</th>
+                <th>Produto</th>
+                <th>Descricao</th>
+                <th>Preco</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (produto of produtosPaginados; track produto.id) {
+                <tr>
+                  <td>{{ produto.codigo || '-' }}</td>
+                  <td>{{ produto.nome }}</td>
+                  <td>{{ produto.descricao || '-' }}</td>
+                  <td>{{ produto.valor_venda | currency:'BRL':'symbol':'1.2-2' }}</td>
+                  <td>
+                    <button type="button" class="btn btn-primary btn-sm" (click)="selecionarProduto(produto)">Selecionar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty-state">Nenhum produto encontrado para a pesquisa.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="catalog-pagination">
+          <small>{{ produtosFiltrados.length }} produto(s) encontrado(s)</small>
+          <div class="catalog-pagination-actions">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mudarPaginaProduto(-1)" [disabled]="produtoPaginaAtual <= 1">Anterior</button>
+            <span>Pagina {{ produtoPaginaAtual }} de {{ totalPaginasProdutos }}</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mudarPaginaProduto(1)" [disabled]="produtoPaginaAtual >= totalPaginasProdutos">Proxima</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalBuscaServico" tabindex="-1" aria-labelledby="modalBuscaServicoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBuscaServicoLabel">Buscar servico</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body product-search-modal">
+        <mat-form-field appearance="fill" class="search-field">
+          <mat-label>Pesquisar</mat-label>
+          <input matInput [(ngModel)]="servicoPesquisa" placeholder="Nome, codigo ou descricao" (ngModelChange)="servicoPaginaAtual = 1" />
+        </mat-form-field>
+
+        <div class="table-responsive">
+          <table class="table align-middle comercial-table">
+            <thead>
+              <tr>
+                <th>Codigo</th>
+                <th>Servico</th>
+                <th>Descricao</th>
+                <th>Preco</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (servico of servicosPaginados; track servico.id) {
+                <tr>
+                  <td>{{ servico.codigo || '-' }}</td>
+                  <td>{{ servico.nome }}</td>
+                  <td>{{ servico.descricao || '-' }}</td>
+                  <td>{{ servico.valor_padrao | currency:'BRL':'symbol':'1.2-2' }}</td>
+                  <td>
+                    <button type="button" class="btn btn-primary btn-sm" (click)="selecionarServico(servico)">Selecionar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty-state">Nenhum servico encontrado para a pesquisa.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="catalog-pagination">
+          <small>{{ servicosFiltrados.length }} servico(s) encontrado(s)</small>
+          <div class="catalog-pagination-actions">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mudarPaginaServico(-1)" [disabled]="servicoPaginaAtual <= 1">Anterior</button>
+            <span>Pagina {{ servicoPaginaAtual }} de {{ totalPaginasServicos }}</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mudarPaginaServico(1)" [disabled]="servicoPaginaAtual >= totalPaginasServicos">Proxima</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>

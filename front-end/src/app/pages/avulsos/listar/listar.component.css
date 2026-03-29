@@ -11,12 +11,32 @@ label {
     font-weight: bold;
 }
 
+.filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    padding: 0.75rem;
+}
+
 .search-field {
-    min-width: 20rem;
+    flex: 1 1 24rem;
+    min-width: 0;
 }
 
 .type-field {
-    min-width: 14rem;
+    flex: 0 1 16rem;
+    min-width: 12rem;
+}
+
+.search-action {
+    display: flex;
+    align-items: flex-end;
+    flex: 0 0 auto;
+}
+
+.search-action .btn {
+    min-width: 8.5rem;
 }
 
 .limit-field {
@@ -42,4 +62,17 @@ label {
 :host ::ng-deep .limit-field .mdc-line-ripple::before,
 :host ::ng-deep .limit-field .mdc-line-ripple::after {
     border-bottom-color: #D99E04 !important;
+}
+
+@media (max-width: 768px) {
+    .search-field,
+    .type-field,
+    .search-action {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .search-action .btn {
+        width: 100%;
+    }
 }

@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, ActivatedRoute } from '@angular/router';
+import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { EquipamentoService } from '@services/equipamento.service';
 import { ToastService } from '@services/toast.service';
 import { getHttpErrorMessage } from 'app/utils/http-error.util';
@@ -13,7 +14,7 @@ import { getHttpErrorMessage } from 'app/utils/http-error.util';
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormSubmitLoaderComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })
@@ -48,6 +49,7 @@ export class CadastrarComponent {
 
   public resposta: string = "";
   public id: number | null = null;
+  public salvando = false;
 
 
 
@@ -88,8 +90,13 @@ export class CadastrarComponent {
 
 
   public cadastrarAtualizarEquipamento() {
+    if (this.salvando) {
+      return;
+    }
+
     if (this.verificarFormularioValido()) {
       this.mudarTipoEquipamento();
+      this.salvando = true;
       this.id !== null && this.id !== undefined ?
         this.equipamentoService.atualizarEquipamento(this.cadastroForm).subscribe({
           next: () => {
@@ -97,6 +104,7 @@ export class CadastrarComponent {
             this.redirecionar();
           },
           error: (err) => {
+            this.salvando = false;
             this.toastService.error(getHttpErrorMessage(err, 'Erro ao atualizar o equipamento!'));
           }
         }) :
@@ -106,6 +114,7 @@ export class CadastrarComponent {
             this.redirecionar();
           },
           error: (err) => {
+            this.salvando = false;
             this.toastService.error(getHttpErrorMessage(err, 'Erro ao cadastrar o equipamento!'));
           }
         })

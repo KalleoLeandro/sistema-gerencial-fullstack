@@ -20,6 +20,10 @@ export class UtilsService {
     return this.httpClient.get<any>(`https://viacep.com.br/ws/${cep}/json/`).pipe(catchError(this.handleError));
   }
 
+  public buscarDadosPorCnpj(cnpj: string) {
+    return this.httpClient.get<any>(`https://publica.cnpj.ws/cnpj/${cnpj}`).pipe(catchError(this.handleError));
+  }
+
   private handleError(error: HttpErrorResponse) {
     return throwError(() => error);
   }
