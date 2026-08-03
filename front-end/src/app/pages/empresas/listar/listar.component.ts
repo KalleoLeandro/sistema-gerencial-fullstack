@@ -113,7 +113,7 @@ export class ListarComponent {
   }
 
   public alterarEmpresa(id: number): void {
-    this.router.navigate([`/empresas/cadastrar/${id}`]);
+    this.router.navigate([`/clientes/cadastrar/${id}`]);
   }
 
   public modalExcluirEmpresa(id: number): void {
@@ -143,7 +143,7 @@ export class ListarComponent {
   }
 
   public cadastrarNovo(): void {
-    this.router.navigate([`/empresas/cadastrar`]);
+    this.router.navigate([`/clientes/cadastrar`]);
   }
 
   public verificarVazio(): void {

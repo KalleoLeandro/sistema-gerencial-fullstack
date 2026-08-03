@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { NgxMaskDirective } from 'ngx-mask';
 import { EmpresasService } from '@services/empresas.service';
@@ -26,6 +27,7 @@ import { getHttpErrorMessage } from 'app/utils/http-error.util';
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatRadioModule,
     FormSubmitLoaderComponent
   ],
   templateUrl: './cadastrar.component.html',
@@ -42,13 +44,19 @@ export class CadastrarComponent {
   public minDate = this.criarDataHoje();
   public cadastroForm: FormGroup = this.formBuilder.group({
     id: [{ value: '', disabled: true }],
+    tipo_pessoa: ['j', Validators.required],
+    nome_cliente: ['', Validators.required],
     nome_fantasia: ['', Validators.required],
-    razao_social: ['', Validators.required],
+    razao_social: [''],
+    cpf_cnpj: ['', Validators.required],
     cnpj: [''],
+    ie: [''],
     inscricao: [''],
+    possui_contrato: [false],
+    teve_contrato: [false],
     contato: [''],
-    data_inicio: ['', Validators.required],
-    data_fim: ['', [Validators.required, this.dataNaoPodeSerPassadaValidator.bind(this), this.dataFinalMaiorOuIgualInicialValidator.bind(this)]],
+    data_inicio: [''],
+    data_fim: ['', [this.dataNaoPodeSerPassadaValidator.bind(this), this.dataFinalMaiorOuIgualInicialValidator.bind(this)]],
     cep: [''],
     endereco: [{ value: '', disabled: true }],
     numero: [null, Validators.min(0)],
@@ -66,13 +74,34 @@ export class CadastrarComponent {
   public resposta = '';
   public id: number | null = null;
   public salvando = false;
+  public renovandoContrato = false;
+  public renovacaoDataInicio: Date | null = null;
+  public renovacaoDataFim: Date | null = null;
+  public renovacaoObservacoes = '';
   private ultimoCnpjConsultado = '';
 
   constructor() {
     this.id = this.activatedRoute.snapshot.paramMap.get('id') as unknown as number;
+    this.onTipoPessoaChange(this.cadastroForm.get('tipo_pessoa')?.value ?? 'j');
     this.cadastroForm.get('data_inicio')?.valueChanges.subscribe(() => {
       this.cadastroForm.get('data_fim')?.updateValueAndValidity({ emitEvent: false });
     });
+    this.cadastroForm.get('possui_contrato')?.valueChanges.subscribe((value) => {
+      if (value) {
+        this.cadastroForm.get('teve_contrato')?.patchValue(true, { emitEvent: false });
+      }
+      this.atualizarValidadoresContrato();
+    });
+    this.cadastroForm.get('teve_contrato')?.valueChanges.subscribe((value) => {
+      if (!value) {
+        this.cadastroForm.get('possui_contrato')?.patchValue(false, { emitEvent: false });
+      }
+      this.atualizarValidadoresContrato();
+    });
+    this.cadastroForm.get('tipo_pessoa')?.valueChanges.subscribe((value) => {
+      this.onTipoPessoaChange(value ?? 'j');
+    });
+    this.atualizarValidadoresContrato();
 
     if (this.id != null && this.id != undefined) {
       this.carregarEmpresa();
@@ -112,7 +141,11 @@ export class CadastrarComponent {
   }
 
   public buscarCnpj() {
-    const cnpj = (this.cadastroForm.controls['cnpj'].value || '').replace(/\D/g, '');
+    if (this.cadastroForm.get('tipo_pessoa')?.value !== 'j') {
+      return;
+    }
+
+    const cnpj = (this.cadastroForm.controls['cpf_cnpj'].value || '').replace(/\D/g, '');
     if (cnpj.length !== 14 || cnpj === this.ultimoCnpjConsultado) {
       return;
     }
@@ -141,12 +174,18 @@ export class CadastrarComponent {
     this.empresaService.buscarPorId(this.id).subscribe({
       next: (response) => {
         this.cadastroForm.controls['id'].patchValue(response.id);
+        this.cadastroForm.controls['tipo_pessoa'].patchValue(response.tipo_pessoa || 'j');
+        this.cadastroForm.controls['nome_cliente'].patchValue(response.nome_cliente || response.nome_fantasia);
         this.cadastroForm.controls['nome_fantasia'].patchValue(response.nome_fantasia);
         this.cadastroForm.controls['razao_social'].patchValue(response.razao_social);
+        this.cadastroForm.controls['cpf_cnpj'].patchValue(response.cpf_cnpj || response.cnpj);
         this.cadastroForm.controls['cnpj'].patchValue(response.cnpj);
+        this.cadastroForm.controls['ie'].patchValue(response.ie || response.inscricao);
         this.cadastroForm.controls['inscricao'].patchValue(response.inscricao);
-        this.cadastroForm.controls['data_inicio'].patchValue(new Date(response.data_inicio));
-        this.cadastroForm.controls['data_fim'].patchValue(new Date(response.data_fim));
+        this.cadastroForm.controls['possui_contrato'].patchValue(!!response.possui_contrato);
+        this.cadastroForm.controls['teve_contrato'].patchValue(!!response.teve_contrato);
+        this.cadastroForm.controls['data_inicio'].patchValue(response.data_inicio ? new Date(response.data_inicio) : '');
+        this.cadastroForm.controls['data_fim'].patchValue(response.data_fim ? new Date(response.data_fim) : '');
         this.cadastroForm.controls['cep'].patchValue(response.cep);
         this.cadastroForm.controls['endereco'].patchValue(response.endereco);
         this.cadastroForm.controls['numero'].patchValue(response.numero || null);
@@ -158,6 +197,8 @@ export class CadastrarComponent {
         this.cadastroForm.controls['celular'].patchValue(response.celular);
         this.cadastroForm.controls['contato'].patchValue(response.contato);
         this.cadastroForm.controls['email'].patchValue(response.email);
+        this.onTipoPessoaChange((response.tipo_pessoa === 'f' ? 'f' : 'j'));
+        this.atualizarValidadoresContrato();
       },
       error: (error) => {
         console.log(error);
@@ -234,7 +275,90 @@ export class CadastrarComponent {
   }
 
   public redirecionar() {
-    this.router.navigate([`/empresas/listar`]);
+    this.router.navigate([`/clientes/listar`]);
+  }
+
+  public onTipoPessoaChange(tipo: 'f' | 'j'): void {
+    const razaoSocial = this.cadastroForm.get('razao_social');
+    const nomeFantasia = this.cadastroForm.get('nome_fantasia');
+    const nomeCliente = this.cadastroForm.get('nome_cliente');
+    const cpfCnpj = this.cadastroForm.get('cpf_cnpj');
+    const inscricaoEstadual = this.cadastroForm.get('ie');
+
+    cpfCnpj?.setValidators([Validators.required]);
+    nomeFantasia?.setValidators([Validators.required]);
+
+    if (tipo === 'j') {
+      razaoSocial?.setValidators([Validators.required]);
+      nomeCliente?.setValidators([Validators.required]);
+      inscricaoEstadual?.clearValidators();
+    } else {
+      razaoSocial?.clearValidators();
+      razaoSocial?.patchValue('', { emitEvent: false });
+      nomeCliente?.clearValidators();
+      nomeCliente?.patchValue('', { emitEvent: false });
+      inscricaoEstadual?.clearValidators();
+      inscricaoEstadual?.patchValue('', { emitEvent: false });
+      this.ultimoCnpjConsultado = '';
+    }
+
+    razaoSocial?.updateValueAndValidity({ emitEvent: false });
+    nomeFantasia?.updateValueAndValidity({ emitEvent: false });
+    nomeCliente?.updateValueAndValidity({ emitEvent: false });
+    cpfCnpj?.updateValueAndValidity({ emitEvent: false });
+    inscricaoEstadual?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  public renovarContrato() {
+    if (!this.id || this.renovandoContrato || !this.renovacaoDataInicio || !this.renovacaoDataFim) {
+      return;
+    }
+
+    const inicio = new Date(this.renovacaoDataInicio);
+    const fim = new Date(this.renovacaoDataFim);
+    inicio.setHours(0, 0, 0, 0);
+    fim.setHours(0, 0, 0, 0);
+
+    if (fim < inicio) {
+      this.toastService.error('A data final da renovacao deve ser igual ou maior que a data inicial.');
+      return;
+    }
+
+    if (fim < this.minDate) {
+      this.toastService.error('A data final da renovacao nao pode ser anterior a hoje.');
+      return;
+    }
+
+    this.renovandoContrato = true;
+    this.empresaService.renovarContrato(this.id, {
+      data_inicio: this.formatarDataSemHora(this.renovacaoDataInicio),
+      data_fim: this.formatarDataSemHora(this.renovacaoDataFim),
+      observacoes: this.renovacaoObservacoes?.trim() || ''
+    }).subscribe({
+      next: () => {
+        this.toastService.success('Contrato renovado com sucesso.');
+        this.cadastroForm.controls['possui_contrato'].patchValue(true);
+        this.cadastroForm.controls['teve_contrato'].patchValue(true);
+        this.cadastroForm.controls['data_inicio'].patchValue(new Date(this.renovacaoDataInicio!));
+        this.cadastroForm.controls['data_fim'].patchValue(new Date(this.renovacaoDataFim!));
+        this.limparRenovacaoContrato();
+        this.renovandoContrato = false;
+      },
+      error: (error) => {
+        this.renovandoContrato = false;
+        this.toastService.error(getHttpErrorMessage(error, 'Nao foi possivel renovar o contrato agora.'));
+      }
+    });
+  }
+
+  public limparRenovacaoContrato() {
+    this.renovacaoDataInicio = null;
+    this.renovacaoDataFim = null;
+    this.renovacaoObservacoes = '';
+  }
+
+  public get possuiHistoricoContrato(): boolean {
+    return !!this.cadastroForm?.get('teve_contrato')?.value;
   }
 
   public isInvalid(controlName: string): boolean {
@@ -286,6 +410,10 @@ export class CadastrarComponent {
   }
 
   private validarIntervaloDatas(group: AbstractControl): ValidationErrors | null {
+    const teveContrato = !!group.get('teve_contrato')?.value;
+    if (!teveContrato) {
+      return null;
+    }
     const dataInicio = group.get('data_inicio')?.value;
     const dataFim = group.get('data_fim')?.value;
 
@@ -307,6 +435,35 @@ export class CadastrarComponent {
     return hoje;
   }
 
+  private atualizarValidadoresContrato(): void {
+    const dataInicioControl = this.cadastroForm.get('data_inicio');
+    const dataFimControl = this.cadastroForm.get('data_fim');
+    if (!dataInicioControl || !dataFimControl) {
+      return;
+    }
+
+    if (this.possuiHistoricoContrato) {
+      dataInicioControl.setValidators([Validators.required]);
+      dataFimControl.setValidators([
+        Validators.required,
+        this.dataNaoPodeSerPassadaValidator.bind(this),
+        this.dataFinalMaiorOuIgualInicialValidator.bind(this)
+      ]);
+    } else {
+      dataInicioControl.clearValidators();
+      dataFimControl.setValidators([
+        this.dataNaoPodeSerPassadaValidator.bind(this),
+        this.dataFinalMaiorOuIgualInicialValidator.bind(this)
+      ]);
+      dataInicioControl.patchValue('', { emitEvent: false });
+      dataFimControl.patchValue('', { emitEvent: false });
+    }
+
+    dataInicioControl.updateValueAndValidity({ emitEvent: false });
+    dataFimControl.updateValueAndValidity({ emitEvent: false });
+    this.cadastroForm.updateValueAndValidity({ emitEvent: false });
+  }
+
   private preencherDadosPorCnpj(response: any): void {
     const estabelecimento = response?.estabelecimento ?? {};
     const inscricaoEstadual = estabelecimento?.inscricoes_estaduais?.find((item: any) => item?.ativo)?.inscricao_estadual
@@ -319,7 +476,10 @@ export class CadastrarComponent {
     const nomeFantasia = estabelecimento?.nome_fantasia || response?.razao_social || '';
 
     this.patchSePossuirValor('razao_social', response?.razao_social);
+    this.patchSePossuirValor('nome_cliente', nomeFantasia);
     this.patchSePossuirValor('nome_fantasia', nomeFantasia);
+    this.patchSePossuirValor('cpf_cnpj', this.cadastroForm.controls['cpf_cnpj'].value);
+    this.patchSePossuirValor('ie', inscricaoEstadual);
     this.patchSePossuirValor('inscricao', inscricaoEstadual);
     this.patchSePossuirValor('cep', this.formatarCep(estabelecimento?.cep));
     this.patchSePossuirValor('endereco', endereco);

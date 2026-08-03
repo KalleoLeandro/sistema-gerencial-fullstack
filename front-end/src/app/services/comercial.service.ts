@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Cliente } from '@models/cliente';
 import { environment } from '@environments/environment';
 import { ListaPaginada } from '@models/lista-paginada';
 import { Orcamento } from '@models/orcamento';
@@ -23,11 +24,21 @@ export interface AtualizarOrcamentoPayload {
   validade_em?: string | null;
   desconto_financeiro?: number;
   acrescimo_financeiro?: number;
+  cliente_nome?: string | null;
+  cliente_documento?: string | null;
   observacoes?: string | null;
   itens: OrcamentoItemPayload[];
 }
 
 export interface CriarOrcamentoPdvPayload {
+  cliente_nome?: string | null;
+  cliente_documento?: string | null;
+  observacoes?: string | null;
+}
+
+export interface CriarOrcamentoPayload {
+  origem_tipo?: string | null;
+  origem_id?: number | null;
   cliente_nome?: string | null;
   cliente_documento?: string | null;
   observacoes?: string | null;
@@ -50,6 +61,51 @@ export interface RejeitarOrcamentoPayload {
 
 export interface ReabrirOrcamentoPayload {
   id_orcamento: number;
+}
+
+export interface AtualizarVendaPayload {
+  id_venda: number;
+  cliente_nome?: string | null;
+  cliente_documento?: string | null;
+  forma_pagamento?: string | null;
+  observacoes?: string | null;
+  pagamentos?: PagamentoVenda[];
+  itens: OrcamentoItemPayload[];
+}
+
+export interface CaixaResumoPagamento {
+  forma_pagamento: string;
+  valor_total: number;
+  valor_recebido: number;
+}
+
+export interface FecharCaixaItemPayload {
+  forma_pagamento: string;
+  valor_informado: number;
+}
+
+export interface CaixaFechado {
+  id: number;
+  data_referencia: string;
+  fechado_em: string | null;
+  valor_total: number;
+  valor_informado?: number;
+  valor_quebra?: number;
+  observacoes?: string | null;
+  itens: CaixaResumoPagamento[];
+}
+
+export interface CaixaResumoDia {
+  data_referencia: string;
+  resumo: CaixaResumoPagamento[];
+  fechamentos: CaixaFechado[];
+}
+
+export interface FecharCaixaPayload {
+  data_referencia?: string | null;
+  valor_informado: number;
+  observacoes?: string | null;
+  itens?: FecharCaixaItemPayload[];
 }
 
 @Injectable({
@@ -75,6 +131,10 @@ export class ComercialService {
     return this.httpClient.post<Orcamento>(`${this.url}/orcamentos/criar-pdv`, payload, this.httpOptions).pipe(catchError(this.handleError));
   }
 
+  public criarOrcamento(payload: CriarOrcamentoPayload = {}): Observable<Orcamento> {
+    return this.httpClient.post<Orcamento>(`${this.url}/orcamentos/criar`, payload, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
   public atualizarItens(payload: AtualizarOrcamentoPayload): Observable<Orcamento> {
     return this.httpClient.put<Orcamento>(`${this.url}/orcamentos/atualizar-itens`, payload, this.httpOptions).pipe(catchError(this.handleError));
   }
@@ -95,8 +155,28 @@ export class ComercialService {
     return this.httpClient.get<Venda>(`${this.url}/vendas/buscar-por-id/${id}`, this.httpOptions).pipe(catchError(this.handleError));
   }
 
+  public atualizarVenda(payload: AtualizarVendaPayload): Observable<Venda> {
+    return this.httpClient.put<Venda>(`${this.url}/vendas/atualizar`, payload, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
   public listarVendas(page: number, limit: number, pesquisa = ''): Observable<ListaPaginada<Venda>> {
     return this.httpClient.get<ListaPaginada<Venda>>(`${this.url}/vendas/listar?page=${page}&limit=${limit}&pesquisa=${encodeURIComponent(pesquisa)}`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public buscarClientePorDocumento(documento: string): Observable<Cliente | null> {
+    return this.httpClient.get<Cliente | null>(`${this.url}/clientes/buscar-por-documento?documento=${encodeURIComponent(documento)}`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public buscarCliente(termo: string): Observable<Cliente[]> {
+    return this.httpClient.get<Cliente[]>(`${this.url}/clientes/buscar?termo=${encodeURIComponent(termo)}`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public buscarResumoCaixaDia(): Observable<CaixaResumoDia> {
+    return this.httpClient.get<CaixaResumoDia>(`${this.url}/caixa/resumo-dia`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public fecharCaixa(payload: FecharCaixaPayload): Observable<CaixaFechado> {
+    return this.httpClient.post<CaixaFechado>(`${this.url}/caixa/fechar`, payload, this.httpOptions).pipe(catchError(this.handleError));
   }
 
   public formatarData(date: string | Date | null | undefined): string | null {

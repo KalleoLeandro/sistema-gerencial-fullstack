@@ -24,6 +24,8 @@ public class AtualizarItensOrcamentoRequest {
 	private LocalDate validade_em;
 	private BigDecimal desconto_financeiro;
 	private BigDecimal acrescimo_financeiro;
+	private String cliente_nome;
+	private String cliente_documento;
 	private String observacoes;
 	private List<OrcamentoItemRequest> itens;
 }

@@ -1,21 +1,27 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
+import { NgxMaskDirective } from 'ngx-mask';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
+import { Cliente } from '@models/cliente';
 import { Orcamento, OrcamentoItem } from '@models/orcamento';
 import { Produto } from '@models/produto';
 import { ServicoComercial } from '@models/servico-comercial';
-import { Venda } from '@models/venda';
+import { PagamentoVenda, Venda } from '@models/venda';
 import { ComercialService } from '@services/comercial.service';
+import { PdfExportService } from '@services/pdf-export.service';
 import { ProdutoService } from '@services/produto.service';
 import { ServicoComercialService } from '@services/servico-comercial.service';
 import { ToastService } from '@services/toast.service';
+import { UtilsService } from '@services/utils.service';
 import { getHttpErrorMessage } from '@utils/http-error.util';
 import * as bootstrap from 'bootstrap';
 
@@ -23,9 +29,23 @@ interface ItemEdicao extends OrcamentoItem {
   chave: string;
 }
 
+interface CatalogoPesquisaItem {
+  tipo_item: 'PRODUTO' | 'SERVICO';
+  id: number;
+  codigo?: string | null;
+  nome: string;
+  descricao?: string | null;
+  valor: number;
+}
+
+interface PagamentoEdicao {
+  forma_pagamento: string;
+  valor_informado: number;
+}
+
 @Component({
   selector: 'app-comercial-orcamento',
-  imports: [CommonModule, FormsModule, CurrencyPipe, CurrencyMaskModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormSubmitLoaderComponent],
+  imports: [CommonModule, FormsModule, CurrencyPipe, CurrencyMaskModule, NgxMaskDirective, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormSubmitLoaderComponent],
   templateUrl: './orcamento.component.html',
   styleUrl: './orcamento.component.css'
 })
@@ -34,23 +54,31 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly comercialService = inject(ComercialService);
+  private readonly pdfExportService = inject(PdfExportService);
   private readonly produtoService = inject(ProdutoService);
   private readonly servicoService = inject(ServicoComercialService);
   private readonly toastService = inject(ToastService);
+  private readonly utilsService = inject(UtilsService);
   private readonly movedModals: Array<{ element: HTMLElement; parent: ParentNode; nextSibling: Node | null }> = [];
+  private catalogoPesquisaTimeout: ReturnType<typeof setTimeout> | null = null;
   private destroyed = false;
 
   public origemTipo = '';
   public origemId = 0;
   public modoPdv = false;
   public somenteLeitura = false;
+  public emEdicao = false;
   public detalheTipo = '';
   public orcamento: Orcamento | null = null;
   public venda: Venda | null = null;
   public produtos: Produto[] = [];
   public servicos: ServicoComercial[] = [];
   public itens: ItemEdicao[] = [];
-  public validadeEm = '';
+  public clientePesquisa = '';
+  public clienteNome = '';
+  public clienteDocumento = '';
+  public minDate = this.startOfDay(new Date());
+  public validadeEm: Date | null = null;
   public descontoFinanceiro = 0;
   public acrescimoFinanceiro = 0;
   public observacoes = '';
@@ -60,19 +88,47 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
   public intervaloDias = 30;
   public carregando = false;
   public processando = false;
-  public mensagemProcessamento = 'Salvando orcamento...';
+  public mensagemProcessamento = 'Salvando orçamento...';
   public motivoRejeicao = '';
+  public catalogoPesquisa = '';
+  public quantidadePesquisa = 1;
+  public resultadosCatalogo: CatalogoPesquisaItem[] = [];
+  public indiceResultadoAtivo = 0;
+  public consultandoCliente = false;
+  public clienteEncontrado = false;
+  public clientesEncontrados: Cliente[] = [];
+  public modalPesquisaClienteAberto = false;
+  public modalCadastroClienteAberto = false;
+  public clienteCadastroNome = '';
+  public clienteCadastroDocumento = '';
+  public clienteCadastroCep = '';
+  public clienteCadastroEndereco = '';
+  public clienteCadastroNumero: number | null = null;
+  public clienteCadastroComplemento = '';
+  public clienteCadastroBairro = '';
+  public clienteCadastroCidade = '';
+  public clienteCadastroUf = '';
+  public clienteCadastroTelefone = '';
+  public clienteCadastroCelular = '';
+  public clienteCadastroEmail = '';
+  public clienteCadastroContato = '';
+  public pagamentosEdicao: PagamentoEdicao[] = [];
+  public modalPagamentoVendaAberto = false;
+  public modalExportarPdfAberto = false;
   public produtoPesquisa = '';
   public servicoPesquisa = '';
   public itemBuscaProdutoIndex: number | null = null;
   public itemBuscaServicoIndex: number | null = null;
   public produtoPaginaAtual = 1;
   public servicoPaginaAtual = 1;
+  public readonly formasPagamentoDisponiveis = ['PIX', 'BOLETO', 'CARTAO_CREDITO', 'CARTAO_DEBITO', 'DINHEIRO'];
   public readonly moneyMaskOptions = { prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left', allowNegative: false };
+  private acaoPosExportacao: (() => void) | null = null;
 
   ngOnInit(): void {
     this.modoPdv = this.route.snapshot.data['modo'] === 'pdv' || this.route.snapshot.routeConfig?.path === 'pdv';
     this.somenteLeitura = !!this.route.snapshot.data['readonly'];
+    this.emEdicao = !!this.route.snapshot.data['edicao'];
     this.detalheTipo = this.route.snapshot.data['detalheTipo'] || '';
     this.origemTipo = (this.route.snapshot.queryParamMap.get('origemTipo') || '').toUpperCase();
     this.origemId = Number(this.route.snapshot.queryParamMap.get('origemId') || '0');
@@ -91,18 +147,33 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    if (this.emEdicao && detalheId > 0) {
+      if (this.detalheTipo === 'venda') {
+        this.carregarVendaDetalhe(detalheId);
+        return;
+      }
+
+      this.carregarOrcamentoPorId(detalheId);
+      return;
+    }
+
     if (this.modoPdv) {
       if (orcamentoId > 0) {
         this.carregarOrcamentoPorId(orcamentoId);
         return;
       }
 
-      this.criarOrcamentoPdv();
+      this.inicializarRascunhoLocal();
+      return;
+    }
+
+    if (orcamentoId > 0) {
+      this.carregarOrcamentoPorId(orcamentoId);
       return;
     }
 
     if (!this.origemTipo || !this.origemId) {
-      this.toastService.warning('Informe a origem para carregar o orcamento.');
+      this.inicializarRascunhoLocal();
       return;
     }
 
@@ -110,11 +181,18 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.moverModaisParaBody(['modalBuscaProduto', 'modalBuscaServico']);
+    this.moverModaisParaBody(['modalPesquisaCliente', 'modalSelecaoCliente']);
   }
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    if (this.catalogoPesquisaTimeout) {
+      clearTimeout(this.catalogoPesquisaTimeout);
+      this.catalogoPesquisaTimeout = null;
+    }
+    this.fecharModalPesquisaCliente();
+    this.fecharModalPagamentoVenda();
+    this.fecharModalCadastroCliente();
     this.restaurarModais();
   }
 
@@ -137,6 +215,108 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
   public removerItem(index: number): void {
     this.itens.splice(index, 1);
     this.reordenarItens();
+  }
+
+  public limparCarrinho(): void {
+    if (this.orcamentoBloqueado || this.somenteLeitura) {
+      return;
+    }
+
+    this.itens = [];
+  }
+
+  public aoAlterarPesquisa(): void {
+    this.indiceResultadoAtivo = 0;
+    if (this.catalogoPesquisaTimeout) {
+      clearTimeout(this.catalogoPesquisaTimeout);
+    }
+
+    this.catalogoPesquisaTimeout = setTimeout(() => {
+      this.resultadosCatalogo = this.buscarResultadosCatalogo(this.catalogoPesquisa);
+    }, 120);
+  }
+
+  public aoTeclaPesquisa(event: KeyboardEvent): void {
+    if (this.orcamentoBloqueado || this.somenteLeitura) {
+      return;
+    }
+
+    const resultados = this.resultadosCatalogo;
+    if (event.key === 'ArrowDown' && resultados.length) {
+      event.preventDefault();
+      this.indiceResultadoAtivo = Math.min(this.indiceResultadoAtivo + 1, resultados.length - 1);
+      return;
+    }
+
+    if (event.key === 'ArrowUp' && resultados.length) {
+      event.preventDefault();
+      this.indiceResultadoAtivo = Math.max(this.indiceResultadoAtivo - 1, 0);
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const selecionado = resultados[this.indiceResultadoAtivo] || resultados[0];
+      if (selecionado) {
+        this.selecionarResultadoCatalogo(selecionado);
+      }
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      this.catalogoPesquisa = '';
+      this.resultadosCatalogo = [];
+      this.indiceResultadoAtivo = 0;
+    }
+  }
+
+  public selecionarResultadoCatalogo(item: CatalogoPesquisaItem): void {
+    if (this.orcamentoBloqueado || this.somenteLeitura) {
+      return;
+    }
+
+    const quantidadeAdicionar = this.quantidadePesquisaNormalizada;
+    const itemExistente = this.itens.find((entry) =>
+      entry.tipo_item === item.tipo_item
+      && Number(item.tipo_item === 'PRODUTO' ? entry.id_produto : entry.id_servico) === item.id
+    );
+
+    if (itemExistente) {
+      itemExistente.quantidade = Number(itemExistente.quantidade || 0) + quantidadeAdicionar;
+      this.recalcularItem(itemExistente);
+    } else {
+      this.itens.push({
+        chave: `${Date.now()}-${Math.random()}`,
+        tipo_item: item.tipo_item,
+        id_produto: item.tipo_item === 'PRODUTO' ? item.id : null,
+        id_servico: item.tipo_item === 'SERVICO' ? item.id : null,
+        descricao: item.nome,
+        quantidade: quantidadeAdicionar,
+        valor_unitario: Number(item.valor || 0),
+        percentual_desconto: 0,
+        valor_desconto: 0,
+        valor_total: Number((Number(item.valor || 0) * quantidadeAdicionar).toFixed(2)),
+        ordem: this.itens.length + 1
+      });
+    }
+
+    this.catalogoPesquisa = '';
+    this.quantidadePesquisa = 1;
+    this.resultadosCatalogo = [];
+    this.indiceResultadoAtivo = 0;
+    this.reordenarItens();
+  }
+
+  public resultadoEstaAtivo(index: number): boolean {
+    return this.indiceResultadoAtivo === index;
+  }
+
+  public tipoCatalogoLabel(tipo: string): string {
+    return tipo === 'PRODUTO' ? 'Produto' : 'Servico';
+  }
+
+  public formatarCodigoCatalogo(codigo?: string | null): string {
+    return codigo?.trim() || '-';
   }
 
   public atualizarTipo(index: number): void {
@@ -261,12 +441,43 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public recalcularItem(item: ItemEdicao): void {
-    const quantidade = Number(item.quantidade || 0);
+    const quantidade = this.normalizarQuantidadeInteira(item.quantidade);
+    item.quantidade = quantidade;
     const valorUnitario = Number(item.valor_unitario || 0);
     const percentual = Number(item.percentual_desconto || 0);
     const bruto = quantidade * valorUnitario;
     item.valor_desconto = percentual > 0 ? Number(((bruto * percentual) / 100).toFixed(2)) : Number(item.valor_desconto || 0);
     item.valor_total = Number(Math.max(bruto - Number(item.valor_desconto || 0), 0).toFixed(2));
+  }
+
+  public aoAlterarQuantidade(item: ItemEdicao): void {
+    item.quantidade = this.normalizarQuantidadeInteira(item.quantidade);
+    this.recalcularItem(item);
+  }
+
+  public alterarQuantidadeCarrinho(item: ItemEdicao, delta: number): void {
+    const quantidadeAtual = this.normalizarQuantidadeInteira(item.quantidade);
+    item.quantidade = this.normalizarQuantidadeInteira(quantidadeAtual + delta);
+    this.recalcularItem(item);
+  }
+
+  public alterarQuantidadePesquisa(delta: number): void {
+    this.quantidadePesquisa = this.normalizarQuantidadeInteira(this.quantidadePesquisa + delta);
+  }
+
+  public aoAlterarQuantidadePesquisa(): void {
+    this.quantidadePesquisa = this.quantidadePesquisaNormalizada;
+  }
+
+  public bloquearEntradaQuantidade(event: KeyboardEvent): void {
+    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+    if (allowedKeys.includes(event.key)) {
+      return;
+    }
+
+    if (!/^\d$/.test(event.key)) {
+      event.preventDefault();
+    }
   }
 
   public recalcularResumo(): void {
@@ -279,44 +490,34 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const payload = {
-      id_orcamento: this.orcamento.id,
-      validade_em: this.comercialService.formatarData(this.validadeEm),
-      desconto_financeiro: Number(this.descontoFinanceiro || 0),
-      acrescimo_financeiro: Number(this.acrescimoFinanceiro || 0),
-      observacoes: this.observacoes,
-      itens: this.itens.map((item, index) => ({
-        tipo_item: item.tipo_item,
-        id_produto: item.tipo_item === 'PRODUTO' ? Number(item.id_produto || 0) || null : null,
-        id_servico: item.tipo_item === 'SERVICO' ? Number(item.id_servico || 0) || null : null,
-        descricao: item.descricao,
-        quantidade: Number(item.quantidade || 0),
-        valor_unitario: Number(item.valor_unitario || 0),
-        percentual_desconto: Number(item.percentual_desconto || 0),
-        valor_desconto: Number(item.valor_desconto || 0),
-        ordem: index + 1
-      }))
-    };
+    if (!this.itens.length) {
+      this.toastService.warning('Adicione ao menos um item antes de salvar o orçamento.');
+      return;
+    }
 
     this.processando = true;
-    this.mensagemProcessamento = this.modoPdv ? 'Salvando venda PDV...' : 'Salvando orcamento...';
-    this.comercialService.atualizarItens(payload).subscribe({
-      next: (response) => {
-        this.processando = false;
-        this.toastService.success(this.modoPdv ? 'PDV atualizado com sucesso.' : 'Orcamento atualizado com sucesso.');
-        this.preencherOrcamento(response);
-      },
-      error: (error) => {
-        this.processando = false;
-        const message = getHttpErrorMessage(error, 'Nao foi possivel atualizar o orcamento.');
-        if (message.toLowerCase().includes('aprovado') || message.toLowerCase().includes('rejeitado')) {
-          this.toastService.warning(message);
-          this.recarregarContexto();
-          return;
-        }
+    this.mensagemProcessamento = this.modoPdv ? 'Salvando venda PDV...' : 'Salvando orçamento...';
+    this.persistirRascunhoSeNecessario((orcamentoId) => {
+      this.comercialService.atualizarItens(this.montarPayloadAtualizacao(orcamentoId)).subscribe({
+        next: (response) => {
+          this.processando = false;
+          this.toastService.success(this.modoPdv ? 'PDV atualizado com sucesso.' : 'Orçamento atualizado com sucesso.');
+          this.preencherOrcamento(response);
+          this.sincronizarRotaComOrcamento(response.id);
+          this.abrirModalConfirmacaoPdf();
+        },
+        error: (error) => {
+          this.processando = false;
+          const message = getHttpErrorMessage(error, 'Não foi possível atualizar o orçamento.');
+          if (message.toLowerCase().includes('aprovado') || message.toLowerCase().includes('rejeitado')) {
+            this.toastService.warning(message);
+            this.recarregarContexto();
+            return;
+          }
 
-        this.toastService.error(message);
-      }
+          this.toastService.error(message);
+        }
+      });
     });
   }
 
@@ -326,7 +527,7 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.processando = true;
-    this.mensagemProcessamento = this.modoPdv ? 'Finalizando venda PDV...' : 'Aprovando orcamento e gerando venda...';
+    this.mensagemProcessamento = this.modoPdv ? 'Finalizando venda PDV...' : 'Aprovando orçamento e gerando venda...';
     this.comercialService.aprovarOrcamento({
       id_orcamento: this.orcamento.id,
       forma_pagamento: this.formaPagamento,
@@ -343,7 +544,7 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (error) => {
         this.processando = false;
-        const message = getHttpErrorMessage(error, 'Nao foi possivel aprovar o orcamento.');
+        const message = getHttpErrorMessage(error, 'Não foi possível aprovar o orçamento.');
         if (message.toLowerCase().includes('aprovado')) {
           this.toastService.info(message);
           this.recarregarContexto();
@@ -355,13 +556,236 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  public buscarCliente(): void {
+    const termo = this.clientePesquisa?.trim();
+    if (!termo) {
+      this.aplicarConsumidorFinal();
+      this.fecharModalPesquisaCliente();
+      return;
+    }
+
+    if (this.consultandoCliente) {
+      return;
+    }
+
+    this.consultandoCliente = true;
+    this.comercialService.buscarCliente(termo).subscribe({
+      next: (response) => {
+        this.consultandoCliente = false;
+        const clientes = this.normalizarClientesBusca(response);
+        if (!clientes.length) {
+          this.fecharModalPesquisaCliente();
+          this.abrirCadastroCliente(termo);
+          return;
+        }
+
+        this.clientesEncontrados = clientes;
+        this.fecharModalPesquisaCliente();
+        this.abrirModalSelecaoCliente();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.consultandoCliente = false;
+        if (error.status === 204) {
+          this.fecharModalPesquisaCliente();
+          this.abrirCadastroCliente(termo);
+          return;
+        }
+
+        const clientes = this.normalizarClientesBusca(error.error);
+        if (clientes.length) {
+          this.clientesEncontrados = clientes;
+          this.fecharModalPesquisaCliente();
+          this.abrirModalSelecaoCliente();
+          return;
+        }
+
+        this.toastService.error(getHttpErrorMessage(error, 'Não foi possível pesquisar os clientes agora.'));
+        this.fecharModalPesquisaCliente();
+      }
+    });
+  }
+
+  public abrirModalPesquisaCliente(): void {
+    const modalElement = document.getElementById('modalPesquisaCliente');
+    if (!modalElement) {
+      return;
+    }
+
+    this.modalPesquisaClienteAberto = true;
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+  }
+
+  public fecharModalPesquisaCliente(): void {
+    const modalElement = document.getElementById('modalPesquisaCliente');
+    if (!modalElement) {
+      return;
+    }
+
+    this.modalPesquisaClienteAberto = false;
+    bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+  }
+
+  public selecionarClienteEncontrado(cliente: Cliente): void {
+    this.preencherClienteEncontrado(cliente);
+    this.fecharModalSelecaoCliente();
+  }
+
+  public confirmarCadastroCliente(): void {
+    const nome = this.clienteCadastroNome.trim() || 'Consumidor final';
+    const documento = this.clienteCadastroDocumento.trim() || '';
+    this.clienteEncontrado = false;
+    this.clienteNome = nome;
+    this.clienteDocumento = documento;
+    this.clientesEncontrados = [];
+    this.clientePesquisa = nome === 'Consumidor final' ? '' : [nome, documento].filter(Boolean).join(' - ');
+    this.fecharModalCadastroCliente();
+    this.toastService.success('Cliente preparado para uso nesta venda.');
+  }
+
+  public buscarCepCadastroCliente(): void {
+    const cepNormalizado = (this.clienteCadastroCep || '').replace(/\D/g, '');
+    if (cepNormalizado.length !== 8) {
+      return;
+    }
+
+    this.utilsService.buscarEnderecoPorCep(cepNormalizado).subscribe({
+      next: (response) => {
+        this.clienteCadastroEndereco = response?.logradouro || this.clienteCadastroEndereco;
+        this.clienteCadastroBairro = response?.bairro || this.clienteCadastroBairro;
+        this.clienteCadastroCidade = response?.localidade || this.clienteCadastroCidade;
+        this.clienteCadastroUf = response?.uf || this.clienteCadastroUf;
+      },
+      error: () => {
+        this.toastService.warning('Nao foi possivel localizar o endereco para este CEP.');
+      }
+    });
+  }
+
+  public cadastrarClienteManual(): void {
+    this.fecharModalPesquisaCliente();
+    this.abrirCadastroCliente(this.clientePesquisa);
+  }
+
+  public aoAlterarPesquisaCliente(): void {
+    if (!this.clientePesquisa.trim()) {
+      this.aplicarConsumidorFinal();
+      return;
+    }
+
+    this.clienteEncontrado = false;
+  }
+
+  public finalizarVenda(): void {
+    if (!this.orcamento || this.processando || this.orcamentoBloqueado) {
+      return;
+    }
+
+    if (!this.itens.length) {
+      this.toastService.warning('Adicione ao menos um item antes de finalizar a venda.');
+      return;
+    }
+
+    this.inicializarPagamentosEdicao();
+    this.abrirModalPagamentoVenda();
+  }
+
+  public confirmarFinalizacaoVenda(): void {
+    if (!this.orcamento || this.processando) {
+      return;
+    }
+
+    if (!this.validarPagamentosVenda()) {
+      return;
+    }
+
+    if (this.venda?.id) {
+      this.processando = true;
+      this.mensagemProcessamento = 'Atualizando venda...';
+      this.comercialService.atualizarVenda({
+        id_venda: this.venda.id,
+        cliente_nome: this.clienteNome?.trim() || 'Consumidor final',
+        cliente_documento: this.clienteDocumento?.trim() || null,
+        forma_pagamento: this.determinarFormaPagamentoPrincipal(),
+        observacoes: this.observacoes,
+        pagamentos: this.montarPagamentosVenda(),
+        itens: this.itens.map((item, index) => ({
+          tipo_item: item.tipo_item,
+          id_produto: item.tipo_item === 'PRODUTO' ? Number(item.id_produto || 0) || null : null,
+          id_servico: item.tipo_item === 'SERVICO' ? Number(item.id_servico || 0) || null : null,
+          descricao: item.descricao,
+          quantidade: Number(item.quantidade || 0),
+          valor_unitario: Number(item.valor_unitario || 0),
+          percentual_desconto: Number(item.percentual_desconto || 0),
+          valor_desconto: Number(item.valor_desconto || 0),
+          ordem: index + 1
+        }))
+      }).subscribe({
+        next: (response) => {
+          this.processando = false;
+          this.fecharModalPagamentoVenda();
+          this.venda = response;
+          this.toastService.success('Venda atualizada com sucesso.');
+          this.abrirModalConfirmacaoPdf(() => this.router.navigate(['/comercial/vendas/listar']));
+        },
+        error: (error) => {
+          this.processando = false;
+          this.toastService.error(getHttpErrorMessage(error, 'Nao foi possivel atualizar a venda.'));
+        }
+      });
+      return;
+    }
+
+    this.processando = true;
+    this.mensagemProcessamento = 'Atualizando itens e finalizando venda...';
+    this.persistirRascunhoSeNecessario((orcamentoId) => {
+      this.comercialService.atualizarItens(this.montarPayloadAtualizacao(orcamentoId)).subscribe({
+        next: (orcamentoAtualizado) => {
+          this.orcamento = orcamentoAtualizado;
+          this.sincronizarRotaComOrcamento(orcamentoAtualizado.id);
+          this.comercialService.aprovarOrcamento({
+            id_orcamento: orcamentoAtualizado.id,
+            forma_pagamento: this.determinarFormaPagamentoPrincipal(),
+            observacoes: this.observacoes,
+            pagamentos: this.montarPagamentosVenda()
+          }).subscribe({
+            next: (response) => {
+              this.processando = false;
+              this.fecharModalPagamentoVenda();
+              this.venda = response;
+              this.toastService.success('Venda concluida com sucesso.');
+              this.abrirModalConfirmacaoPdf(() => this.router.navigate(['/comercial/vendas/listar']));
+            },
+            error: (error) => {
+              this.processando = false;
+              this.toastService.error(getHttpErrorMessage(error, 'Nao foi possivel finalizar a venda.'));
+            }
+          });
+        },
+        error: (error) => {
+          this.processando = false;
+          this.toastService.error(getHttpErrorMessage(error, 'Nao foi possivel atualizar os itens antes de finalizar a venda.'));
+        }
+      });
+    });
+  }
+
+  public irParaVenda(): void {
+    if (!this.orcamento || this.processando || this.orcamento.status === 'APROVADO' || this.orcamento.status === 'REJEITADO') {
+      return;
+    }
+
+    this.router.navigate(['/comercial/vendas/pdv'], {
+      queryParams: { orcamentoId: this.orcamento.id }
+    });
+  }
+
   public rejeitarOrcamento(): void {
     if (!this.orcamento || this.processando || this.orcamento.status === 'REJEITADO' || this.modoPdv) {
       return;
     }
 
     this.processando = true;
-    this.mensagemProcessamento = 'Rejeitando orcamento...';
+    this.mensagemProcessamento = 'Rejeitando orçamento...';
     this.comercialService.rejeitarOrcamento({
       id_orcamento: this.orcamento.id,
       motivo: this.motivoRejeicao
@@ -369,13 +793,13 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (response) => {
         this.processando = false;
         this.toastService.success(response.origem_tipo === 'ATENDIMENTO'
-          ? 'Orcamento rejeitado com sucesso.'
-          : 'Orcamento rejeitado e atendimento cancelado com sucesso.');
+          ? 'Orçamento rejeitado com sucesso.'
+          : 'Orçamento rejeitado e atendimento cancelado com sucesso.');
         this.preencherOrcamento(response);
       },
       error: (error) => {
         this.processando = false;
-        const message = getHttpErrorMessage(error, 'Nao foi possivel rejeitar o orcamento.');
+        const message = getHttpErrorMessage(error, 'Não foi possível rejeitar o orçamento.');
         if (message.toLowerCase().includes('rejeitad')) {
           this.toastService.info(message);
           this.recarregarContexto();
@@ -393,18 +817,18 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.processando = true;
-    this.mensagemProcessamento = 'Reabrindo orcamento...';
+    this.mensagemProcessamento = 'Reabrindo orçamento...';
     this.comercialService.reabrirOrcamento({
       id_orcamento: this.orcamento.id
     }).subscribe({
       next: (response) => {
         this.processando = false;
-        this.toastService.success('Orcamento reaberto com sucesso.');
+        this.toastService.success('Orçamento reaberto com sucesso.');
         this.preencherOrcamento(response);
       },
       error: (error) => {
         this.processando = false;
-        const message = getHttpErrorMessage(error, 'Nao foi possivel reabrir o orcamento.');
+        const message = getHttpErrorMessage(error, 'Não foi possível reabrir o orçamento.');
         this.toastService.error(message);
       }
     });
@@ -412,12 +836,12 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public voltar(): void {
     if (this.somenteLeitura) {
-      this.router.navigate([this.detalheTipo === 'venda' ? '/comercial/vendas/listar' : '/comercial/orcamentos/listar']);
+      this.router.navigate([this.detalheTipo === 'venda' ? '/comercial/vendas/listar' : '/comercial/vendas/orcamentos/listar']);
       return;
     }
 
     if (this.modoPdv) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/comercial/vendas/listar']);
       return;
     }
 
@@ -432,16 +856,120 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
         this.router.navigate(['/avulsos/detalhes', this.origemId]);
         return;
       default:
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/comercial/vendas/orcamentos/listar']);
     }
+  }
+
+  public novoPdv(): void {
+    this.router.navigate(['/comercial/vendas/pdv'], {
+      queryParams: { orcamentoId: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  public exportarPdf(): void {
+    if (this.processando) {
+      return;
+    }
+
+    const elemento = document.getElementById('comercial-detalhes-pdf');
+    const clienteNome = this.venda?.cliente_nome || this.orcamento?.cliente_nome || '';
+    const titulo = this.somenteLeitura && this.detalheTipo === 'venda'
+      ? `Venda - ${this.venda?.id || 'Detalhes'}${clienteNome ? ` - ${clienteNome}` : ''}`
+      : `Orçamento - ${this.orcamento?.id || 'Detalhes'}${clienteNome ? ` - ${clienteNome}` : ''}`;
+
+    this.processando = true;
+    this.mensagemProcessamento = 'Exportando PDF...';
+
+    this.pdfExportService.exportElementToPdf(elemento, titulo)
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : 'Nao foi possivel exportar o PDF.';
+        this.toastService.error(message);
+      })
+      .finally(() => {
+        this.processando = false;
+        this.mensagemProcessamento = 'Salvando orçamento...';
+      });
+  }
+
+  public formaPagamentoLabel(forma: string | null | undefined): string {
+    const labels: Record<string, string> = {
+      PIX: 'PIX',
+      BOLETO: 'Boleto',
+      CARTAO: 'Cartao',
+      CARTAO_CREDITO: 'Cartao credito',
+      CARTAO_DEBITO: 'Cartao debito',
+      DINHEIRO: 'Dinheiro',
+      MULTIPLO: 'Multiplo'
+    };
+
+    return labels[(forma || '').toUpperCase()] || forma || '-';
+  }
+
+  public aoAlterarValorPagamento(): void {
+    this.formaPagamento = this.determinarFormaPagamentoPrincipal();
+  }
+
+  public abrirModalPagamentoVenda(): void {
+    this.modalPagamentoVendaAberto = true;
+    document.body.classList.add('modal-open');
+  }
+
+  public fecharModalPagamentoVenda(): void {
+    this.modalPagamentoVendaAberto = false;
+    document.body.classList.remove('modal-open');
+  }
+
+  public confirmarExportacaoPdf(exportar: boolean): void {
+    if (exportar) {
+      this.exportarPdf();
+    }
+
+    const acao = this.acaoPosExportacao;
+    this.modalExportarPdfAberto = false;
+    this.acaoPosExportacao = null;
+    document.body.classList.remove('modal-open');
+    acao?.();
   }
 
   public get subtotalItens(): number {
     return this.itens.reduce((total, item) => total + Number(item.valor_total || 0), 0);
   }
 
+  public get clienteObrigatorioPreenchido(): boolean {
+    return !!this.clienteNome?.trim();
+  }
+
+  public get clienteResumoExibicao(): string {
+    return this.clienteNome?.trim() || 'Consumidor final';
+  }
+
+  public get totalComercialAtual(): number {
+    return Number(Math.max(this.subtotalItens - Number(this.descontoFinanceiro || 0) + Number(this.acrescimoFinanceiro || 0), 0).toFixed(2));
+  }
+
+  public get totalPagoInformado(): number {
+    return Number(this.pagamentosPreenchidos.reduce((total, pagamento) => total + Number(pagamento.valor_informado || 0), 0).toFixed(2));
+  }
+
+  public get saldoPagamento(): number {
+    return Number(Math.max(this.totalComercialAtual - this.totalPagoInformado, 0).toFixed(2));
+  }
+
+  public get trocoPagamento(): number {
+    return Number(Math.max(this.totalPagoInformado - this.totalComercialAtual, 0).toFixed(2));
+  }
+
   public get orcamentoBloqueado(): boolean {
-    return this.somenteLeitura || this.orcamento?.status === 'APROVADO' || this.orcamento?.status === 'REJEITADO';
+    if (this.somenteLeitura) {
+      return true;
+    }
+
+    if (this.emEdicao) {
+      return false;
+    }
+
+    return this.orcamento?.status === 'APROVADO' || this.orcamento?.status === 'REJEITADO';
   }
 
   public get podeReabrirOrcamento(): boolean {
@@ -452,10 +980,10 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public get tituloTela(): string {
     if (this.somenteLeitura) {
-      return this.detalheTipo === 'venda' ? 'Detalhes da venda' : 'Detalhes do orcamento';
+      return this.detalheTipo === 'venda' ? 'Detalhes da venda' : 'Detalhes do orçamento';
     }
 
-    return this.modoPdv ? 'PDV e venda' : 'Orcamento e venda';
+    return this.modoPdv ? 'PDV e venda' : 'Orçamento e venda';
   }
 
   public get descricaoTela(): string {
@@ -468,7 +996,7 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.somenteLeitura) {
       return this.orcamento
         ? `${this.orcamento.codigo || 'Rascunho'} para ${this.orcamento.cliente_nome}`
-        : 'Consulta detalhada do orcamento';
+        : 'Consulta detalhada do orçamento';
     }
 
     if (this.modoPdv) {
@@ -477,8 +1005,14 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
         : 'Venda direta no caixa';
     }
 
+    if (this.orcamento?.origem_tipo === 'LIVRE') {
+      return this.orcamento
+        ? `Orçamento livre para ${this.orcamento.cliente_nome}`
+        : 'Orçamento livre';
+    }
+
     return this.orcamento
-      ? `Orcamento da origem ${this.orcamento.origem_tipo} #${this.origemReferenciaId} para ${this.orcamento.cliente_nome}`
+      ? `Orçamento da origem ${this.orcamento.origem_tipo} #${this.origemReferenciaId} para ${this.orcamento.cliente_nome}`
       : '';
   }
 
@@ -562,7 +1096,7 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: () => {
         this.carregando = false;
-        this.toastService.error('Nao foi possivel carregar o orcamento desta origem.');
+        this.toastService.error('Não foi possível carregar o orçamento desta origem.');
       }
     });
   }
@@ -589,14 +1123,26 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
         this.formaPagamento = response.forma_pagamento || 'PIX';
         this.quantidadeParcelas = Number(response.quantidade_parcelas || 1);
         this.observacoes = response.observacoes || '';
+        this.inicializarPagamentosEdicao(response.forma_pagamento || 'PIX', Number(response.total_geral || 0));
         this.comercialService.buscarOrcamentoPorId(response.id_orcamento).subscribe({
           next: (orcamento) => {
             this.preencherOrcamento(orcamento);
+            this.itens = (response.itens || []).map((item, index) => ({
+              ...item,
+              chave: `${response.id}-${item.id || index}`,
+              quantidade: Number(item.quantidade || 0),
+              valor_unitario: Number(item.valor_unitario || 0),
+              percentual_desconto: Number(item.percentual_desconto || 0),
+              valor_desconto: Number(item.valor_desconto || 0),
+              valor_total: Number(item.valor_total || 0),
+              ordem: item.ordem || index + 1
+            }));
+            this.observacoes = response.observacoes || this.observacoes;
             this.carregando = false;
           },
           error: () => {
             this.carregando = false;
-            this.toastService.error('Nao foi possivel carregar o orcamento vinculado a venda.');
+            this.toastService.error('Não foi possível carregar o orçamento vinculado à venda.');
           }
         });
       },
@@ -607,30 +1153,31 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private criarOrcamentoPdv(): void {
-    this.carregando = true;
-    this.comercialService.criarOrcamentoPdv().subscribe({
-      next: (response) => {
-        if (this.destroyed || !this.router.url.startsWith('/comercial/pdv')) {
-          return;
-        }
-
-        this.preencherOrcamento(response);
-        this.carregando = false;
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { orcamentoId: response.id },
-          replaceUrl: true
-        });
-      },
-      error: () => {
-        if (this.destroyed) {
-          return;
-        }
-
-        this.carregando = false;
-        this.toastService.error('Nao foi possivel iniciar o PDV.');
-      }
+  private inicializarRascunhoLocal(): void {
+    this.carregando = false;
+    this.venda = null;
+    this.preencherOrcamento({
+      id: 0,
+      codigo: null,
+      origem_tipo: this.modoPdv ? 'PDV' : 'LIVRE',
+      id_atendimento: null,
+      id_manutencao: null,
+      id_avulso: null,
+      cliente_nome: 'Consumidor final',
+      cliente_documento: null,
+      status: 'ABERTO',
+      validade_em: null,
+      aprovado_em: null,
+      desconto_financeiro: 0,
+      acrescimo_financeiro: 0,
+      subtotal: 0,
+      total_desconto: 0,
+      total_acrescimo: 0,
+      total_geral: 0,
+      observacoes: null,
+      criado_em: undefined,
+      atualizado_em: undefined,
+      itens: []
     });
   }
 
@@ -640,16 +1187,30 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    if ((!this.origemTipo || !this.origemId) && this.orcamento?.id) {
+      this.carregarOrcamentoPorId(this.orcamento.id);
+      return;
+    }
+
     this.carregarOrcamento();
   }
 
   private preencherOrcamento(response: Orcamento): void {
     this.orcamento = response;
-    this.validadeEm = this.inputDate(response.validade_em);
+    this.clienteNome = response.cliente_nome || '';
+    this.clienteDocumento = response.cliente_documento || '';
+    this.clientePesquisa = this.clienteNome?.trim() && this.clienteNome !== 'Consumidor final'
+      ? [this.clienteNome, this.clienteDocumento].filter(Boolean).join(' - ')
+      : '';
+    this.validadeEm = this.toDate(response.validade_em);
     this.descontoFinanceiro = Number(response.desconto_financeiro || 0);
     this.acrescimoFinanceiro = Number(response.acrescimo_financeiro || 0);
     this.observacoes = response.observacoes || '';
     this.motivoRejeicao = '';
+    this.catalogoPesquisa = '';
+    this.quantidadePesquisa = 1;
+    this.resultadosCatalogo = [];
+    this.indiceResultadoAtivo = 0;
     this.itens = (response.itens || []).map((item, index) => ({
       ...item,
       chave: `${response.id}-${item.id || index}`,
@@ -660,6 +1221,66 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       valor_total: Number(item.valor_total || 0),
       ordem: item.ordem || index + 1
     }));
+    this.inicializarPagamentosEdicao(this.formaPagamento, Number(response.total_geral || 0));
+  }
+
+  private preencherClienteEncontrado(cliente: Cliente): void {
+    this.clienteEncontrado = true;
+    this.clienteNome = cliente.nome || this.clienteNome;
+    this.clienteDocumento = cliente.documento || this.clienteDocumento;
+    this.clientePesquisa = [this.clienteNome, this.clienteDocumento].filter(Boolean).join(' - ');
+    this.toastService.success('Cliente carregado com sucesso.');
+  }
+
+  private abrirModalSelecaoCliente(): void {
+    const modalElement = document.getElementById('modalSelecaoCliente');
+    if (!modalElement) {
+      return;
+    }
+
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+  }
+
+  public fecharModalSelecaoCliente(): void {
+    const modalElement = document.getElementById('modalSelecaoCliente');
+    if (!modalElement) {
+      return;
+    }
+
+    bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+  }
+
+  private abrirCadastroCliente(valorInicial = ''): void {
+    const termo = (valorInicial || '').trim();
+    const somenteDigitos = termo.replace(/\D/g, '');
+    this.clienteCadastroNome = somenteDigitos.length === 11 || somenteDigitos.length === 14 ? '' : termo;
+    this.clienteCadastroDocumento = somenteDigitos.length === 11 || somenteDigitos.length === 14 ? termo : '';
+    this.clienteCadastroCep = '';
+    this.clienteCadastroEndereco = '';
+    this.clienteCadastroNumero = null;
+    this.clienteCadastroComplemento = '';
+    this.clienteCadastroBairro = '';
+    this.clienteCadastroCidade = '';
+    this.clienteCadastroUf = '';
+    this.clienteCadastroTelefone = '';
+    this.clienteCadastroCelular = '';
+    this.clienteCadastroEmail = '';
+    this.clienteCadastroContato = '';
+    this.modalCadastroClienteAberto = true;
+    document.body.classList.add('modal-open');
+  }
+
+  public fecharModalCadastroCliente(): void {
+    this.modalCadastroClienteAberto = false;
+    document.body.classList.remove('modal-open');
+  }
+
+  public aplicarConsumidorFinal(): void {
+    this.clienteEncontrado = false;
+    this.clientesEncontrados = [];
+    this.clienteNome = 'Consumidor final';
+    this.clienteDocumento = '';
+    this.clientePesquisa = '';
   }
 
   private fecharBuscaProduto(): void {
@@ -697,8 +1318,191 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     return `${date.getFullYear()}-${month}-${day}`;
   }
 
+  private toDate(value: string | Date | null | undefined): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date;
+  }
+
+  private startOfDay(data: Date): Date {
+    return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+  }
+
   private reordenarItens(): void {
     this.itens = this.itens.map((item, index) => ({ ...item, ordem: index + 1 }));
+  }
+
+  private get quantidadePesquisaNormalizada(): number {
+    return this.normalizarQuantidadeInteira(this.quantidadePesquisa);
+  }
+
+  private get pagamentosPreenchidos(): PagamentoEdicao[] {
+    return this.pagamentosEdicao.filter((pagamento) => Number(pagamento.valor_informado || 0) > 0);
+  }
+
+  private montarPayloadAtualizacao(idOrcamento = this.orcamento?.id || 0) {
+    return {
+      id_orcamento: idOrcamento,
+      validade_em: this.comercialService.formatarData(this.validadeEm),
+      desconto_financeiro: Number(this.descontoFinanceiro || 0),
+      acrescimo_financeiro: Number(this.acrescimoFinanceiro || 0),
+      cliente_nome: this.clienteNome?.trim() || 'Consumidor final',
+      cliente_documento: this.clienteDocumento?.trim() || null,
+      observacoes: this.observacoes,
+      itens: this.itens.map((item, index) => ({
+        tipo_item: item.tipo_item,
+        id_produto: item.tipo_item === 'PRODUTO' ? Number(item.id_produto || 0) || null : null,
+        id_servico: item.tipo_item === 'SERVICO' ? Number(item.id_servico || 0) || null : null,
+        descricao: item.descricao,
+        quantidade: Number(item.quantidade || 0),
+        valor_unitario: Number(item.valor_unitario || 0),
+        percentual_desconto: Number(item.percentual_desconto || 0),
+        valor_desconto: Number(item.valor_desconto || 0),
+        ordem: index + 1
+      }))
+    };
+  }
+
+  private persistirRascunhoSeNecessario(onSuccess: (orcamentoId: number) => void): void {
+    if ((this.orcamento?.id || 0) > 0) {
+      onSuccess(this.orcamento!.id);
+      return;
+    }
+
+    const payloadBase = {
+      cliente_nome: this.clienteNome?.trim() || 'Consumidor final',
+      cliente_documento: this.clienteDocumento?.trim() || null,
+      observacoes: this.observacoes || null
+    };
+
+    const requisicao = this.modoPdv
+      ? this.comercialService.criarOrcamentoPdv(payloadBase)
+      : this.comercialService.criarOrcamento({
+        ...payloadBase,
+        origem_tipo: this.origemTipo || null,
+        origem_id: this.origemId || null
+      });
+
+    requisicao.subscribe({
+      next: (response) => {
+        this.orcamento = response;
+        this.sincronizarRotaComOrcamento(response.id);
+        onSuccess(response.id);
+      },
+      error: (error) => {
+        this.processando = false;
+        this.toastService.error(getHttpErrorMessage(error, this.modoPdv
+          ? 'Nao foi possivel iniciar a venda.'
+          : 'Não foi possível iniciar o orçamento.'));
+      }
+    });
+  }
+
+  private sincronizarRotaComOrcamento(orcamentoId: number): void {
+    if (!orcamentoId || this.destroyed) {
+      return;
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { orcamentoId },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private abrirModalConfirmacaoPdf(acaoPosExportacao?: () => void): void {
+    this.acaoPosExportacao = acaoPosExportacao || null;
+    this.modalExportarPdfAberto = true;
+    document.body.classList.add('modal-open');
+  }
+
+  private montarPagamentosVenda(): PagamentoVenda[] {
+    let valorRestante = Number(this.totalComercialAtual.toFixed(2));
+    const pagamentos: PagamentoVenda[] = [];
+
+    for (const pagamento of this.pagamentosPreenchidos) {
+      const valorInformado = Number(Number(pagamento.valor_informado || 0).toFixed(2));
+      if (valorRestante <= 0 || valorInformado <= 0) {
+        continue;
+      }
+
+      const valorAplicado = Number(Math.min(valorInformado, valorRestante).toFixed(2));
+      valorRestante = Number(Math.max(valorRestante - valorAplicado, 0).toFixed(2));
+
+      if (valorAplicado > 0) {
+        pagamentos.push({
+          forma_pagamento: pagamento.forma_pagamento,
+          valor_pago: valorAplicado
+        });
+      }
+    }
+
+    return pagamentos;
+  }
+
+  private inicializarPagamentosEdicao(formaPagamento = '', valorTotal = 0): void {
+    const formaNormalizada = this.normalizarFormaPagamento(formaPagamento || this.formaPagamento);
+    this.pagamentosEdicao = this.formasPagamentoDisponiveis.map((forma) => ({
+      forma_pagamento: forma,
+      valor_informado: valorTotal > 0 && forma === formaNormalizada ? Number(valorTotal || 0) : 0
+    }));
+  }
+
+  private determinarFormaPagamentoPrincipal(): string {
+    const pagamentos = this.pagamentosPreenchidos;
+    if (!pagamentos.length) {
+      return this.formaPagamento || 'PIX';
+    }
+
+    if (pagamentos.length === 1) {
+      return pagamentos[0].forma_pagamento || 'PIX';
+    }
+
+    return 'MULTIPLO';
+  }
+
+  private normalizarFormaPagamento(forma: string | null | undefined): string {
+    return (forma || 'PIX').toUpperCase();
+  }
+
+  private normalizarClientesBusca(response: Cliente[] | Cliente | null | undefined): Cliente[] {
+    if (!response) {
+      return [];
+    }
+
+    return Array.isArray(response) ? response.filter(Boolean) : [response];
+  }
+
+  private validarPagamentosVenda(exibirToast = true): boolean {
+    if (!this.pagamentosPreenchidos.length) {
+      if (exibirToast) {
+        this.toastService.warning('Informe ao menos uma forma de pagamento para finalizar a venda.');
+      }
+      return false;
+    }
+
+    if (this.saldoPagamento > 0) {
+      if (exibirToast) {
+        this.toastService.warning('O valor informado ainda nao cobre o total da venda.');
+      }
+      return false;
+    }
+
+    return true;
+  }
+
+  private normalizarQuantidadeInteira(value: number | string | null | undefined): number {
+    const numeros = String(value ?? '').replace(/\D/g, '');
+    const quantidade = Number(numeros || '1');
+    return Math.max(1, quantidade);
   }
 
   private paginarLista<T>(lista: T[], paginaAtual: number): T[] {
@@ -741,5 +1545,62 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     this.movedModals.length = 0;
     document.body.classList.remove('modal-open');
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+  }
+
+  private buscarResultadosCatalogo(termoBruto: string): CatalogoPesquisaItem[] {
+    const termo = termoBruto.trim().toLowerCase();
+    if (!termo || this.orcamentoBloqueado || this.somenteLeitura) {
+      return [];
+    }
+
+    const produtos: CatalogoPesquisaItem[] = [];
+    for (const produto of this.produtos) {
+      if (
+        (produto.nome || '').toLowerCase().includes(termo)
+        || (produto.codigo || '').toLowerCase().includes(termo)
+        || (produto.descricao || '').toLowerCase().includes(termo)
+      ) {
+        produtos.push({
+          tipo_item: 'PRODUTO',
+          id: produto.id,
+          codigo: produto.codigo,
+          nome: produto.nome,
+          descricao: produto.descricao,
+          valor: Number(produto.valor_venda || 0)
+        });
+      }
+
+      if (produtos.length >= 8) {
+        break;
+      }
+    }
+
+    if (produtos.length >= 8) {
+      return produtos;
+    }
+
+    const servicos: CatalogoPesquisaItem[] = [];
+    for (const servico of this.servicos) {
+      if (
+        (servico.nome || '').toLowerCase().includes(termo)
+        || (servico.codigo || '').toLowerCase().includes(termo)
+        || (servico.descricao || '').toLowerCase().includes(termo)
+      ) {
+        servicos.push({
+          tipo_item: 'SERVICO',
+          id: servico.id,
+          codigo: servico.codigo,
+          nome: servico.nome,
+          descricao: servico.descricao,
+          valor: Number(servico.valor_padrao || 0)
+        });
+      }
+
+      if (produtos.length + servicos.length >= 8) {
+        break;
+      }
+    }
+
+    return [...produtos, ...servicos].slice(0, 8);
   }
 }

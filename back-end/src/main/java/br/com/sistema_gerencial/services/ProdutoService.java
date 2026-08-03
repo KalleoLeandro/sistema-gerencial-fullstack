@@ -9,7 +9,7 @@ import br.com.sistema_gerencial.models.response.ProdutoResponse;
 
 public interface ProdutoService {
 
-	void cadastrar(CadastrarProdutoRequest request);
+	int cadastrar(CadastrarProdutoRequest request);
 
 	Map<String, Object> listarPorPagina(int limit, int page);
 

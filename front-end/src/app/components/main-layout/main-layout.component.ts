@@ -42,11 +42,10 @@ export class MainLayoutComponent implements OnInit {
   protected readonly navItems: NavItem[] = [
     { label: 'Dashboard', route: '/dashboard', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Agenda', route: '/agenda', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
-    { label: 'Empresas', route: '/empresas/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
+    { label: 'Clientes', route: '/clientes/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Ordens de servico', route: '/avulsos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
-    { label: 'PDV', route: '/comercial/pdv', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
-    { label: 'Orcamentos', route: '/comercial/orcamentos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
     { label: 'Vendas', route: '/comercial/vendas/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+    { label: 'Caixa', route: '/caixa/listar', roles: ['ADMIN', 'DEV'] },
     { label: 'Produtos', route: '/produtos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
     { label: 'Servicos', route: '/servicos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
     { label: 'Usuarios', route: '/usuarios/listar', roles: ['ADMIN', 'DEV'] }

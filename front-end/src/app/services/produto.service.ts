@@ -26,7 +26,7 @@ export class ProdutoService {
   private url = `${environment.apiUrl}`;
 
   public cadastrar(payload: ProdutoPayload): Observable<any> {
-    return this.httpClient.post<any>(`${this.url}/produtos/cadastrar`, payload, this.httpOptions).pipe(catchError(this.handleError));
+    return this.httpClient.post<number>(`${this.url}/produtos/cadastrar`, payload, this.httpOptions).pipe(catchError(this.handleError));
   }
 
   public atualizar(payload: ProdutoPayload): Observable<any> {

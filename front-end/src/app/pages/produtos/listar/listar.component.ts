@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListaPaginada } from '@models/lista-paginada';
 import { Produto } from '@models/produto';
+import { ImagemService } from '@services/imagem.service';
 import { ProdutoService } from '@services/produto.service';
 import { ToastService } from '@services/toast.service';
 
@@ -20,6 +21,7 @@ export class ListarComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly produtoService = inject(ProdutoService);
+  private readonly imagemService = inject(ImagemService);
   private readonly toastService = inject(ToastService);
 
   public readonly produtos = signal<ListaPaginada<Produto>>({ lista: [], total: 0 });
@@ -78,6 +80,10 @@ export class ListarComponent implements OnInit {
       },
       error: () => this.toastService.error('Nao foi possivel excluir o produto.')
     });
+  }
+
+  public urlImagemExibicao(produto: Produto): string | null {
+    return produto.imagem_exibicao_id ? this.imagemService.urlConteudo(produto.imagem_exibicao_id) : null;
   }
 
   public mudarTamanho(): void {

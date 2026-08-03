@@ -1,10 +1,9 @@
-<!-- Begin Page Content -->
 <div class="container-fluid">
 
     <div class="card h-100 mb-4" id="empresa-detalhes-pdf">
         <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
             <h6 class="m-0 font-weight-bold text-secondary">
-                {{ empresa?.nome_fantasia }}
+                {{ empresa?.nome_fantasia || empresa?.nome_cliente }}
             </h6>
             <button mat-flat-button type="button" class="btn btn-primary pdf-hide" (click)="exportarPdf()">
                 Exportar PDF
@@ -16,17 +15,22 @@
             <ul class="nav nav-tabs" id="tabs" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#home">
-                        Dados Básicos
+                        Dados basicos
                     </button>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="exibeRecursosContrato">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile">
                         Equipamentos
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-atendimento">
-                        Atendimentos
+                        Ordens de servico
+                    </button>
+                </li>
+                <li class="nav-item" *ngIf="exibeRecursosContrato">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-manutencao">
+                        Manutencoes
                     </button>
                 </li>
             </ul>
@@ -41,25 +45,24 @@
                             <div class="col-12 col-xl-8">
 
                                 <div class="row g-3">
-
                                     <div class="col-lg-4 col-md-6 col-12">
-                                        <label>Nome Fantasia</label>
-                                        <h6>{{ empresa?.nome_fantasia }}</h6>
+                                        <label>{{ empresa?.tipo_pessoa === 'f' ? 'Nome do cliente' : 'Nome fantasia' }}</label>
+                                        <h6>{{ empresa?.nome_fantasia || empresa?.nome_cliente }}</h6>
                                     </div>
 
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <label>Razão Social</label>
+                                    <div class="col-lg-4 col-md-6 col-12" *ngIf="empresa?.tipo_pessoa === 'j'">
+                                        <label>Razao social</label>
                                         <h6>{{ empresa?.razao_social }}</h6>
                                     </div>
 
                                     <div class="col-lg-4 col-md-6 col-12">
-                                        <label>CNPJ</label>
-                                        <h6>{{ empresa?.cnpj }}</h6>
+                                        <label>{{ empresa?.tipo_pessoa === 'f' ? 'CPF' : 'CNPJ' }}</label>
+                                        <h6>{{ empresa?.cpf_cnpj || empresa?.cnpj }}</h6>
                                     </div>
 
-                                    <div class="col-lg-4 col-md-6 col-12">
+                                    <div class="col-lg-4 col-md-6 col-12" *ngIf="empresa?.tipo_pessoa === 'j'">
                                         <label>IE</label>
-                                        <h6>{{ empresa?.inscricao }}</h6>
+                                        <h6>{{ empresa?.ie || empresa?.inscricao }}</h6>
                                     </div>
 
                                     <div class="col-lg-4 col-md-6 col-12">
@@ -68,12 +71,12 @@
                                     </div>
 
                                     <div class="col-lg-4 col-md-6 col-12">
-                                        <label>Endereço</label>
+                                        <label>Endereco</label>
                                         <h6>{{ empresa?.endereco }}</h6>
                                     </div>
 
                                     <div class="col-lg-4 col-md-6 col-12">
-                                        <label>Número</label>
+                                        <label>Numero</label>
                                         <h6>{{ empresa?.numero }}</h6>
                                     </div>
 
@@ -118,12 +121,24 @@
 
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6 col-12">
-                                        <label>Início do Contrato</label>
+                                        <label>Contrato ativo</label>
+                                        <h6>{{ empresa?.possui_contrato ? 'Sim' : 'Nao' }}</h6>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <label>Historico de contrato</label>
+                                        <h6>{{ empresa?.teve_contrato ? 'Sim' : 'Nao' }}</h6>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3" *ngIf="empresa?.teve_contrato">
+                                    <div class="col-md-6 col-12">
+                                        <label>Inicio do contrato</label>
                                         <h6>{{ empresa?.data_inicio | date:'dd/MM/yyyy' }}</h6>
                                     </div>
 
                                     <div class="col-md-6 col-12">
-                                        <label>Fim do Contrato</label>
+                                        <label>Fim do contrato</label>
                                         <h6>{{ empresa?.data_fim | date:'dd/MM/yyyy' }}</h6>
                                     </div>
                                 </div>
@@ -132,22 +147,50 @@
                                     <button mat-flat-button type="button" class="btn btn-action-edit" (click)="alterarEmpresa()">
                                         Alterar
                                     </button>
+                                    <button mat-flat-button type="button" class="btn btn-primary" *ngIf="empresa?.teve_contrato || empresa?.possui_contrato"
+                                        (click)="renovarContrato()">
+                                        Renovar contrato
+                                    </button>
                                     <button mat-flat-button type="button" class="btn btn-action-delete" (click)="modalExcluirEmpresa()">
                                         Excluir
                                     </button>
                                 </div>
 
+                                <div class="mt-4" *ngIf="renovacoesContrato().length">
+                                    <label class="mb-2">Historico de renovacoes</label>
+                                    <div class="details-table-shell">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Inicio</th>
+                                                    <th>Fim</th>
+                                                    <th>Registro</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for(item of renovacoesContrato(); track item.id){
+                                                <tr>
+                                                    <td>{{ item.data_inicio_novo | date:'dd/MM/yyyy' }}</td>
+                                                    <td>{{ item.data_fim_novo | date:'dd/MM/yyyy' }}</td>
+                                                    <td>{{ item.criado_em | date:'dd/MM/yyyy HH:mm' }}</td>
+                                                </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                             </div>
 
-                            <div class="col-12 col-xl-4 ps-xl-3 mt-4 mt-xl-0">
+                            <div class="col-12 col-xl-4 ps-xl-3 mt-4 mt-xl-0" *ngIf="exibeRecursosContrato">
 
-                                <label class="mb-2">Informações Gerais Infraestrutura</label>
+                                <label class="mb-2">Informacoes gerais de infraestrutura</label>
 
                                 <div class="details-infra-shell mb-2 overflow-hidden">
 
                                     <div *ngIf="perfil === 'USER' || !editandoInfra; else infraEditor"
                                         class="details-text-content">
-                                        {{ dadosInfra || 'Nenhuma informação cadastrada.' }}
+                                        {{ dadosInfra || 'Nenhuma informacao cadastrada.' }}
                                     </div>
 
                                     <ng-template #infraEditor>
@@ -155,7 +198,7 @@
                                             [(ngModel)]="dadosInfra"
                                             class="details-textarea details-infra-textarea"
                                             rows="14"
-                                            placeholder="Digite as informações de infraestrutura"></textarea>
+                                            placeholder="Digite as informacoes de infraestrutura"></textarea>
                                     </ng-template>
 
                                 </div>
@@ -163,13 +206,13 @@
                                 <div class="d-grid gap-2 pdf-hide" *ngIf="perfil !== 'USER'">
                                     <button type="button" class="btn btn-primary w-100"
                                         (click)="habilitarEdicaoInfra()" *ngIf="!editandoInfra">
-                                        Editar Dados Infraestrutura
+                                        Editar dados de infraestrutura
                                     </button>
 
                                     <button type="button" class="btn btn-success w-100"
                                         (click)="$event.preventDefault(); salvarDadosInfra()" *ngIf="editandoInfra"
                                         [disabled]="!dadosInfra?.trim()">
-                                        Salvar Dados Infraestrutura
+                                        Salvar dados de infraestrutura
                                     </button>
 
                                     <button type="button" class="btn btn-secondary w-100"
@@ -183,81 +226,110 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane fade details-pane" id="profile">
-
+                    <div class="tab-pane fade details-pane" id="profile" *ngIf="exibeRecursosContrato">
                         <div class="d-flex p-2 pdf-hide details-toolbar">
                             <button mat-flat-button type="button" class="btn btn-primary" (click)="cadastrarNovoEquipamento()">
-                                Cadastrar Novo Equipamento
+                                Cadastrar novo equipamento
                             </button>
                         </div>
 
                         <div class="details-table-shell">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Setor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for(item of listaEquipamentos().lista; track item){
-                                <tr>
-                                    <td>
-                                        <a [routerLink]="['/equipamentos/detalhes', item.id]"
-                                            [queryParams]="{ id_empresa: empresa?.id }">
-                                            {{ item?.nome_maquina }}
-                                        </a>
-                                    </td>
-                                    <td>{{ item?.setor }}</td>
-                                </tr>
-                                }
-                            </tbody>
-                        </table>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Setor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(item of listaEquipamentos().lista; track item){
+                                    <tr>
+                                        <td>
+                                            <a [routerLink]="['/equipamentos/detalhes', item.id]"
+                                                [queryParams]="{ id_empresa: empresa?.id }">
+                                                {{ item?.nome_maquina }}
+                                            </a>
+                                        </td>
+                                        <td>{{ item?.setor }}</td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
-
                     </div>
 
                     <div class="tab-pane fade details-pane" id="historico-atendimento">
-
                         <div class="d-flex p-2 pdf-hide details-toolbar">
                             <button mat-flat-button type="button" class="btn btn-primary" (click)="cadastrarNovoAtendimento()">
-                                Cadastrar Novo Atendimento
+                                Cadastrar nova ordem de servico
                             </button>
                         </div>
 
                         <div class="details-table-shell">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>N°</th>
-                                    <th>Data Início</th>
-                                    <th>Data Fim</th>
-                                    <th>Solicitante</th>
-                                    <th>Executores</th>
-                                    <th>Status</th>
-                                    <th>Detalhar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for(item of listaAtendimentos().lista; track item){
-                                <tr>
-                                    <td>{{ item.id }}</td>
-                                    <td>{{ item.data_inicio | date:'dd/MM/yyyy HH:mm' }}</td>
-                                    <td>{{ item.data_fim | date:'dd/MM/yyyy HH:mm' }}</td>
-                                    <td>{{ item.solicitante }}</td>
-                                    <td>{{ formatarExecutores(item.executores) }}</td>
-                                    <td>{{ item.status_atendimento | statusAtendimento }}</td>
-                                    <td>
-                                        <button (click)="detalharAtendimento(item.id)">
-                                            <i class="fa-solid fa-search"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                }
-                            </tbody>
-                        </table>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Data inicio</th>
+                                        <th>Data fim</th>
+                                        <th>Solicitante</th>
+                                        <th>Executores</th>
+                                        <th>Status</th>
+                                        <th>Detalhar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(item of listaAtendimentos().lista; track item){
+                                    <tr>
+                                        <td>{{ item.id }}</td>
+                                        <td>{{ item.data_inicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.data_fim | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.solicitante }}</td>
+                                        <td>{{ formatarExecutores(item.executores) }}</td>
+                                        <td>{{ item.status_atendimento | statusAtendimento }}</td>
+                                        <td>
+                                            <button (click)="detalharAtendimento(item.id)">
+                                                <i class="fa-solid fa-search"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
+                    </div>
 
+                    <div class="tab-pane fade details-pane" id="historico-manutencao" *ngIf="exibeRecursosContrato">
+                        <div class="details-table-shell">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Data inicio</th>
+                                        <th>Data fim</th>
+                                        <th>Tipo</th>
+                                        <th>Status</th>
+                                        <th>Detalhar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(item of listaManutencoes().lista; track item){
+                                    <tr>
+                                        <td>{{ item.id }}</td>
+                                        <td>{{ item.data_inicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.data_fim | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.tipo_servico }}</td>
+                                        <td>{{ item.status_atendimento | statusAtendimento }}</td>
+                                        <td>
+                                            <button (click)="detalharManutencao(item.id)">
+                                                <i class="fa-solid fa-search"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                 </div>
@@ -265,4 +337,3 @@
         </div>
     </div>
 </div>
-<!-- End Page Content -->

@@ -22,6 +22,8 @@ public interface ManutencaoService {
 	 * @return resultado da operacao.
 	 */
 	public Map<String, Object> listarPorPagina(int limit, int page, int id);
+
+	public Map<String, Object> listarPorEmpresa(int limit, int page, int idEmpresa);
 	
 	/**
 	 * Executa o metodo buscarPorId.

@@ -71,6 +71,12 @@ public class ManutencaoController {
 	public ResponseEntity<Map<String, Object>> listarTodasPorPagina(@RequestParam int limit, @RequestParam int page, @RequestParam int id){		
 		return ResponseEntity.status(HttpStatus.OK).body(manutencaoService.listarPorPagina(limit, page, id));
 	} 
+
+	@GetMapping("/listar-por-cliente")
+	@Operation(summary = "Lista manutencoes por cliente", description = "Retorna as manutencoes vinculadas aos equipamentos de um cliente com paginacao.")
+	public ResponseEntity<Map<String, Object>> listarPorCliente(@RequestParam int limit, @RequestParam int page, @RequestParam int id_empresa) {
+		return ResponseEntity.status(HttpStatus.OK).body(manutencaoService.listarPorEmpresa(limit, page, id_empresa));
+	}
 	
 	/**
 	 * Executa o metodo buscarPorId.

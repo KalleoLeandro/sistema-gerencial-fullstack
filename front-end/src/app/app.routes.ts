@@ -126,6 +126,60 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'ordens-servico',
+        children: [
+          {
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/empresas/atendimentos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+          {
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/atendimentos/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          },
+        ]
+      },
+      {
+        path: 'clientes',
+        children: [
+          {
+            path: 'cadastrar',
+            canActivate: [roleGuard],
+            data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+            loadComponent: () => import('@pages/empresas/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+          {
+            path: 'cadastrar/:id',
+            canActivate: [roleGuard],
+            data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+            loadComponent: () => import('@pages/empresas/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+          {
+            path: 'listar',
+            loadComponent: () => import('@pages/empresas/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+        ]
+      },
+      {
+        path: 'caixa',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV'] },
+        children: [
+          {
+            path: '',
+            redirectTo: 'listar',
+            pathMatch: 'full'
+          },
+          {
+            path: 'listar',
+            loadComponent: () => import('@pages/caixa/listar/listar.component').then((c) => c.ListarComponent)
+          }
+        ]
+      },
+      {
         path: 'produtos',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
@@ -173,9 +227,56 @@ export const routes: Routes = [
         data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
         children: [
           {
-            path: 'orcamento',
-            data: { modo: 'orcamento' },
-            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+            path: 'vendas/listar',
+            loadComponent: () => import('@pages/comercial/vendas/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'vendas',
+            children: [
+              {
+                path: '',
+                redirectTo: 'listar',
+                pathMatch: 'full'
+              },
+              {
+                path: 'listar',
+                loadComponent: () => import('@pages/comercial/vendas/listar/listar.component').then((c) => c.ListarComponent)
+              },
+              {
+                path: 'pdv',
+                data: { modo: 'pdv' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+              {
+                path: 'editar/:id',
+                data: { detalheTipo: 'venda', modo: 'pdv', edicao: true },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+              {
+                path: 'detalhes/:id',
+                data: { readonly: true, detalheTipo: 'venda', modo: 'pdv' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+              {
+                path: 'orcamento',
+                data: { modo: 'orcamento' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+              {
+                path: 'orcamentos/listar',
+                loadComponent: () => import('@pages/comercial/orcamentos/listar/listar.component').then((c) => c.ListarComponent)
+              },
+              {
+                path: 'orcamentos/editar/:id',
+                data: { detalheTipo: 'orcamento', modo: 'orcamento', edicao: true },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+              {
+                path: 'orcamentos/detalhes/:id',
+                data: { readonly: true, detalheTipo: 'orcamento', modo: 'orcamento' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              }
+            ]
           },
           {
             path: 'pdv',
@@ -183,8 +284,18 @@ export const routes: Routes = [
             loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
           },
           {
+            path: 'orcamento',
+            data: { modo: 'orcamento' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+          {
             path: 'orcamentos/listar',
             loadComponent: () => import('@pages/comercial/orcamentos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+          {
+            path: 'orcamentos/editar/:id',
+            data: { detalheTipo: 'orcamento', modo: 'orcamento', edicao: true },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
           },
           {
             path: 'orcamentos/detalhes/:id',
@@ -192,12 +303,13 @@ export const routes: Routes = [
             loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
           },
           {
-            path: 'vendas/listar',
-            loadComponent: () => import('@pages/comercial/vendas/listar/listar.component').then((c) => c.ListarComponent)
+            path: 'vendas/editar/:id',
+            data: { detalheTipo: 'venda', modo: 'pdv', edicao: true },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
           },
           {
             path: 'vendas/detalhes/:id',
-            data: { readonly: true, detalheTipo: 'venda', modo: 'orcamento' },
+            data: { readonly: true, detalheTipo: 'venda', modo: 'pdv' },
             loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
           }
         ]

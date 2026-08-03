@@ -43,11 +43,11 @@
                         </div>
                         <div class="row g-4 mt-1">
                             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                                <label *ngIf="avulso?.tipo_pessoa == 'f'">Nome do Cliente</label>
-                                <label *ngIf="avulso?.tipo_pessoa == 'j'">Nome Fantasia</label>
+                                <label *ngIf="avulso?.tipo_pessoa?.toLowerCase() === 'f'">Nome do Cliente</label>
+                                <label *ngIf="avulso?.tipo_pessoa?.toLowerCase() === 'j'">Nome Fantasia</label>
                                 <h6>{{ avulso?.nome_cliente }}</h6>
                             </div>
-                            <div class="col-lg-3 col-md-4 col-sm-6 col-12" *ngIf="avulso?.tipo_pessoa == 'j'">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12" *ngIf="avulso?.tipo_pessoa?.toLowerCase() === 'j'">
                                 <label>Razao Social</label>
                                 <h6>{{ avulso?.razao_social }}</h6>
                             </div>

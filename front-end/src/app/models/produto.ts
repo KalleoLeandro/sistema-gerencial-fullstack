@@ -9,6 +9,7 @@ export interface Produto {
   estoque_atual: number;
   estoque_minimo: number;
   ativo: boolean;
+  imagem_exibicao_id?: string | null;
   criado_em?: string;
   atualizado_em?: string;
 }

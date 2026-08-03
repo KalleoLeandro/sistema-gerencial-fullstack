@@ -50,6 +50,12 @@ public class ManutencaoServiceImpl implements ManutencaoService {
 		return repository.listarPorPagina(limit, page, id);
 	}
 
+	@Override
+	@Transactional
+	public Map<String, Object> listarPorEmpresa(int limit, int page, int idEmpresa) {
+		return repository.listarPorEmpresa(limit, page, idEmpresa);
+	}
+
 	/**
 	 * Executa o metodo buscarPorId.
 	 * @param id valor do parametro id.

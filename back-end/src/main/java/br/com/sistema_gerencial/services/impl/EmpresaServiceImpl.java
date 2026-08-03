@@ -1,13 +1,16 @@
 package br.com.sistema_gerencial.services.impl;
 
 import java.util.Map;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sistema_gerencial.models.requests.AtualizarEmpresaRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarEmpresaRequest;
+import br.com.sistema_gerencial.models.requests.RenovarContratoRequest;
 import br.com.sistema_gerencial.models.response.EmpresaResponse;
+import br.com.sistema_gerencial.models.response.RenovacaoContratoResponse;
 import br.com.sistema_gerencial.repositories.EmpresaRepository;
 import br.com.sistema_gerencial.services.EmpresaService;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +96,18 @@ public class EmpresaServiceImpl implements EmpresaService {
 	@Transactional
 	public void salvarInfraestrutura(String texto, int id) {
 		repository.salvarInfraEstrutura(texto, id);
+	}
+
+	@Override
+	@Transactional
+	public void renovarContrato(int id, RenovarContratoRequest request) {
+		repository.renovarContrato(id, request);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<RenovacaoContratoResponse> listarRenovacoes(int id) {
+		return repository.listarRenovacoes(id);
 	}
 }
 

@@ -113,6 +113,44 @@ public class ManutencaoRepository {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	public Map<String, Object> listarPorEmpresa(Integer limit, Integer page, int idEmpresa) {
+		String sqlList = """
+				SELECT m.*
+				FROM manutencao m
+				INNER JOIN equipamentos e ON e.id = m.id_equipamento
+				WHERE e.id_empresa = :id_empresa
+				ORDER BY m.id DESC
+				LIMIT :limit OFFSET :offset
+				""";
+		MapSqlParameterSource params = new MapSqlParameterSource()
+				.addValue("id_empresa", idEmpresa)
+				.addValue("limit", limit)
+				.addValue("offset", (page - 1) * limit);
+
+		try {
+			List<ManutencaoResponse> lista = namedParameterJdbcTemplate.query(sqlList, params, historicoMapper);
+
+			String sqlCount = """
+					SELECT COUNT(m.id)
+					FROM manutencao m
+					INNER JOIN equipamentos e ON e.id = m.id_equipamento
+					WHERE e.id_empresa = :id_empresa
+					""";
+			Integer total = namedParameterJdbcTemplate.queryForObject(sqlCount,
+					new MapSqlParameterSource().addValue("id_empresa", idEmpresa), Integer.class);
+
+			Map<String, Object> resultado = new HashMap<>();
+			resultado.put("lista", lista);
+			resultado.put("total", total);
+			return resultado;
+		} catch (EmptyResultDataAccessException e) {
+			throw new DefaultErrorException("Nenhum historico encontrado.", HttpStatus.NO_CONTENT);
+		} catch (DataAccessException e) {
+			throw new DefaultErrorException("Erro ao consultar as manutencoes do cliente na base de dados.",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
     
 	/**

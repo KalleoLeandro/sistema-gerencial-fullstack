@@ -7,13 +7,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ImagemManagerComponent } from '@components/imagem-manager/imagem-manager.component';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { ProdutoPayload, ProdutoService } from '@services/produto.service';
 import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-produtos-cadastrar',
-  imports: [CommonModule, FormsModule, CurrencyMaskModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, FormSubmitLoaderComponent],
+  imports: [CommonModule, FormsModule, CurrencyMaskModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, FormSubmitLoaderComponent, ImagemManagerComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })
@@ -61,9 +62,18 @@ export class CadastrarComponent implements OnInit {
     const request$ = this.id ? this.produtoService.atualizar(payload) : this.produtoService.cadastrar(payload);
 
     request$.subscribe({
-      next: () => {
-        this.toastService.success(`Produto ${this.id ? 'atualizado' : 'cadastrado'} com sucesso.`);
-        this.router.navigate(['/produtos/listar']);
+      next: (responseId) => {
+        if (!this.id) {
+          this.id = responseId;
+          this.toastService.success('Produto cadastrado com sucesso. Agora voce ja pode adicionar imagens.');
+          this.router.navigate(['/produtos/cadastrar', responseId], { replaceUrl: true });
+          this.salvando = false;
+          return;
+        }
+
+        this.toastService.success('Produto atualizado com sucesso.');
+        this.salvando = false;
+        this.carregar();
       },
       error: () => {
         this.salvando = false;

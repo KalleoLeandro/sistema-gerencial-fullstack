@@ -1,5 +1,6 @@
 package br.com.sistema_gerencial.controllers;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,9 @@ import br.com.sistema_gerencial.exceptions.ApiError;
 import br.com.sistema_gerencial.exceptions.schemas.DefaultErrorResponse;
 import br.com.sistema_gerencial.models.requests.AtualizarEmpresaRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarEmpresaRequest;
+import br.com.sistema_gerencial.models.requests.RenovarContratoRequest;
 import br.com.sistema_gerencial.models.response.EmpresaResponse;
+import br.com.sistema_gerencial.models.response.RenovacaoContratoResponse;
 import br.com.sistema_gerencial.services.EmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -166,6 +169,18 @@ public class EmpresaController {
 		empresaService.salvarInfraestrutura(texto, id);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	} 
+
+	@PostMapping("/renovar-contrato/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'DEV', 'COMERCIAL')")
+	public ResponseEntity<Void> renovarContrato(@PathVariable int id, @RequestBody RenovarContratoRequest request) {
+		empresaService.renovarContrato(id, request);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@GetMapping("/listar-renovacoes/{id}")
+	public ResponseEntity<List<RenovacaoContratoResponse>> listarRenovacoes(@PathVariable int id) {
+		return ResponseEntity.status(HttpStatus.OK).body(empresaService.listarRenovacoes(id));
+	}
 
 }
 

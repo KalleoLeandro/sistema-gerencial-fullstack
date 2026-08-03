@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import br.com.sistema_gerencial.exceptions.DefaultErrorException;
 import br.com.sistema_gerencial.models.dto.OrigemComercialDTO;
 import br.com.sistema_gerencial.models.dto.OutboxEventoDTO;
+import br.com.sistema_gerencial.models.response.CaixaFechamentoResponse;
+import br.com.sistema_gerencial.models.response.CaixaResumoPagamentoResponse;
 import br.com.sistema_gerencial.models.response.OrcamentoItemResponse;
 import br.com.sistema_gerencial.models.response.OrcamentoResponse;
 import br.com.sistema_gerencial.models.response.PagamentoResponse;
@@ -128,24 +130,44 @@ public class FluxoComercialRepository {
 			.criado_em(getLocalDateTime(rs, "criado_em"))
 			.build();
 
+	private final RowMapper<CaixaResumoPagamentoResponse> caixaResumoPagamentoMapper = (rs, rowNum) -> CaixaResumoPagamentoResponse.builder()
+			.forma_pagamento(rs.getString("forma_pagamento"))
+			.valor_total(rs.getBigDecimal("valor_total"))
+			.valor_recebido(rs.getBigDecimal("valor_recebido"))
+			.build();
+
+	private final RowMapper<CaixaFechamentoResponse> caixaFechamentoMapper = (rs, rowNum) -> CaixaFechamentoResponse.builder()
+			.id(rs.getInt("id"))
+			.data_referencia(rs.getObject("data_referencia", LocalDate.class))
+			.fechado_em(getLocalDateTime(rs, "fechado_em"))
+			.valor_total(rs.getBigDecimal("valor_total"))
+			.valor_informado(rs.getBigDecimal("valor_informado"))
+			.valor_quebra(rs.getBigDecimal("valor_quebra"))
+			.observacoes(rs.getString("observacoes"))
+			.build();
+
 	public OrigemComercialDTO buscarOrigem(String origemTipo, int origemId) {
 		String tipoNormalizado = normalizeOrigem(origemTipo);
 		String sql;
 		if ("ATENDIMENTO".equals(tipoNormalizado)) {
 			sql = """
-					SELECT a.id AS origem_id, 'ATENDIMENTO' AS origem_tipo, e.nome_fantasia AS cliente_nome,
-					       e.cnpj AS cliente_documento, a.observacoes
+					SELECT a.id AS origem_id, 'ATENDIMENTO' AS origem_tipo,
+					       COALESCE(NULLIF(e.nome_fantasia, ''), NULLIF(e.razao_social, ''), NULLIF(e.nome, ''), 'Consumidor final') AS cliente_nome,
+					       COALESCE(NULLIF(e.cpf, ''), NULLIF(e.cnpj, '')) AS cliente_documento,
+					       a.observacoes
 					FROM atendimentos a
-					INNER JOIN empresas e ON e.id = a.id_empresa
+					INNER JOIN clientes e ON e.id = a.id_empresa
 					WHERE a.id = :origemId
 					""";
 		} else if ("MANUTENCAO".equals(tipoNormalizado)) {
 			sql = """
-					SELECT m.id AS origem_id, 'MANUTENCAO' AS origem_tipo, e.nome_fantasia AS cliente_nome,
-					       e.cnpj AS cliente_documento, m.observacoes
+					SELECT m.id AS origem_id, 'MANUTENCAO' AS origem_tipo,
+					       COALESCE(NULLIF(e.nome_fantasia, ''), NULLIF(e.razao_social, ''), NULLIF(e.nome, ''), 'Consumidor final') AS cliente_nome,
+					       COALESCE(NULLIF(e.cpf, ''), NULLIF(e.cnpj, '')) AS cliente_documento,
+					       m.observacoes
 					FROM manutencao m
 					INNER JOIN equipamentos eq ON eq.id = m.id_equipamento
-					INNER JOIN empresas e ON e.id = eq.id_empresa
+					INNER JOIN clientes e ON e.id = eq.id_empresa
 					WHERE m.id = :origemId
 					""";
 		} else if ("AVULSO".equals(tipoNormalizado)) {
@@ -344,13 +366,15 @@ public class FluxoComercialRepository {
 	}
 
 	public void atualizarResumoOrcamento(int idOrcamento, LocalDate validadeEm, BigDecimal descontoFinanceiro,
-			BigDecimal acrescimoFinanceiro, BigDecimal subtotal, BigDecimal totalDesconto, BigDecimal totalAcrescimo,
-			BigDecimal totalGeral, String status, String observacoes) {
+			BigDecimal acrescimoFinanceiro, String clienteNome, String clienteDocumento, BigDecimal subtotal,
+			BigDecimal totalDesconto, BigDecimal totalAcrescimo, BigDecimal totalGeral, String status, String observacoes) {
 		String sql = """
 				UPDATE orcamentos
 				SET validade_em = :validadeEm,
 				    desconto_financeiro = :descontoFinanceiro,
 				    acrescimo_financeiro = :acrescimoFinanceiro,
+				    cliente_nome = :clienteNome,
+				    cliente_documento = :clienteDocumento,
 				    subtotal = :subtotal,
 				    total_desconto = :totalDesconto,
 				    total_acrescimo = :totalAcrescimo,
@@ -363,6 +387,8 @@ public class FluxoComercialRepository {
 				.addValue("validadeEm", validadeEm)
 				.addValue("descontoFinanceiro", descontoFinanceiro)
 				.addValue("acrescimoFinanceiro", acrescimoFinanceiro)
+				.addValue("clienteNome", clienteNome)
+				.addValue("clienteDocumento", clienteDocumento)
 				.addValue("subtotal", subtotal)
 				.addValue("totalDesconto", totalDesconto)
 				.addValue("totalAcrescimo", totalAcrescimo)
@@ -698,6 +724,232 @@ public class FluxoComercialRepository {
 		}
 	}
 
+	public void removerItensVenda(int idVenda) {
+		String sql = "DELETE FROM venda_itens WHERE id_venda = :idVenda";
+		try {
+			namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource("idVenda", idVenda));
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao atualizar itens da venda.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public void removerPagamentosVenda(int idVenda) {
+		String sql = """
+				DELETE p
+				FROM pagamentos p
+				INNER JOIN parcelas pa ON pa.id = p.id_parcela
+				WHERE pa.id_venda = :idVenda
+				""";
+		try {
+			namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource("idVenda", idVenda));
+			namedParameterJdbcTemplate.update("DELETE FROM pagamentos WHERE id_venda = :idVenda",
+					new MapSqlParameterSource("idVenda", idVenda));
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao remover pagamentos da venda.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public void removerParcelasVenda(int idVenda) {
+		String sql = "DELETE FROM parcelas WHERE id_venda = :idVenda";
+		try {
+			namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource("idVenda", idVenda));
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao remover parcelas da venda.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public void atualizarResumoVenda(int idVenda, String clienteNome, String clienteDocumento, BigDecimal subtotal,
+			BigDecimal totalDesconto, BigDecimal totalAcrescimo, BigDecimal totalGeral, String observacoes) {
+		String sql = """
+				UPDATE vendas
+				SET cliente_nome = :clienteNome,
+				    cliente_documento = :clienteDocumento,
+				    subtotal = :subtotal,
+				    total_desconto = :totalDesconto,
+				    total_acrescimo = :totalAcrescimo,
+				    total_geral = :totalGeral,
+				    observacoes = :observacoes
+				WHERE id = :id
+				""";
+		MapSqlParameterSource params = new MapSqlParameterSource()
+				.addValue("clienteNome", clienteNome)
+				.addValue("clienteDocumento", clienteDocumento)
+				.addValue("subtotal", subtotal)
+				.addValue("totalDesconto", totalDesconto)
+				.addValue("totalAcrescimo", totalAcrescimo)
+				.addValue("totalGeral", totalGeral)
+				.addValue("observacoes", observacoes)
+				.addValue("id", idVenda);
+		try {
+			namedParameterJdbcTemplate.update(sql, params);
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao consolidar a venda.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public void atualizarVenda(int idVenda, String clienteNome, String clienteDocumento, String formaPagamento,
+			int quantidadeParcelas, BigDecimal subtotal, BigDecimal totalDesconto, BigDecimal totalAcrescimo,
+			BigDecimal totalGeral, String observacoes) {
+		String sql = """
+				UPDATE vendas
+				SET cliente_nome = :clienteNome,
+				    cliente_documento = :clienteDocumento,
+				    forma_pagamento = :formaPagamento,
+				    quantidade_parcelas = :quantidadeParcelas,
+				    subtotal = :subtotal,
+				    total_desconto = :totalDesconto,
+				    total_acrescimo = :totalAcrescimo,
+				    total_geral = :totalGeral,
+				    observacoes = :observacoes
+				WHERE id = :id
+				""";
+		MapSqlParameterSource params = new MapSqlParameterSource()
+				.addValue("clienteNome", clienteNome)
+				.addValue("clienteDocumento", clienteDocumento)
+				.addValue("formaPagamento", formaPagamento)
+				.addValue("quantidadeParcelas", quantidadeParcelas)
+				.addValue("subtotal", subtotal)
+				.addValue("totalDesconto", totalDesconto)
+				.addValue("totalAcrescimo", totalAcrescimo)
+				.addValue("totalGeral", totalGeral)
+				.addValue("observacoes", observacoes)
+				.addValue("id", idVenda);
+		try {
+			namedParameterJdbcTemplate.update(sql, params);
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao atualizar a venda.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public List<CaixaResumoPagamentoResponse> listarResumoCaixaDia(LocalDate dataReferencia) {
+		String sql = """
+				SELECT p.forma_pagamento,
+				       SUM(p.valor_pago) AS valor_total,
+				       SUM(p.valor_pago) AS valor_recebido
+				FROM pagamentos p
+				INNER JOIN parcelas pa ON pa.id = p.id_parcela
+				INNER JOIN vendas v ON v.id = pa.id_venda
+				WHERE DATE(p.data_pagamento) = :dataReferencia
+				GROUP BY p.forma_pagamento
+				ORDER BY p.forma_pagamento
+				""";
+		try {
+			return namedParameterJdbcTemplate.query(sql,
+					new MapSqlParameterSource("dataReferencia", dataReferencia),
+					caixaResumoPagamentoMapper);
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao consultar o resumo do caixa do dia.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public List<CaixaFechamentoResponse> listarFechamentosCaixa() {
+		String sql = """
+				SELECT id, data_referencia, fechado_em, valor_total, valor_informado, valor_quebra, observacoes
+				FROM caixa_fechamentos
+				ORDER BY data_referencia DESC, id DESC
+				""";
+		try {
+			List<CaixaFechamentoResponse> fechamentos = namedParameterJdbcTemplate.query(sql, caixaFechamentoMapper);
+			for (CaixaFechamentoResponse fechamento : fechamentos) {
+				fechamento.setItens(listarItensFechamentoCaixa(fechamento.getId()));
+			}
+			return fechamentos;
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao consultar os fechamentos do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public CaixaFechamentoResponse salvarFechamentoCaixa(LocalDate dataReferencia, BigDecimal valorTotal,
+			BigDecimal valorInformado, BigDecimal valorQuebra, String observacoes) {
+		Integer existente = buscarFechamentoCaixaPorData(dataReferencia);
+		if (existente == null) {
+			KeyHolder keyHolder = new GeneratedKeyHolder();
+			String insertSql = """
+					INSERT INTO caixa_fechamentos (
+						data_referencia, status, fechado_em, valor_total, valor_informado, valor_quebra, observacoes
+					) VALUES (
+						:dataReferencia, 'FECHADO', NOW(), :valorTotal, :valorInformado, :valorQuebra, :observacoes
+					)
+					""";
+			try {
+				namedParameterJdbcTemplate.update(insertSql, new MapSqlParameterSource()
+						.addValue("dataReferencia", dataReferencia)
+						.addValue("valorTotal", valorTotal)
+						.addValue("valorInformado", valorInformado)
+						.addValue("valorQuebra", valorQuebra)
+						.addValue("observacoes", observacoes), keyHolder, new String[] { "id" });
+				existente = keyHolder.getKey().intValue();
+			} catch (DataAccessException exception) {
+				throw new DefaultErrorException("Erro ao salvar o fechamento do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			String updateSql = """
+					UPDATE caixa_fechamentos
+					SET status = 'FECHADO',
+					    fechado_em = NOW(),
+					    valor_total = :valorTotal,
+					    valor_informado = :valorInformado,
+					    valor_quebra = :valorQuebra,
+					    observacoes = :observacoes
+					WHERE id = :id
+					""";
+			try {
+				namedParameterJdbcTemplate.update(updateSql, new MapSqlParameterSource()
+						.addValue("id", existente)
+						.addValue("valorTotal", valorTotal)
+						.addValue("valorInformado", valorInformado)
+						.addValue("valorQuebra", valorQuebra)
+						.addValue("observacoes", observacoes));
+			} catch (DataAccessException exception) {
+				throw new DefaultErrorException("Erro ao atualizar o fechamento do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
+		return buscarFechamentoCaixa(existente);
+	}
+
+	public void substituirItensFechamentoCaixa(int idFechamento, List<CaixaResumoPagamentoResponse> itens) {
+		try {
+			namedParameterJdbcTemplate.update("DELETE FROM caixa_fechamento_itens WHERE id_caixa_fechamento = :id",
+					new MapSqlParameterSource("id", idFechamento));
+			String insertSql = """
+					INSERT INTO caixa_fechamento_itens (
+						id_caixa_fechamento, forma_pagamento, valor_total, quantidade_lancamentos
+					) VALUES (
+						:idFechamento, :formaPagamento, :valorTotal, :quantidadeLancamentos
+					)
+					""";
+			for (CaixaResumoPagamentoResponse item : itens) {
+				namedParameterJdbcTemplate.update(insertSql, new MapSqlParameterSource()
+						.addValue("idFechamento", idFechamento)
+						.addValue("formaPagamento", item.getForma_pagamento())
+						.addValue("valorTotal", item.getValor_recebido())
+						.addValue("quantidadeLancamentos", item.getValor_recebido() != null
+								&& item.getValor_recebido().compareTo(BigDecimal.ZERO) > 0 ? 1 : 0));
+			}
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao salvar os itens do fechamento do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	public List<CaixaResumoPagamentoResponse> listarItensFechamentoCaixa(int idFechamento) {
+		String sql = """
+				SELECT forma_pagamento,
+				       valor_total,
+				       valor_total AS valor_recebido
+				FROM caixa_fechamento_itens
+				WHERE id_caixa_fechamento = :idFechamento
+				ORDER BY forma_pagamento
+				""";
+		try {
+			return namedParameterJdbcTemplate.query(sql,
+					new MapSqlParameterSource("idFechamento", idFechamento),
+					caixaResumoPagamentoMapper);
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao consultar os itens do fechamento do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	public List<OrcamentoItemResponse> listarItensVenda(int idVenda) {
 		String sql = """
 				SELECT id, tipo_item, id_produto, id_servico, descricao, quantidade, valor_unitario,
@@ -846,5 +1098,37 @@ public class FluxoComercialRepository {
 			return null;
 		}
 		return "%" + pesquisa.trim().toUpperCase() + "%";
+	}
+
+	private Integer buscarFechamentoCaixaPorData(LocalDate dataReferencia) {
+		try {
+			return namedParameterJdbcTemplate.queryForObject(
+					"SELECT id FROM caixa_fechamentos WHERE data_referencia = :dataReferencia",
+					new MapSqlParameterSource("dataReferencia", dataReferencia),
+					Integer.class);
+		} catch (EmptyResultDataAccessException exception) {
+			return null;
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao consultar fechamento do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private CaixaFechamentoResponse buscarFechamentoCaixa(int idFechamento) {
+		String sql = """
+				SELECT id, data_referencia, fechado_em, valor_total, valor_informado, valor_quebra, observacoes
+				FROM caixa_fechamentos
+				WHERE id = :idFechamento
+				""";
+		try {
+			CaixaFechamentoResponse fechamento = namedParameterJdbcTemplate.queryForObject(sql,
+					new MapSqlParameterSource("idFechamento", idFechamento),
+					caixaFechamentoMapper);
+			fechamento.setItens(listarItensFechamentoCaixa(idFechamento));
+			return fechamento;
+		} catch (EmptyResultDataAccessException exception) {
+			throw new DefaultErrorException("Fechamento do caixa nao encontrado.", HttpStatus.NOT_FOUND);
+		} catch (DataAccessException exception) {
+			throw new DefaultErrorException("Erro ao consultar fechamento do caixa.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

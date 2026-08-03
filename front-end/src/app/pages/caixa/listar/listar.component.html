@@ -1,0 +1,147 @@
+<div class="container-fluid caixa-page">
+  <div class="page-header">
+    <div>
+      <small class="eyebrow">Financeiro</small>
+      <h2>Caixa</h2>
+      <p>Caixa do dia para fechamento e historico de caixas fechados.</p>
+    </div>
+  </div>
+
+  <section class="caixa-grid">
+    <article class="caixa-card destaque">
+      <div class="card-top">
+        <div>
+          <span class="card-label">Caixa do dia</span>
+          <h3>{{ hoje | date:'dd/MM/yyyy' }}</h3>
+        </div>
+        <button mat-flat-button type="button" class="btn btn-primary" [disabled]="fechandoCaixa()" (click)="abrirModalFechamento()">Fechar caixa</button>
+      </div>
+
+      <div class="caixa-total">
+        <span>Total do dia</span>
+        <strong>{{ totalCaixaDia() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <div class="totais-secundarios">
+        <div>
+          <span>Valor pago/recebido</span>
+          <strong>{{ totalRecebidoCaixaDia() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="resumo-list">
+        <div class="resumo-item" *ngFor="let item of resumoCaixaDia()">
+          <div>
+            <span>{{ formaPagamentoLabel(item.forma_pagamento) }}</span>
+            <small>Total: {{ item.valor_total | currency:'BRL':'symbol':'1.2-2' }}</small>
+          </div>
+          <div class="resumo-item-values">
+            <small>Pago: {{ item.valor_recebido | currency:'BRL':'symbol':'1.2-2' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <p class="helper-text">Essa tela consolida os recebimentos do dia por forma de pagamento e registra o fechamento do caixa.</p>
+    </article>
+
+    <article class="caixa-card">
+      <div class="card-top">
+        <div>
+          <span class="card-label">Caixas fechados</span>
+          <h3>Historico</h3>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!caixasFechados().length">
+        Nenhum caixa fechado encontrado.
+      </div>
+
+      <div class="historico-list" *ngIf="caixasFechados().length">
+        <div class="historico-item" *ngFor="let caixa of caixasFechados()">
+          <div>
+            <strong>{{ caixa.data_referencia | date:'dd/MM/yyyy' }}</strong>
+            <span>Fechado em {{ caixa.fechado_em | date:'HH:mm' }}</span>
+          </div>
+          <div class="historico-values">
+            <div>
+              <strong>{{ caixa.valor_total | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              <small class="quebra-status" [class.sem-quebra]="!caixa.valor_quebra" [class.com-quebra]="!!caixa.valor_quebra">
+                {{ caixa.valor_quebra ? ('Quebra: ' + (caixa.valor_quebra | currency:'BRL':'symbol':'1.2-2')) : 'Sem quebra' }}
+              </small>
+            </div>
+            <button type="button" class="btn btn-link btn-editar-fechamento" [disabled]="fechandoCaixa()" (click)="editarFechamento(caixa)">
+              Editar
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <div class="modal-backdrop-custom" *ngIf="modalFechamentoAberto()" (click)="fecharModalFechamento()"></div>
+
+  <section class="modal-fechamento" *ngIf="modalFechamentoAberto()" role="dialog" aria-modal="true" aria-labelledby="titulo-fechamento">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="card-label">Fechamento</span>
+          <h3 id="titulo-fechamento">{{ editandoFechamento ? 'Editar fechamento' : 'Conferir caixa' }}</h3>
+          <small *ngIf="editandoFechamento && dataReferenciaFechamento">
+            {{ dataReferenciaFechamento | date:'dd/MM/yyyy' }}
+          </small>
+        </div>
+        <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModalFechamento()"></button>
+      </div>
+
+      <div class="conferencia-grid">
+        <div>
+          <span>Valor esperado</span>
+          <strong>{{ valorEsperadoFechamento | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Total conferido</span>
+          <strong>{{ valorConferido() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="conferencia-por-tipo">
+        <div class="conferencia-item" *ngFor="let item of conferenciaPorTipo; let i = index; trackBy: trackByFormaPagamento">
+          <div>
+            <span>{{ formaPagamentoLabel(item.forma_pagamento) }}</span>
+          </div>
+          <input
+            type="text"
+            class="form-control"
+            currencyMask
+            [options]="moneyMaskOptions"
+            [ngModel]="item.valor_informado"
+            (ngModelChange)="atualizarValorConferido(i, $event)"
+            [disabled]="fechandoCaixa()"
+          />
+        </div>
+      </div>
+
+      <div class="quebra-box" [class.sem-quebra]="quebraCaixa() === 0" [class.sobra]="quebraCaixa() > 0" [class.falta]="quebraCaixa() < 0">
+        <span>{{ quebraCaixa() === 0 ? 'Sem quebra registrada' : 'Quebra registrada' }}</span>
+        <strong>{{ quebraCaixa() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <label class="observacoes-label" for="observacoes-fechamento">Observacoes</label>
+      <textarea
+        id="observacoes-fechamento"
+        class="form-control"
+        rows="3"
+        placeholder="Opcional. Ex.: diferenca por troco, recebimento pendente, ajuste manual..."
+        [(ngModel)]="observacoesFechamento"
+        [disabled]="fechandoCaixa()"
+      ></textarea>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="fechandoCaixa()" (click)="fecharModalFechamento()">Cancelar</button>
+        <button mat-flat-button type="button" class="btn btn-primary" [disabled]="fechandoCaixa()" (click)="confirmarFechamento()">
+          {{ fechandoCaixa() ? 'Salvando...' : (editandoFechamento ? 'Atualizar fechamento' : 'Confirmar fechamento') }}
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

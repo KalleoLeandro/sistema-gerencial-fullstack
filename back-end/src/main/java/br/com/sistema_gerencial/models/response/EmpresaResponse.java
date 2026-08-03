@@ -18,10 +18,16 @@ import lombok.Setter;
 public class EmpresaResponse {
 
 	private int id;
+	private String tipo_pessoa;
+	private String nome_cliente;
 	private String nome_fantasia;
 	private String razao_social;
+	private String cpf_cnpj;
 	private String cnpj;
+	private String ie;
 	private String inscricao;
+	private Boolean possui_contrato;
+	private Boolean teve_contrato;
 	private String infraestrutura;	
 	private LocalDateTime data_inicio;	
     private LocalDateTime data_fim;

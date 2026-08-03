@@ -17,10 +17,16 @@ import lombok.Setter;
 @Setter
 public class AtualizarEmpresaRequest {
 	private int id;
+	private String tipo_pessoa;
+	private String nome_cliente;
 	private String nome_fantasia;
 	private String razao_social;
+	private String cpf_cnpj;
 	private String cnpj;
-	private String inscricao;	
+	private String ie;
+	private String inscricao;
+	private Boolean possui_contrato;
+	private Boolean teve_contrato;
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm")
 	private LocalDateTime data_inicio;
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm")

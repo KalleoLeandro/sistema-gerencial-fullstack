@@ -24,6 +24,7 @@ public class ProdutoResponse {
 	private BigDecimal estoque_atual;
 	private BigDecimal estoque_minimo;
 	private boolean ativo;
+	private String imagem_exibicao_id;
 	private LocalDateTime criado_em;
 	private LocalDateTime atualizado_em;
 }

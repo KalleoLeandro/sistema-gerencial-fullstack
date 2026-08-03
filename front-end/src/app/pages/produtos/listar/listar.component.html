@@ -32,6 +32,7 @@
           <thead>
             <tr>
               <th>ID</th>
+              <th>Imagem</th>
               <th>Nome</th>
               <th>Codigo</th>
               <th>Unidade</th>
@@ -45,6 +46,14 @@
             @for (item of produtos().lista; track item.id) {
               <tr>
                 <td>{{ item.id }}</td>
+                <td>
+                  <ng-container *ngIf="urlImagemExibicao(item) as imagemUrl; else semImagemProduto">
+                    <img class="product-thumb" [src]="imagemUrl" [alt]="item.nome" loading="lazy" />
+                  </ng-container>
+                  <ng-template #semImagemProduto>
+                    <div class="product-thumb product-thumb--empty">Sem imagem</div>
+                  </ng-template>
+                </td>
                 <td>{{ item.nome }}</td>
                 <td>{{ item.codigo || '-' }}</td>
                 <td>{{ item.unidade_medida }}</td>
@@ -60,7 +69,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="8" class="empty-state">Nenhum produto cadastrado.</td>
+                <td colspan="9" class="empty-state">Nenhum produto cadastrado.</td>
               </tr>
             }
           </tbody>

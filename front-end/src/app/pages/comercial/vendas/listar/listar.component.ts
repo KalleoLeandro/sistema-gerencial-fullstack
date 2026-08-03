@@ -70,6 +70,18 @@ export class ListarComponent implements OnInit {
     this.router.navigate(['/comercial/vendas/detalhes', id]);
   }
 
+  public editarVenda(id: number): void {
+    this.router.navigate(['/comercial/vendas/editar', id]);
+  }
+
+  public abrirOrcamentos(): void {
+    this.router.navigate(['/comercial/vendas/orcamentos/listar']);
+  }
+
+  public novaVenda(): void {
+    this.router.navigate(['/comercial/vendas/pdv']);
+  }
+
   public mudarTamanho(): void {
     this.page = 1;
     this.atualizarQueryParams();

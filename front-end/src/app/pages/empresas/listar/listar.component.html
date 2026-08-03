@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="card mb-4">
     <div class="card-header py-3 mb-2">
-      <h6 class="m-0 font-weight-bold text-secondary">Lista de Empresas</h6>
+      <h6 class="m-0 font-weight-bold text-secondary">Lista de Clientes</h6>
     </div>
 
     <div class="col-12">
@@ -11,7 +11,7 @@
           <input
             matInput
             type="search"
-            placeholder="Digite parte do nome da empresa"
+            placeholder="Digite parte do nome do cliente"
             aria-label="Pesquisar"
             [(ngModel)]="dadosPesquisa"
             (input)="verificarVazio()">
@@ -55,10 +55,10 @@
 
           <div class="book-page-body">
             @if (paginaEsquerda().lista.length === 0) {
-              <div class="book-empty">Nenhuma empresa encontrada.</div>
+              <div class="book-empty">Nenhum cliente encontrado.</div>
             } @else {
               @for (item of paginaEsquerda().lista; track trackEmpresa($index, item)) {
-                <a class="book-line" [routerLink]="['/empresas/detalhes', item.id]" [routerLinkActive]="['active']">
+                <a class="book-line" [routerLink]="['/clientes/detalhes', item.id]" [routerLinkActive]="['active']">
                   {{ item.nome_fantasia }}
                 </a>
               }
@@ -73,7 +73,7 @@
 
           <div class="book-page-body">
             @for (item of paginaDireita().lista; track trackEmpresa($index, item)) {
-              <a class="book-line" [routerLink]="['/empresas/detalhes', item.id]" [routerLinkActive]="['active']">
+              <a class="book-line" [routerLink]="['/clientes/detalhes', item.id]" [routerLinkActive]="['active']">
                 {{ item.nome_fantasia }}
               </a>
             }
@@ -129,7 +129,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalConfirmacao">Cadastro de Empresas</h5>
+        <h5 class="modal-title" id="modalConfirmacao">Cadastro de Clientes</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">

@@ -87,7 +87,7 @@ export class DetalhesComponent implements AfterViewInit, OnDestroy {
   }
 
   public abrirFluxoComercial() {
-    this.router.navigate(['/comercial/orcamento'], {
+    this.router.navigate(['/comercial/vendas/orcamento'], {
       queryParams: { origemTipo: 'MANUTENCAO', origemId: this.id }
     });
   }

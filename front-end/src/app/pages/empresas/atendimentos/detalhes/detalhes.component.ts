@@ -76,13 +76,13 @@ export class DetalhesComponent implements AfterViewInit, OnDestroy {
 
   public alterarAtendimento() {
     this.router.navigate(
-      ['/atendimentos/cadastrar/'],
+      ['/ordens-servico/cadastrar/'],
       { queryParams: { id: this.id, id_empresa: this.id_empresa } }
     );
   }
 
   public abrirFluxoComercial() {
-    this.router.navigate(['/comercial/orcamento'], {
+    this.router.navigate(['/comercial/vendas/orcamento'], {
       queryParams: { origemTipo: 'ATENDIMENTO', origemId: this.id }
     });
   }
@@ -160,7 +160,7 @@ export class DetalhesComponent implements AfterViewInit, OnDestroy {
 
   public redirecionar() {
     if (!this.resposta.includes("Erro") && this.excluir === false) {
-      this.router.navigate([`/empresas/detalhes/${this.id_empresa}`],
+      this.router.navigate([`/clientes/detalhes/${this.id_empresa}`],
         { queryParams: { aba: 3 } }
       )
     }

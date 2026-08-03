@@ -33,9 +33,8 @@ public class ProdutoController {
 
 	@PostMapping("/cadastrar")
 	@Operation(summary = "Cadastra um produto")
-	public ResponseEntity<Void> cadastrar(@RequestBody CadastrarProdutoRequest request) {
-		produtoService.cadastrar(request);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
+	public ResponseEntity<Integer> cadastrar(@RequestBody CadastrarProdutoRequest request) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.cadastrar(request));
 	}
 
 	@GetMapping("/listar")

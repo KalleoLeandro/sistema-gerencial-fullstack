@@ -11,7 +11,8 @@
       <div class="form-grid">
         <mat-form-field appearance="fill">
           <mat-label>Codigo</mat-label>
-          <input matInput [(ngModel)]="form.codigo" />
+          <input matInput [ngModel]="form.codigo || ''" readonly />
+          <mat-hint>{{ id ? 'Gerado automaticamente pelo sistema.' : 'Sera gerado automaticamente ao salvar.' }}</mat-hint>
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Nome</mat-label>
@@ -44,6 +45,29 @@
         <div class="toggle-field">
           <mat-checkbox [(ngModel)]="form.ativo">Produto ativo</mat-checkbox>
         </div>
+      </div>
+
+      <div class="image-sections">
+        <app-imagem-manager
+          [entityId]="id"
+          entityType="PRODUTO"
+          categoria="PRODUTO_EXIBICAO"
+          titulo="Imagem de exibicao"
+          descricao="Imagem principal usada para visualizacao do produto no sistema."
+          [multiple]="false"
+          [tamanhoMaximoPx]="300"
+          textoVazio="Nenhuma imagem de exibicao cadastrada.">
+        </app-imagem-manager>
+
+        <app-imagem-manager
+          [entityId]="id"
+          entityType="PRODUTO"
+          categoria="PRODUTO_CONTROLE"
+          titulo="Imagens de controle"
+          descricao="Fotos adicionais para conferencia interna, estoque e apoio operacional."
+          [tamanhoMaximoPx]="300"
+          textoVazio="Nenhuma imagem de controle cadastrada.">
+        </app-imagem-manager>
       </div>
 
       <div class="actions">

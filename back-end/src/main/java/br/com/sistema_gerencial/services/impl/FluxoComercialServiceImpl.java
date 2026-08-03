@@ -16,12 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.sistema_gerencial.exceptions.DefaultErrorException;
 import br.com.sistema_gerencial.models.dto.OrigemComercialDTO;
 import br.com.sistema_gerencial.models.requests.AtualizarItensOrcamentoRequest;
+import br.com.sistema_gerencial.models.requests.AtualizarVendaRequest;
 import br.com.sistema_gerencial.models.requests.AprovarOrcamentoRequest;
+import br.com.sistema_gerencial.models.requests.CriarOrcamentoRequest;
 import br.com.sistema_gerencial.models.requests.CriarOrcamentoPdvRequest;
+import br.com.sistema_gerencial.models.requests.FecharCaixaItemRequest;
+import br.com.sistema_gerencial.models.requests.FecharCaixaRequest;
 import br.com.sistema_gerencial.models.requests.OrcamentoItemRequest;
 import br.com.sistema_gerencial.models.requests.PagamentoVendaRequest;
 import br.com.sistema_gerencial.models.requests.ReabrirOrcamentoRequest;
 import br.com.sistema_gerencial.models.requests.RejeitarOrcamentoRequest;
+import br.com.sistema_gerencial.models.response.CaixaFechamentoResponse;
+import br.com.sistema_gerencial.models.response.CaixaResumoDiaResponse;
+import br.com.sistema_gerencial.models.response.CaixaResumoPagamentoResponse;
 import br.com.sistema_gerencial.models.response.OrcamentoItemResponse;
 import br.com.sistema_gerencial.models.response.OrcamentoResponse;
 import br.com.sistema_gerencial.models.response.ParcelaResponse;
@@ -77,6 +84,44 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 	@Transactional(readOnly = true)
 	public Map<String, Object> listarOrcamentosPorPagina(int limit, int page, String pesquisa) {
 		return repository.listarOrcamentosPorPagina(normalizarLimite(limit), normalizarPagina(page), pesquisa);
+	}
+
+	@Override
+	@Transactional
+	public OrcamentoResponse criarOrcamento(CriarOrcamentoRequest request) {
+		CriarOrcamentoRequest requestNormalizado = request == null ? new CriarOrcamentoRequest() : request;
+		String origemTipo = blankToNull(requestNormalizado.getOrigem_tipo());
+		int origemId = origemTipo == null ? 0 : Math.max(0, requestNormalizado.getOrigem_id() == null ? 0 : requestNormalizado.getOrigem_id());
+
+		OrigemComercialDTO origem = origemTipo == null
+				? OrigemComercialDTO.builder()
+						.origemId(0)
+						.origemTipo("LIVRE")
+						.clienteNome(blankToNull(requestNormalizado.getCliente_nome()) != null
+								? requestNormalizado.getCliente_nome().trim()
+								: "Consumidor final")
+						.clienteDocumento(blankToNull(requestNormalizado.getCliente_documento()))
+						.observacoes(blankToNull(requestNormalizado.getObservacoes()))
+						.build()
+				: repository.buscarOrigem(origemTipo, origemId);
+
+		int idOrcamento = repository.inserirOrcamento(null, origem,
+				blankToNull(requestNormalizado.getObservacoes()) != null
+						? requestNormalizado.getObservacoes().trim()
+						: origemTipo == null
+								? "Orcamento criado manualmente."
+								: "Orcamento criado manualmente a partir de " + origem.getOrigemTipo().toLowerCase() + ".");
+
+		Map<String, Object> payload = new LinkedHashMap<>();
+		payload.put("orcamentoId", idOrcamento);
+		payload.put("codigo", null);
+		payload.put("origemTipo", origem.getOrigemTipo());
+		payload.put("origemId", origem.getOrigemId() == 0 ? null : origem.getOrigemId());
+		payload.put("clienteNome", origem.getClienteNome());
+		payload.put("clienteDocumento", origem.getClienteDocumento());
+		repository.registrarEventoOutbox("ORCAMENTO", idOrcamento, "ORCAMENTO_GERADO", payload);
+
+		return repository.buscarOrcamentoPorId(idOrcamento);
 	}
 
 	@Override
@@ -145,9 +190,23 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 
 		String status = itensNormalizados.isEmpty() ? "ABERTO" : "EM_ANALISE";
 		repository.atualizarResumoOrcamento(request.getId_orcamento(), request.getValidade_em(), descontoFinanceiro,
-				acrescimoFinanceiro, subtotal, totalDesconto, totalAcrescimo, totalGeral, status,
+				acrescimoFinanceiro, blankToNull(request.getCliente_nome()), blankToNull(request.getCliente_documento()),
+				subtotal, totalDesconto, totalAcrescimo, totalGeral, status,
 				blankToNull(request.getObservacoes()));
 		atualizarOrigemComValorOrcamento(orcamento, totalGeral);
+
+		Integer idVendaExistente = repository.buscarVendaPorOrcamento(request.getId_orcamento());
+		if (idVendaExistente != null) {
+			repository.removerItensVenda(idVendaExistente);
+			for (OrcamentoItemResponse item : itensNormalizados) {
+				repository.inserirItemVenda(idVendaExistente, item);
+			}
+			repository.atualizarResumoVenda(idVendaExistente,
+					blankToNull(request.getCliente_nome()) != null ? request.getCliente_nome().trim() : orcamento.getCliente_nome(),
+					blankToNull(request.getCliente_documento()),
+					subtotal, totalDesconto, totalAcrescimo, totalGeral,
+					blankToNull(request.getObservacoes()));
+		}
 
 		Map<String, Object> payload = new LinkedHashMap<>();
 		payload.put("orcamentoId", request.getId_orcamento());
@@ -311,9 +370,160 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 	}
 
 	@Override
+	@Transactional
+	public VendaResponse atualizarVenda(AtualizarVendaRequest request) {
+		VendaResponse venda = repository.buscarVendaPorId(request.getId_venda());
+
+		List<OrcamentoItemResponse> itensNormalizados = normalizarItens(request.getItens());
+		BigDecimal subtotal = itensNormalizados.stream()
+				.map(OrcamentoItemResponse::getValor_total)
+				.reduce(ZERO, BigDecimal::add)
+				.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal descontoItens = itensNormalizados.stream()
+				.map(OrcamentoItemResponse::getValor_desconto)
+				.reduce(ZERO, BigDecimal::add)
+				.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal totalDesconto = descontoItens.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal totalAcrescimo = ZERO;
+		BigDecimal totalGeral = subtotal.setScale(2, RoundingMode.HALF_UP);
+
+		if (totalGeral.compareTo(ZERO) < 0) {
+			throw new DefaultErrorException("O total da venda nao pode ser negativo.", HttpStatus.BAD_REQUEST);
+		}
+
+		repository.removerItensVenda(venda.getId());
+		for (OrcamentoItemResponse item : itensNormalizados) {
+			repository.inserirItemVenda(venda.getId(), item);
+		}
+
+		List<PagamentoVendaRequest> pagamentos = request.getPagamentos() == null ? List.of() : request.getPagamentos();
+		BigDecimal totalPagoInformado = pagamentos.stream()
+				.map(PagamentoVendaRequest::getValor_pago)
+				.map(this::monetary)
+				.reduce(ZERO, BigDecimal::add)
+				.setScale(2, RoundingMode.HALF_UP);
+		if (totalPagoInformado.compareTo(totalGeral) != 0) {
+			throw new DefaultErrorException("O total pago informado deve ser igual ao total da venda.", HttpStatus.BAD_REQUEST);
+		}
+
+		repository.atualizarVenda(venda.getId(),
+				blankToNull(request.getCliente_nome()) != null ? request.getCliente_nome().trim() : venda.getCliente_nome(),
+				blankToNull(request.getCliente_documento()),
+				normalizarFormaPagamento(blankToNull(request.getForma_pagamento())),
+				1,
+				subtotal,
+				totalDesconto,
+				totalAcrescimo,
+				totalGeral,
+				blankToNull(request.getObservacoes()));
+
+		repository.removerPagamentosVenda(venda.getId());
+		repository.removerParcelasVenda(venda.getId());
+		repository.inserirParcela(venda.getId(), 1, LocalDate.now(), totalGeral);
+		for (PagamentoVendaRequest pagamento : pagamentos) {
+			PagamentoVendaRequest pagamentoNormalizado = new PagamentoVendaRequest();
+			pagamentoNormalizado.setNumero_parcela(1);
+			pagamentoNormalizado.setData_pagamento(pagamento.getData_pagamento());
+			pagamentoNormalizado.setForma_pagamento(pagamento.getForma_pagamento());
+			pagamentoNormalizado.setValor_pago(pagamento.getValor_pago());
+			pagamentoNormalizado.setObservacoes(pagamento.getObservacoes());
+			registrarPagamento(venda.getId(), pagamentoNormalizado);
+		}
+
+		return repository.buscarVendaPorId(venda.getId());
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public Map<String, Object> listarVendasPorPagina(int limit, int page, String pesquisa) {
 		return repository.listarVendasPorPagina(normalizarLimite(limit), normalizarPagina(page), pesquisa);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CaixaResumoDiaResponse buscarResumoCaixaDia() {
+		LocalDate hoje = LocalDate.now();
+		return CaixaResumoDiaResponse.builder()
+				.data_referencia(hoje)
+				.resumo(repository.listarResumoCaixaDia(hoje))
+				.fechamentos(repository.listarFechamentosCaixa())
+				.build();
+	}
+
+	@Override
+	@Transactional
+	public CaixaFechamentoResponse fecharCaixa(FecharCaixaRequest request) {
+		FecharCaixaRequest requestNormalizado = request == null ? new FecharCaixaRequest() : request;
+		LocalDate dataReferencia = requestNormalizado.getData_referencia() == null
+				? LocalDate.now()
+				: requestNormalizado.getData_referencia();
+		List<CaixaResumoPagamentoResponse> resumoEsperado = repository.listarResumoCaixaDia(dataReferencia);
+		BigDecimal valorEsperado = resumoEsperado.stream()
+				.map(item -> monetary(item.getValor_recebido()))
+				.reduce(ZERO, BigDecimal::add)
+				.setScale(2, RoundingMode.HALF_UP);
+		List<CaixaResumoPagamentoResponse> resumoConferido = normalizarItensFechamentoCaixa(
+				requestNormalizado.getItens(),
+				resumoEsperado);
+		BigDecimal valorInformado = resumoConferido.stream()
+				.map(item -> monetary(item.getValor_recebido()))
+				.reduce(ZERO, BigDecimal::add)
+				.setScale(2, RoundingMode.HALF_UP);
+		if ((requestNormalizado.getItens() == null || requestNormalizado.getItens().isEmpty())
+				&& requestNormalizado.getValor_informado() != null) {
+			valorInformado = monetary(requestNormalizado.getValor_informado());
+		}
+		if (valorInformado.compareTo(ZERO) < 0) {
+			throw new DefaultErrorException("Valor conferido nao pode ser negativo.", HttpStatus.BAD_REQUEST);
+		}
+		BigDecimal valorQuebra = valorInformado.subtract(valorEsperado).setScale(2, RoundingMode.HALF_UP);
+
+		CaixaFechamentoResponse fechamento = repository.salvarFechamentoCaixa(dataReferencia, valorEsperado,
+				valorInformado, valorQuebra, blankToNull(requestNormalizado.getObservacoes()));
+		repository.substituirItensFechamentoCaixa(fechamento.getId(), resumoConferido);
+		fechamento.setItens(repository.listarItensFechamentoCaixa(fechamento.getId()));
+		return fechamento;
+	}
+
+	private List<CaixaResumoPagamentoResponse> normalizarItensFechamentoCaixa(
+			List<FecharCaixaItemRequest> itensRequest,
+			List<CaixaResumoPagamentoResponse> resumoEsperado) {
+		Map<String, CaixaResumoPagamentoResponse> itensNormalizados = new LinkedHashMap<>();
+
+		for (CaixaResumoPagamentoResponse item : resumoEsperado) {
+			String formaPagamento = blankToNull(item.getForma_pagamento()) == null
+					? "NAO INFORMADO"
+					: item.getForma_pagamento().trim().toUpperCase();
+			itensNormalizados.put(formaPagamento, CaixaResumoPagamentoResponse.builder()
+					.forma_pagamento(formaPagamento)
+					.valor_total(monetary(item.getValor_total()))
+					.valor_recebido(monetary(item.getValor_recebido()))
+					.build());
+		}
+
+		if (itensRequest != null && !itensRequest.isEmpty()) {
+			for (FecharCaixaItemRequest itemRequest : itensRequest) {
+				if (itemRequest == null) {
+					continue;
+				}
+				String formaPagamento = blankToNull(itemRequest.getForma_pagamento()) == null
+						? "NAO INFORMADO"
+						: itemRequest.getForma_pagamento().trim().toUpperCase();
+				BigDecimal valorInformado = monetary(itemRequest.getValor_informado());
+				if (valorInformado.compareTo(ZERO) < 0) {
+					throw new DefaultErrorException("Valor conferido por forma de pagamento nao pode ser negativo.",
+							HttpStatus.BAD_REQUEST);
+				}
+				CaixaResumoPagamentoResponse atual = itensNormalizados.get(formaPagamento);
+				itensNormalizados.put(formaPagamento, CaixaResumoPagamentoResponse.builder()
+						.forma_pagamento(formaPagamento)
+						.valor_total(atual != null ? monetary(atual.getValor_total()) : ZERO)
+						.valor_recebido(valorInformado)
+						.build());
+			}
+		}
+
+		return new ArrayList<>(itensNormalizados.values());
 	}
 
 	private void registrarPagamento(int idVenda, PagamentoVendaRequest pagamentoRequest) {
@@ -363,9 +573,6 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 	}
 
 	private void validarOrcamentoEditavel(OrcamentoResponse orcamento) {
-		if ("APROVADO".equalsIgnoreCase(orcamento.getStatus())) {
-			throw new DefaultErrorException("Orcamentos aprovados nao podem ser alterados.", HttpStatus.BAD_REQUEST);
-		}
 		if ("REJEITADO".equalsIgnoreCase(orcamento.getStatus())) {
 			throw new DefaultErrorException("Orcamentos rejeitados nao podem ser alterados.", HttpStatus.BAD_REQUEST);
 		}
@@ -445,6 +652,10 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 
 	private String gerarCodigoSequencial(String prefixo, long sequencial) {
 		return "%s-%06d".formatted(prefixo, sequencial);
+	}
+
+	private String normalizarFormaPagamento(String formaPagamento) {
+		return blankToNull(formaPagamento) == null ? null : formaPagamento.trim().toUpperCase();
 	}
 
 	private BigDecimal monetary(BigDecimal value) {

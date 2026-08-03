@@ -1,0 +1,61 @@
+<section class="image-panel">
+  <div class="image-panel__header">
+    <div>
+      <h3>{{ titulo }}</h3>
+      <p *ngIf="descricao">{{ descricao }}</p>
+    </div>
+
+    <label *ngIf="!leitura" class="pdf-hide image-panel__upload">
+      <input type="file" accept="image/*" [multiple]="multiple" [disabled]="enviando" (change)="aoSelecionarArquivos($event)" />
+      <span class="btn btn-primary" [class.disabled]="enviando || !entityId">
+        {{ enviando ? 'Enviando...' : (multiple ? 'Adicionar imagens' : 'Adicionar imagem') }}
+      </span>
+    </label>
+  </div>
+
+  <div class="image-panel__hint pdf-hide" *ngIf="!entityId && !leitura">
+    Salve o cadastro para liberar o envio das imagens.
+  </div>
+
+  <div class="image-panel__state" *ngIf="carregando">Carregando imagens...</div>
+  <div class="image-panel__state" *ngIf="!carregando && !imagens.length">{{ textoVazio }}</div>
+
+  <div class="image-grid" *ngIf="!carregando && imagens.length">
+    <figure
+      class="image-card"
+      *ngFor="let imagem of imagens"
+      [class.image-card--principal]="imagem.principal"
+      [style.max-width.px]="tamanhoMaximoPx">
+      <img
+        [src]="urlConteudo(imagem)"
+        [alt]="imagem.nomeArquivo"
+        loading="lazy"
+        [style.max-width.px]="tamanhoMaximoPx"
+        [style.max-height.px]="tamanhoMaximoPx" />
+
+      <figcaption>
+        <div class="image-card__meta" *ngIf="imagem.principal">
+          <span class="image-card__badge">Principal</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="abrirImagem(imagem)">
+          Abrir
+        </button>
+        <button *ngIf="!leitura" type="button" class="btn btn-sm btn-outline-danger pdf-hide" (click)="excluir(imagem)">
+          Excluir
+        </button>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<div class="image-modal" *ngIf="imagemAberta" (click)="fecharImagem()">
+  <div class="image-modal__dialog" (click)="$event.stopPropagation()">
+    <div class="image-modal__header">
+      <strong>{{ imagemAberta.nomeArquivo }}</strong>
+      <button type="button" class="btn btn-sm btn-light" (click)="fecharImagem()">Fechar</button>
+    </div>
+    <div class="image-modal__body">
+      <img [src]="urlConteudo(imagemAberta)" [alt]="imagemAberta.nomeArquivo" />
+    </div>
+  </div>
+</div>

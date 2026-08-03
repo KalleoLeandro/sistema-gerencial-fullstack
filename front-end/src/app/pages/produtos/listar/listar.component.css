@@ -3,6 +3,25 @@
   white-space: nowrap;
 }
 
+.product-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.85rem;
+  object-fit: cover;
+  border: 1px solid #dbe7f3;
+  background: #f8fafc;
+}
+
+.product-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  color: #64748b;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
 .actions-col .btn + .btn {
   margin-left: 0.5rem;
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.sistema_gerencial.models.requests.AtualizarItensOrcamentoRequest;
+import br.com.sistema_gerencial.models.requests.CriarOrcamentoRequest;
 import br.com.sistema_gerencial.models.requests.CriarOrcamentoPdvRequest;
 import br.com.sistema_gerencial.models.requests.ReabrirOrcamentoRequest;
 import br.com.sistema_gerencial.models.requests.RejeitarOrcamentoRequest;
@@ -54,6 +55,12 @@ public class OrcamentoController {
 	@Operation(summary = "Cria um orcamento para o modulo PDV")
 	public ResponseEntity<OrcamentoResponse> criarPdv(@RequestBody(required = false) CriarOrcamentoPdvRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(fluxoComercialService.criarOrcamentoPdv(request));
+	}
+
+	@PostMapping("/criar")
+	@Operation(summary = "Cria um orcamento livre ou vinculado a uma origem")
+	public ResponseEntity<OrcamentoResponse> criar(@RequestBody(required = false) CriarOrcamentoRequest request) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(fluxoComercialService.criarOrcamento(request));
 	}
 
 	@PutMapping("/atualizar-itens")

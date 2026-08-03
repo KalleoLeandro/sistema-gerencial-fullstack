@@ -33,6 +33,10 @@ export class ManutencaoService {
     return this.httpClient.get<any>(`${this.url}/manutencao/listar?page=${page}&limit=${limit}&id=${id}`, this.httpOptions).pipe(catchError(this.handleError));
   }
 
+  public buscarManutencoesPorCliente(page: number, limit: number, id_empresa: number): Observable<any> {
+    return this.httpClient.get<any>(`${this.url}/manutencao/listar-por-cliente?page=${page}&limit=${limit}&id_empresa=${id_empresa}`, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
   public buscarPorId(id: number | null): Observable<Manutencao> {
     return this.httpClient.get<Manutencao>(`${this.url}/manutencao/buscar-por-id/${id}`, this.httpOptions).pipe(catchError(this.handleError));
   }

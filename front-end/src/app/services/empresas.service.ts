@@ -2,6 +2,7 @@
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Empresa } from '@models/empresa';
+import { RenovacaoContrato } from '@models/renovacao-contrato';
 import { environment } from '@environments/environment';
 import { Observable, catchError, throwError } from 'rxjs';
 
@@ -40,6 +41,14 @@ export class EmpresasService {
 
   public salvarDadosInfra(dadosInfra: string, id: number): Observable<any> {
     return this.httpClient.post<any>(`${this.url}/empresa/salvar-infra/${id}`, dadosInfra, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public renovarContrato(id: number, payload: { data_inicio: string; data_fim: string; observacoes?: string }): Observable<any> {
+    return this.httpClient.post<any>(`${this.url}/empresa/renovar-contrato/${id}`, payload, this.httpOptions).pipe(catchError(this.handleError));
+  }
+
+  public listarRenovacoes(id: number): Observable<RenovacaoContrato[]> {
+    return this.httpClient.get<RenovacaoContrato[]>(`${this.url}/empresa/listar-renovacoes/${id}`, this.httpOptions).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -302,7 +302,7 @@ export class CadastrarComponent implements AfterViewInit, OnDestroy {
   }
 
   public redirecionar() {
-    this.router.navigate([`/atendimentos/detalhes/${this.id}`], { queryParams: { id_empresa: this.id_empresa } });
+    this.router.navigate([`/ordens-servico/detalhes/${this.id}`], { queryParams: { id_empresa: this.id_empresa } });
   }
 
   private navegarAposSalvar() {

@@ -10,6 +10,7 @@ import br.com.sistema_gerencial.models.requests.AtualizarProdutoRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarProdutoRequest;
 import br.com.sistema_gerencial.models.response.ProdutoResponse;
 import br.com.sistema_gerencial.repositories.ProdutoRepository;
+import br.com.sistema_gerencial.services.ImagemService;
 import br.com.sistema_gerencial.services.ProdutoService;
 import lombok.RequiredArgsConstructor;
 
@@ -18,35 +19,46 @@ import lombok.RequiredArgsConstructor;
 public class ProdutoServiceImpl implements ProdutoService {
 
 	private final ProdutoRepository repository;
+	private final ImagemService imagemService;
 
 	@Override
 	@Transactional
-	public void cadastrar(CadastrarProdutoRequest request) {
-		repository.cadastrar(request);
+	public int cadastrar(CadastrarProdutoRequest request) {
+		return repository.cadastrar(request);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Map<String, Object> listarPorPagina(int limit, int page) {
-		return repository.listarPorPagina(limit, page);
+		Map<String, Object> resultado = repository.listarPorPagina(limit, page);
+		@SuppressWarnings("unchecked")
+		List<ProdutoResponse> produtos = (List<ProdutoResponse>) resultado.get("lista");
+		enriquecerImagemExibicao(produtos);
+		return resultado;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<ProdutoResponse> listarAtivos() {
-		return repository.listarAtivos();
+		List<ProdutoResponse> produtos = repository.listarAtivos();
+		enriquecerImagemExibicao(produtos);
+		return produtos;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<ProdutoResponse> listarEmFalta() {
-		return repository.listarEmFalta();
+		List<ProdutoResponse> produtos = repository.listarEmFalta();
+		enriquecerImagemExibicao(produtos);
+		return produtos;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public ProdutoResponse buscarPorId(int id) {
-		return repository.buscarPorId(id);
+		ProdutoResponse produto = repository.buscarPorId(id);
+		enriquecerImagemExibicao(List.of(produto));
+		return produto;
 	}
 
 	@Override
@@ -61,5 +73,11 @@ public class ProdutoServiceImpl implements ProdutoService {
 	public void excluir(int id) {
 		repository.buscarPorId(id);
 		repository.excluir(id);
+	}
+
+	private void enriquecerImagemExibicao(List<ProdutoResponse> produtos) {
+		Map<Integer, String> imagens = imagemService.buscarIdsImagemExibicaoProduto(
+				produtos.stream().map(ProdutoResponse::getId).toList());
+		produtos.forEach(produto -> produto.setImagem_exibicao_id(imagens.get(produto.getId())));
 	}
 }

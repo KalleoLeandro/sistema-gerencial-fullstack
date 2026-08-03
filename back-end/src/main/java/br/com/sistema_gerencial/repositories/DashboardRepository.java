@@ -139,7 +139,7 @@ public class DashboardRepository {
 	public int retornarContratosAcabando() {
 		String sql =
 			    "SELECT COUNT(*) AS total " +
-			    "FROM empresas " +
+			    "FROM clientes " +
 			    "WHERE data_fim >= NOW() " +
 			    "AND data_fim < DATE_ADD(NOW(), INTERVAL 30 DAY)";
 		try {
@@ -532,11 +532,11 @@ public class DashboardRepository {
 		String sql = """
 				SELECT
 					id AS id_empresa,
-					nome_fantasia,
+					COALESCE(NULLIF(nome_fantasia, ''), NULLIF(razao_social, ''), NULLIF(nome, ''), 'Consumidor final') AS nome_fantasia,
 					razao_social,
 					data_fim,
 					TIMESTAMPDIFF(DAY, NOW(), data_fim) AS dias_para_encerrar
-				FROM empresas
+				FROM clientes
 				WHERE data_fim IS NOT NULL
 				ORDER BY data_fim ASC, nome_fantasia ASC
 				""";
@@ -562,11 +562,11 @@ public class DashboardRepository {
 						'FINALIZACAO_CONTRATO' AS tipo,
 						e.id AS referencia_id,
 						e.id AS empresa_id,
-						e.nome_fantasia AS titulo,
+						COALESCE(NULLIF(e.nome_fantasia, ''), NULLIF(e.razao_social, ''), NULLIF(e.nome, ''), 'Consumidor final') AS titulo,
 						'Finalizacao de contrato' AS subtitulo,
 						e.data_fim AS data_evento,
 						CASE WHEN e.data_fim <= NOW() THEN TRUE ELSE FALSE END AS concluido
-					FROM empresas e
+					FROM clientes e
 					WHERE e.data_fim IS NOT NULL
 
 					UNION ALL
@@ -601,12 +601,12 @@ public class DashboardRepository {
 						'ATENDIMENTO' AS tipo,
 						at.id AS referencia_id,
 						at.id_empresa AS empresa_id,
-						e.nome_fantasia AS titulo,
+						COALESCE(NULLIF(e.nome_fantasia, ''), NULLIF(e.razao_social, ''), NULLIF(e.nome, ''), 'Consumidor final') AS titulo,
 						CONCAT('Atendimento - ', COALESCE(at.solicitante, 'Sem solicitante')) AS subtitulo,
 						at.data_inicio AS data_evento,
 						CASE WHEN at.status_atendimento = 3 THEN TRUE ELSE FALSE END AS concluido
 					FROM atendimentos at
-					LEFT JOIN empresas e ON e.id = at.id_empresa
+					LEFT JOIN clientes e ON e.id = at.id_empresa
 					WHERE at.data_inicio IS NOT NULL
 
 					UNION ALL
@@ -615,13 +615,13 @@ public class DashboardRepository {
 						'MANUTENCAO' AS tipo,
 						m.id AS referencia_id,
 						e.id AS empresa_id,
-						COALESCE(eq.nome_maquina, e.nome_fantasia, 'Equipamento') AS titulo,
-						CONCAT('Manutencao - ', COALESCE(e.nome_fantasia, 'Sem empresa')) AS subtitulo,
+						COALESCE(eq.nome_maquina, e.nome_fantasia, e.razao_social, e.nome, 'Equipamento') AS titulo,
+						CONCAT('Manutencao - ', COALESCE(e.nome_fantasia, e.razao_social, e.nome, 'Sem cliente')) AS subtitulo,
 						m.data_inicio AS data_evento,
 						CASE WHEN m.status_atendimento = 3 THEN TRUE ELSE FALSE END AS concluido
 					FROM manutencao m
 					LEFT JOIN equipamentos eq ON eq.id = m.id_equipamento
-					LEFT JOIN empresas e ON e.id = eq.id_empresa
+					LEFT JOIN clientes e ON e.id = eq.id_empresa
 					WHERE m.data_inicio IS NOT NULL
 				) agenda
 				ORDER BY data_evento ASC, titulo ASC

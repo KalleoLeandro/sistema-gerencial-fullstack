@@ -1,143 +1,212 @@
-<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando empresa...' : 'Cadastrando empresa...'">
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando cliente...' : 'Cadastrando cliente...'">
   <div class="page-shell">
     <div class="card page-card">
       <div class="card-header py-3 mb-2 page-heading">
-        <h2>Cadastro de Empresas</h2>
+        <h2>Cadastro de Clientes</h2>
       </div>
 
-    <form [formGroup]="cadastroForm" class="empresa-form">
-      <input type="text" name="id" id="id" formControlName="id">
+      <form [formGroup]="cadastroForm" class="empresa-form">
+        <input type="text" name="id" id="id" formControlName="id">
 
-      <div class="card section-card">
-        <div class="card-header py-3 mb-2 section-heading">
-          <h3>Dados da Empresa</h3>
+        <div class="card section-card">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Dados do Cliente</h3>
+          </div>
+
+          <div class="form-grid form-grid-empresa">
+            <div class="full-span d-flex flex-column gap-2">
+              <label class="fw-semibold">Tipo de pessoa</label>
+              <mat-radio-group class="d-flex gap-4" [ngModel]="cadastroForm.get('tipo_pessoa')?.value"
+                (ngModelChange)="cadastroForm.get('tipo_pessoa')?.patchValue($event)"
+                [ngModelOptions]="{ standalone: true }">
+                <mat-radio-button value="f">Pessoa Fisica</mat-radio-button>
+                <mat-radio-button value="j">Pessoa Juridica</mat-radio-button>
+              </mat-radio-group>
+            </div>
+
+            <mat-form-field appearance="fill" class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <mat-label>Razao social</mat-label>
+              <input matInput type="text" formControlName="razao_social">
+              <mat-error *ngIf="isInvalid('razao_social')">Campo obrigatorio</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-span">
+              <mat-label>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'Nome fantasia' : 'Nome' }}</mat-label>
+              <input matInput type="text" formControlName="nome_fantasia">
+              <mat-error *ngIf="isInvalid('nome_fantasia')">Campo obrigatorio</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <mat-label>Nome exibido</mat-label>
+              <input matInput type="text" formControlName="nome_cliente">
+              <mat-error *ngIf="isInvalid('nome_cliente')">Campo obrigatorio</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</mat-label>
+              <input matInput type="text" formControlName="cpf_cnpj"
+                [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'"
+                (input)="buscarCnpj()">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <mat-label>IE</mat-label>
+              <input matInput type="text" formControlName="ie" maxlength="20">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>CEP</mat-label>
+              <input matInput type="text" formControlName="cep" name="cep" mask="00.000-000" (input)="buscarCep()">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="wide-span">
+              <mat-label>Endereco</mat-label>
+              <input matInput type="text" formControlName="endereco" name="endereco">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Numero</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="numero"
+                name="numero"
+                min="0"
+                step="1"
+                onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '+';">
+              <mat-error *ngIf="isInvalid('numero')">Numero invalido</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Complemento</mat-label>
+              <input matInput type="text" formControlName="complemento" name="complemento">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Bairro</mat-label>
+              <input matInput type="text" formControlName="bairro" name="bairro">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="wide-span">
+              <mat-label>Cidade</mat-label>
+              <input matInput type="text" formControlName="cidade" name="cidade">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>UF</mat-label>
+              <input matInput type="text" formControlName="uf" name="uf">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Telefone</mat-label>
+              <input matInput type="text" formControlName="telefone" name="telefone" mask="(00) 0000-0000">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Celular</mat-label>
+              <input matInput type="text" formControlName="celular" name="celular" mask="(00) 00000-0000">
+              <mat-error *ngIf="isInvalid('celular')">Informe pelo menos 11 digitos</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" name="email">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-span">
+              <mat-label>Contato</mat-label>
+              <input matInput type="text" formControlName="contato" name="contato">
+            </mat-form-field>
+          </div>
         </div>
 
-        <div class="form-grid form-grid-empresa">
-          <mat-form-field appearance="fill" class="full-span">
-            <mat-label>Razão Social</mat-label>
-            <input matInput type="text" formControlName="razao_social">
-            <mat-error *ngIf="isInvalid('razao_social')">Campo obrigatório</mat-error>
-          </mat-form-field>
+        <div class="card section-card">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Vinculo Contratual</h3>
+          </div>
 
-          <mat-form-field appearance="fill" class="full-span">
-            <mat-label>Nome Fantasia</mat-label>
-            <input matInput type="text" formControlName="nome_fantasia">
-            <mat-error *ngIf="isInvalid('nome_fantasia')">Campo obrigatório</mat-error>
-          </mat-form-field>
+          <div class="form-grid form-grid-atendimento">
+            <div class="full-span d-flex flex-column gap-2">
+              <label class="fw-semibold">Situacao do contrato</label>
+              <div class="d-flex flex-wrap gap-4">
+                <label class="d-flex align-items-center gap-2">
+                  <input type="checkbox" formControlName="possui_contrato">
+                  <span>Possui contrato ativo</span>
+                </label>
+                <label class="d-flex align-items-center gap-2">
+                  <input type="checkbox" formControlName="teve_contrato">
+                  <span>Possui historico de contrato</span>
+                </label>
+              </div>
+            </div>
 
-          <mat-form-field appearance="fill">
-            <mat-label>CNPJ</mat-label>
-            <input matInput type="text" formControlName="cnpj" mask="00.000.000/0000-00" (input)="buscarCnpj()">
-          </mat-form-field>
+            <mat-form-field *ngIf="possuiHistoricoContrato" appearance="fill">
+              <mat-label>Inicio do contrato</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" formControlName="data_inicio" placeholder="Selecione a data">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+              <mat-error *ngIf="cadastroForm.get('data_inicio')?.hasError('required')">Campo obrigatorio</mat-error>
+              <mat-error *ngIf="hasDateRangeError('data_inicio')">A data inicial nao pode ser maior que a data final</mat-error>
+            </mat-form-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>IE</mat-label>
-            <input matInput type="text" formControlName="inscricao" maxlength="10">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>CEP</mat-label>
-            <input matInput type="text" formControlName="cep" name="cep" mask="00.000-000" (input)="buscarCep()">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill" class="wide-span">
-            <mat-label>Endereço</mat-label>
-            <input matInput type="text" formControlName="endereco" name="endereco">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Número</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="numero"
-              name="numero"
-              min="0"
-              step="1"
-              onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '+';">
-            <mat-error *ngIf="isInvalid('numero')">Número inválido</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Complemento</mat-label>
-            <input matInput type="text" formControlName="complemento" name="complemento">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Bairro</mat-label>
-            <input matInput type="text" formControlName="bairro" name="bairro">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill" class="wide-span">
-            <mat-label>Cidade</mat-label>
-            <input matInput type="text" formControlName="cidade" name="cidade">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>UF</mat-label>
-            <input matInput type="text" formControlName="uf" name="uf">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Telefone</mat-label>
-            <input matInput type="text" formControlName="telefone" name="telefone" mask="(00) 0000-0000">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Celular</mat-label>
-            <input matInput type="text" formControlName="celular" name="celular" mask="(00) 00000-0000">
-            <mat-error *ngIf="isInvalid('celular')">Informe pelo menos 11 dígitos</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email" name="email">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill" class="full-span">
-            <mat-label>Contato</mat-label>
-            <input matInput type="text" formControlName="contato" name="contato">
-          </mat-form-field>
-        </div>
-      </div>
-
-      <div class="card section-card">
-        <div class="card-header py-3 mb-2 section-heading">
-          <h3>Dados do Atendimento</h3>
+            <mat-form-field *ngIf="possuiHistoricoContrato" appearance="fill">
+              <mat-label>Fim do contrato</mat-label>
+              <input matInput [matDatepicker]="pickerFim" [min]="minDate" formControlName="data_fim" placeholder="Selecione a data">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFim></mat-datepicker>
+              <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('required')">Campo obrigatorio</mat-error>
+              <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataPassada')">A data final nao pode ser menor que hoje</mat-error>
+              <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataFinalMenorQueDataInicial')">A data final deve ser igual ou maior que a data inicial</mat-error>
+              <mat-error *ngIf="hasDateRangeError('data_fim')">A data final deve ser igual ou maior que a data inicial</mat-error>
+            </mat-form-field>
+          </div>
         </div>
 
-        <div class="form-grid form-grid-atendimento">
-          <mat-form-field appearance="fill">
-            <mat-label>Início do Contrato</mat-label>
-            <input matInput [matDatepicker]="pickerInicio" formControlName="data_inicio" placeholder="Selecione a data">
-            <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
-            <mat-datepicker #pickerInicio></mat-datepicker>
-            <mat-error *ngIf="cadastroForm.get('data_inicio')?.hasError('required')">Campo obrigatório</mat-error>
-            <mat-error *ngIf="hasDateRangeError('data_inicio')">A data inicial não pode ser maior que a data final</mat-error>
-          </mat-form-field>
+        <div class="card section-card" *ngIf="id">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Renovacao de Contrato</h3>
+          </div>
 
-          <mat-form-field appearance="fill">
-            <mat-label>Fim do Contrato</mat-label>
-            <input matInput [matDatepicker]="pickerFim" [min]="minDate" formControlName="data_fim" placeholder="Selecione a data">
-            <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
-            <mat-datepicker #pickerFim></mat-datepicker>
-            <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('required')">Campo obrigatório</mat-error>
-            <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataPassada')">A data final não pode ser menor que hoje</mat-error>
-            <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataFinalMenorQueDataInicial')">A data final deve ser igual ou maior que a data inicial</mat-error>
-            <mat-error *ngIf="hasDateRangeError('data_fim')">A data final deve ser igual ou maior que a data inicial</mat-error>
-          </mat-form-field>
+          <div class="form-grid form-grid-atendimento">
+            <mat-form-field appearance="fill">
+              <mat-label>Novo inicio do contrato</mat-label>
+              <input matInput [matDatepicker]="pickerRenovacaoInicio" [(ngModel)]="renovacaoDataInicio" [ngModelOptions]="{ standalone: true }" placeholder="Selecione a data">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerRenovacaoInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerRenovacaoInicio></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Novo fim do contrato</mat-label>
+              <input matInput [matDatepicker]="pickerRenovacaoFim" [(ngModel)]="renovacaoDataFim" [ngModelOptions]="{ standalone: true }" [min]="minDate" placeholder="Selecione a data">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerRenovacaoFim"></mat-datepicker-toggle>
+              <mat-datepicker #pickerRenovacaoFim></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-span">
+              <mat-label>Observacoes da renovacao</mat-label>
+              <textarea matInput rows="4" [(ngModel)]="renovacaoObservacoes" [ngModelOptions]="{ standalone: true }"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-flat-button class="primary-action" type="button" (click)="renovarContrato()"
+              [disabled]="renovandoContrato || !renovacaoDataInicio || !renovacaoDataFim">
+              Registrar renovacao
+            </button>
+            <button mat-stroked-button class="secondary-action" type="button" (click)="limparRenovacaoContrato()">
+              Limpar renovacao
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="form-actions">
-        <button mat-flat-button class="primary-action" type="button" (click)="cadastrarAtualizarEmpresa()">
-          Cadastrar
-        </button>
-        <button mat-stroked-button class="secondary-action" type="button" (click)="limparFormulario()">
-          {{ id ? 'Restaurar Campos' : 'Limpar Formulário' }}
-        </button>
-      </div>
+        <div class="form-actions">
+          <button mat-flat-button class="primary-action" type="button" (click)="cadastrarAtualizarEmpresa()">
+            Salvar cliente
+          </button>
+          <button mat-stroked-button class="secondary-action" type="button" (click)="limparFormulario()">
+            {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
+          </button>
+        </div>
       </form>
     </div>
   </div>

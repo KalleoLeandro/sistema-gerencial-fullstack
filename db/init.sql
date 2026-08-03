@@ -1,13 +1,28 @@
 CREATE DATABASE IF NOT EXISTS sistema_gerencial_fullstack;
 USE sistema_gerencial_fullstack;
 
-CREATE TABLE empresas (
+CREATE TABLE login (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    nome_fantasia VARCHAR(100) NOT NULL,
-    razao_social VARCHAR(100) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    login VARCHAR(64) UNIQUE NOT NULL,
+    senha VARCHAR(64) NOT NULL,
+    perfil VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE clientes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
+    tipo_cadastro VARCHAR(20) NOT NULL DEFAULT 'EMPRESA',
+    tipo_pessoa CHAR(1) NOT NULL DEFAULT 'j',
+    nome_fantasia VARCHAR(120) NOT NULL,
+    razao_social VARCHAR(120),
+    nome VARCHAR(120),
+    cpf VARCHAR(20),
     cnpj VARCHAR(20),
-    ie VARCHAR(20),
-    inscricao VARCHAR(10),
+    documento_normalizado VARCHAR(20),
+    inscricao VARCHAR(20),
+    possui_contrato BOOLEAN NOT NULL DEFAULT FALSE,
+    teve_contrato BOOLEAN NOT NULL DEFAULT FALSE,
     infraestrutura TEXT,
     data_inicio DATETIME NULL,
     data_fim DATETIME NULL,
@@ -21,11 +36,28 @@ CREATE TABLE empresas (
     telefone VARCHAR(20),
     celular VARCHAR(20),
     email VARCHAR(64),
-    contato VARCHAR(100)
+    contato VARCHAR(100),
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT uq_clientes_documento_normalizado UNIQUE (documento_normalizado)
+);
+
+CREATE TABLE contrato_renovacoes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT NOT NULL,
+    data_inicio_anterior DATETIME NULL,
+    data_fim_anterior DATETIME NULL,
+    data_inicio_novo DATETIME NOT NULL,
+    data_fim_novo DATETIME NOT NULL,
+    observacoes TEXT,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_contrato_renovacoes_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE CASCADE
 );
 
 CREATE TABLE equipamentos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     nome_maquina VARCHAR(50) NOT NULL,
     setor VARCHAR(50) NOT NULL,
     tipo_equipamento VARCHAR(20) NOT NULL,
@@ -40,11 +72,12 @@ CREATE TABLE equipamentos (
     gabinete VARCHAR(50),
     id_empresa INT NOT NULL,
     observacoes TEXT,
-    CONSTRAINT fk_equipamentos_empresa FOREIGN KEY (id_empresa) REFERENCES empresas(id)
+    CONSTRAINT fk_equipamentos_empresa FOREIGN KEY (id_empresa) REFERENCES clientes(id)
 );
 
 CREATE TABLE manutencao (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     id_equipamento INT NOT NULL,
     descricao TEXT NOT NULL,
     observacoes TEXT,
@@ -64,6 +97,7 @@ CREATE TABLE manutencao (
 
 CREATE TABLE atendimentos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     id_empresa INT NOT NULL,
     descricao TEXT NOT NULL,
     observacoes TEXT,
@@ -78,11 +112,12 @@ CREATE TABLE atendimentos (
     motivo_cancelamento TEXT,
     deslocamento INT,
     valor_deslocamento DECIMAL(10,2) DEFAULT 0.00,
-    CONSTRAINT fk_atendimentos_empresa FOREIGN KEY (id_empresa) REFERENCES empresas(id)
+    CONSTRAINT fk_atendimentos_empresa FOREIGN KEY (id_empresa) REFERENCES clientes(id)
 );
 
 CREATE TABLE avulsos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     nome_cliente VARCHAR(100) NOT NULL,
     razao_social VARCHAR(100),
     data_inicio DATETIME NULL,
@@ -106,6 +141,7 @@ CREATE TABLE avulsos (
     celular VARCHAR(20),
     email VARCHAR(64),
     contato VARCHAR(100),
+    forma_pagamento VARCHAR(30),
     tipo_atendimento VARCHAR(20),
     status_atendimento INT DEFAULT 1,
     motivo_cancelamento TEXT,
@@ -114,8 +150,22 @@ CREATE TABLE avulsos (
     total DECIMAL(10,2) DEFAULT 0.00
 );
 
+CREATE TABLE avulso_pagamentos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    codigo VARCHAR(40),
+    id_avulso INT NOT NULL,
+    data_pagamento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    forma_pagamento VARCHAR(30) NOT NULL,
+    valor_pago DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    observacoes TEXT,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_avulso_pagamentos_avulso FOREIGN KEY (id_avulso) REFERENCES avulsos(id) ON DELETE CASCADE
+);
+
 CREATE TABLE agendamentos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     titulo VARCHAR(150) NOT NULL,
     tipo_tarefa VARCHAR(100) NOT NULL,
     data_agendamento DATETIME NOT NULL,
@@ -123,14 +173,6 @@ CREATE TABLE agendamentos (
     concluido BOOLEAN NOT NULL DEFAULT FALSE,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE login (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(100) NOT NULL,
-    login VARCHAR(64) UNIQUE NOT NULL,
-    senha VARCHAR(64) NOT NULL,
-    perfil VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE historico_alteracoes (
@@ -144,6 +186,7 @@ CREATE TABLE historico_alteracoes (
 
 CREATE TABLE produtos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     codigo VARCHAR(40),
     nome VARCHAR(120) NOT NULL,
     descricao TEXT,
@@ -159,6 +202,7 @@ CREATE TABLE produtos (
 
 CREATE TABLE servicos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     codigo VARCHAR(40),
     nome VARCHAR(120) NOT NULL,
     descricao TEXT,
@@ -170,6 +214,7 @@ CREATE TABLE servicos (
 
 CREATE TABLE orcamentos (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     codigo VARCHAR(40),
     origem_tipo VARCHAR(20) NOT NULL,
     id_atendimento INT NULL,
@@ -189,9 +234,6 @@ CREATE TABLE orcamentos (
     observacoes TEXT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT uq_orcamentos_atendimento UNIQUE (id_atendimento),
-    CONSTRAINT uq_orcamentos_manutencao UNIQUE (id_manutencao),
-    CONSTRAINT uq_orcamentos_avulso UNIQUE (id_avulso),
     CONSTRAINT fk_orcamentos_atendimento FOREIGN KEY (id_atendimento) REFERENCES atendimentos(id) ON DELETE CASCADE,
     CONSTRAINT fk_orcamentos_manutencao FOREIGN KEY (id_manutencao) REFERENCES manutencao(id) ON DELETE CASCADE,
     CONSTRAINT fk_orcamentos_avulso FOREIGN KEY (id_avulso) REFERENCES avulsos(id) ON DELETE CASCADE
@@ -199,7 +241,7 @@ CREATE TABLE orcamentos (
 
 CREATE TABLE orcamento_itens (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    id_orcamento INT NOT NULL,
+    id_orcamento INT NULL,
     tipo_item VARCHAR(20) NOT NULL,
     id_produto INT NULL,
     id_servico INT NULL,
@@ -219,12 +261,13 @@ CREATE TABLE orcamento_itens (
 
 CREATE TABLE vendas (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario_criacao INT NULL,
     codigo VARCHAR(40),
-    id_orcamento INT NOT NULL,
+    id_orcamento INT NULL,
     origem_tipo VARCHAR(20) NOT NULL,
     cliente_nome VARCHAR(120) NOT NULL,
     cliente_documento VARCHAR(20),
-    status VARCHAR(30) NOT NULL DEFAULT 'ABERTA',
+    status VARCHAR(30) NOT NULL DEFAULT 'FINALIZADA',
     data_venda DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     forma_pagamento VARCHAR(30),
     quantidade_parcelas INT NOT NULL DEFAULT 1,
@@ -235,7 +278,6 @@ CREATE TABLE vendas (
     observacoes TEXT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT uq_vendas_orcamento UNIQUE (id_orcamento),
     CONSTRAINT fk_vendas_orcamento FOREIGN KEY (id_orcamento) REFERENCES orcamentos(id)
 );
 
@@ -278,13 +320,43 @@ CREATE TABLE parcelas (
 CREATE TABLE pagamentos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     codigo VARCHAR(40),
-    id_parcela INT NOT NULL,
+    id_parcela INT NULL,
+    id_venda INT NULL,
     data_pagamento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     forma_pagamento VARCHAR(30) NOT NULL,
     valor_pago DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     observacoes TEXT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_pagamentos_parcela FOREIGN KEY (id_parcela) REFERENCES parcelas(id)
+    CONSTRAINT fk_pagamentos_parcela FOREIGN KEY (id_parcela) REFERENCES parcelas(id),
+    CONSTRAINT fk_pagamentos_venda FOREIGN KEY (id_venda) REFERENCES vendas(id) ON DELETE CASCADE
+);
+
+CREATE TABLE caixa_fechamentos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    data_referencia DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'ABERTO',
+    aberto_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fechado_em DATETIME NULL,
+    valor_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    valor_informado DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    valor_quebra DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    observacoes TEXT,
+    id_usuario_abertura INT NULL,
+    id_usuario_fechamento INT NULL,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT uq_caixa_fechamentos_data UNIQUE (data_referencia)
+);
+
+CREATE TABLE caixa_fechamento_itens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_caixa_fechamento INT NOT NULL,
+    forma_pagamento VARCHAR(30) NOT NULL,
+    valor_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    quantidade_lancamentos INT NOT NULL DEFAULT 0,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_caixa_fechamento_itens_fechamento FOREIGN KEY (id_caixa_fechamento) REFERENCES caixa_fechamentos(id) ON DELETE CASCADE
 );
 
 CREATE TABLE outbox_eventos (
@@ -304,13 +376,27 @@ CREATE TABLE outbox_eventos (
 
 CREATE INDEX idx_produtos_nome ON produtos(nome);
 CREATE INDEX idx_servicos_nome ON servicos(nome);
+CREATE INDEX idx_clientes_nome_fantasia ON clientes(nome_fantasia);
+CREATE INDEX idx_clientes_razao_social ON clientes(razao_social);
+CREATE INDEX idx_clientes_cpf ON clientes(cpf);
+CREATE INDEX idx_clientes_cnpj ON clientes(cnpj);
+CREATE INDEX idx_clientes_documento_normalizado ON clientes(documento_normalizado);
+CREATE INDEX idx_clientes_contrato ON clientes(possui_contrato, teve_contrato, data_fim);
+CREATE INDEX idx_contrato_renovacoes_cliente ON contrato_renovacoes(id_cliente, data_fim_novo);
 CREATE INDEX idx_orcamentos_status ON orcamentos(status, origem_tipo);
 CREATE INDEX idx_orcamentos_cliente ON orcamentos(cliente_nome);
 CREATE INDEX idx_orcamento_itens_orcamento ON orcamento_itens(id_orcamento, ordem);
+CREATE INDEX idx_orcamentos_atendimento ON orcamentos(id_atendimento, id);
+CREATE INDEX idx_orcamentos_manutencao ON orcamentos(id_manutencao, id);
+CREATE INDEX idx_orcamentos_avulso ON orcamentos(id_avulso, id);
+CREATE INDEX idx_vendas_orcamento ON vendas(id_orcamento, id);
 CREATE INDEX idx_vendas_status ON vendas(status, data_venda);
 CREATE INDEX idx_venda_itens_venda ON venda_itens(id_venda);
 CREATE INDEX idx_parcelas_status_vencimento ON parcelas(status, data_vencimento);
-CREATE INDEX idx_pagamentos_data ON pagamentos(data_pagamento);
+CREATE INDEX idx_pagamentos_data ON pagamentos(data_pagamento, forma_pagamento);
+CREATE INDEX idx_pagamentos_venda ON pagamentos(id_venda);
+CREATE INDEX idx_avulso_pagamentos_data ON avulso_pagamentos(data_pagamento, forma_pagamento);
+CREATE INDEX idx_caixa_fechamentos_data ON caixa_fechamentos(data_referencia, status);
 CREATE INDEX idx_outbox_eventos_status ON outbox_eventos(status, disponivel_em);
 CREATE INDEX idx_outbox_eventos_aggregate ON outbox_eventos(aggregate_type, aggregate_id);
 

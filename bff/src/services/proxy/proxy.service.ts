@@ -3,6 +3,12 @@ import { environments } from '@environments/environments';
 import { CustomError } from '@errors/custom-error/custom-error';
 import { Request, Response } from 'express';
 
+type UploadedImageFile = {
+  buffer: Buffer;
+  mimetype: string;
+  originalname: string;
+};
+
 @Injectable()
 export class ProxyService {
   private readonly baseUrl = environments.BACK_END;
@@ -25,6 +31,7 @@ export class ProxyService {
 
       const backendResponse = await fetch(targetUrl, init);
       this.copySetCookieHeaders(backendResponse, res);
+      this.copyResponseHeaders(backendResponse, res);
 
       const contentType = backendResponse.headers.get('content-type') ?? '';
       const payload = await this.parsePayload(backendResponse, contentType);
@@ -66,7 +73,7 @@ export class ProxyService {
 
   private buildHeaders(req: Request, body?: unknown) {
     const headers: Record<string, string> = {
-      Accept: 'application/json',
+      Accept: req.headers.accept ? String(req.headers.accept) : 'application/json',
     };
 
     if (body !== undefined) {
@@ -84,12 +91,81 @@ export class ProxyService {
     return headers;
   }
 
+  async forwardMultipart(
+    req: Request,
+    res: Response,
+    path: string,
+    fields: Record<string, string | undefined>,
+    arquivo?: UploadedImageFile,
+  ) {
+    try {
+      const targetUrl = this.buildUrl(path, req.query as Record<string, unknown>);
+      const headers = this.buildHeaders(req);
+      const formData = new FormData();
+
+      Object.entries(fields ?? {}).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+          return;
+        }
+
+        formData.append(key, String(value));
+      });
+
+      if (arquivo) {
+        const arquivoBytes = Uint8Array.from(arquivo.buffer);
+        formData.append('arquivo', new Blob([arquivoBytes], { type: arquivo.mimetype }), arquivo.originalname);
+      }
+
+      const backendResponse = await fetch(targetUrl, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      this.copySetCookieHeaders(backendResponse, res);
+      this.copyResponseHeaders(backendResponse, res);
+
+      const contentType = backendResponse.headers.get('content-type') ?? '';
+      const payload = await this.parsePayload(backendResponse, contentType);
+
+      if (payload === undefined) {
+        return res.status(backendResponse.status).send();
+      }
+
+      if (contentType.includes('application/json')) {
+        return res.status(backendResponse.status).json(payload);
+      }
+
+      return res.status(backendResponse.status).send(payload);
+    } catch (error: any) {
+      throw new CustomError(error.message ?? 'Erro ao comunicar com o backend', 500);
+    }
+  }
+
   private copySetCookieHeaders(backendResponse: globalThis.Response, res: Response) {
     const getSetCookie = (backendResponse.headers as Headers & { getSetCookie?: () => string[] }).getSetCookie;
     const cookies = typeof getSetCookie === 'function' ? getSetCookie.call(backendResponse.headers) : [];
 
     if (cookies.length > 0) {
       res.setHeader('Set-Cookie', cookies);
+    }
+  }
+
+  private copyResponseHeaders(backendResponse: globalThis.Response, res: Response) {
+    const contentType = backendResponse.headers.get('content-type');
+    const contentDisposition = backendResponse.headers.get('content-disposition');
+    const cacheControl = backendResponse.headers.get('cache-control');
+
+    if (contentType) {
+      res.setHeader('Content-Type', contentType);
+    }
+
+    if (contentDisposition) {
+      res.setHeader('Content-Disposition', contentDisposition);
+    }
+
+    if (cacheControl) {
+      res.setHeader('Cache-Control', cacheControl);
     }
   }
 
@@ -102,7 +178,7 @@ export class ProxyService {
       return backendResponse.json();
     }
 
-    const text = await backendResponse.text();
-    return text.length > 0 ? text : undefined;
+    const arrayBuffer = await backendResponse.arrayBuffer();
+    return arrayBuffer.byteLength > 0 ? Buffer.from(arrayBuffer) : undefined;
   }
 }

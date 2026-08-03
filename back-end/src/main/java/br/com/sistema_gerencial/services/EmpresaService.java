@@ -1,10 +1,13 @@
 package br.com.sistema_gerencial.services;
 
 import java.util.Map;
+import java.util.List;
 
 import br.com.sistema_gerencial.models.requests.AtualizarEmpresaRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarEmpresaRequest;
+import br.com.sistema_gerencial.models.requests.RenovarContratoRequest;
 import br.com.sistema_gerencial.models.response.EmpresaResponse;
+import br.com.sistema_gerencial.models.response.RenovacaoContratoResponse;
 
 public interface EmpresaService {
 	
@@ -55,6 +58,10 @@ public interface EmpresaService {
 	 * @param id valor do parametro id.
 	 */
 	public void salvarInfraestrutura(String texto, int id);
+
+	public void renovarContrato(int id, RenovarContratoRequest request);
+
+	public List<RenovacaoContratoResponse> listarRenovacoes(int id);
 
 }
 

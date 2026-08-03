@@ -53,6 +53,13 @@ export class OrcamentoController {
     return this.proxyService.forward(req, res, 'POST', '/orcamentos/criar-pdv', body);
   }
 
+  @Post('criar')
+  @ApiOperation({ summary: 'Cria um orcamento livre ou vinculado a uma origem' })
+  @ApiResponse({ status: 201, description: 'Orcamento criado com sucesso' })
+  criar(@Body() body: unknown, @Req() req: Request, @Res() res: Response) {
+    return this.proxyService.forward(req, res, 'POST', '/orcamentos/criar', body);
+  }
+
   @Put('atualizar-itens')
   @ApiOperation({ summary: 'Atualiza os itens do orcamento' })
   @ApiResponse({ status: 200, description: 'Orcamento atualizado com sucesso' })

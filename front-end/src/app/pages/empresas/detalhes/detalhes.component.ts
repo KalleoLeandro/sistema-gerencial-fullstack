@@ -6,10 +6,13 @@ import { Router, ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/r
 import { Empresa } from '@models/empresa';
 import { ListaAtendimentoResponse } from '@models/listaAtendimentoResponse';
 import { ListaEquipamementoResponse } from '@models/listaEquipamentoResponse';
+import { ListaManutencaoResponse } from '@models/listaManutencaoResponse';
+import { RenovacaoContrato } from '@models/renovacao-contrato';
 import { AtendimentoService } from '@services/atendimento.service';
 import { EmpresasService } from '@services/empresas.service';
 import { EquipamentoService } from '@services/equipamento.service';
 import { LoginService } from '@services/login.service';
+import { ManutencaoService } from '@services/manutencao.service';
 import { PdfExportService } from '@services/pdf-export.service';
 import { ToastService } from '@services/toast.service';
 import { getHttpErrorMessage } from 'app/utils/http-error.util';
@@ -30,6 +33,7 @@ export class DetalhesComponent {
   private empresaService = inject(EmpresasService);
   private atendimentoService = inject(AtendimentoService);
   private loginService = inject(LoginService);
+  private manutencaoService = inject(ManutencaoService);
   private pdfExportService = inject(PdfExportService);
   private toastService = inject(ToastService);
   public perfil: string = "";
@@ -41,8 +45,11 @@ export class DetalhesComponent {
 
   public page: number = 1;
   public pageHistorico: number = 1;
+  public pageManutencao: number = 1;
   public listaEquipamentos = signal<ListaEquipamementoResponse>({ lista: [], total: 0 });
   public listaAtendimentos = signal<ListaAtendimentoResponse>({ lista: [], total: 0 });
+  public listaManutencoes = signal<ListaManutencaoResponse>({ lista: [], total: 0 });
+  public renovacoesContrato = signal<RenovacaoContrato[]>([]);
   public listaHistorico = signal<any>({ lista: [], total: 0 });
   public paginacao = [{
     numero: 10, descricao: '10 por página'
@@ -66,6 +73,7 @@ export class DetalhesComponent {
   public limitHistorico = 10;
   public totalPages: number = 0;
   public totalPagesHistorico: number = 0;
+  public totalPagesManutencao: number = 0;
 
   public idExcluir: number = 0;
   private id: number = 0;
@@ -73,15 +81,23 @@ export class DetalhesComponent {
   private tipoExclusao: number = 0;
 
   constructor() {
-    this.id = this.activatedRoute.snapshot.paramMap.get('id') as unknown as number;
-    if (this.id != null && this.id != undefined) {
-      this.carregarEmpresa();
-      this.carregarEquipamentos();
-      this.carregarHistoricoAtendimentos();
-    }
   }
 
   ngOnInit() {
+    this.activatedRoute.paramMap.subscribe((params) => {
+      const id = Number(params.get('id'));
+      if (!id) {
+        return;
+      }
+
+      this.id = id;
+      this.page = 1;
+      this.pageHistorico = 1;
+      this.pageManutencao = 1;
+      this.carregarEmpresa();
+      this.carregarHistoricoAtendimentos();
+    });
+
     this.loginService.getPerfil().subscribe({
       next: (response) => {
         this.perfil = response.role;
@@ -111,6 +127,11 @@ export class DetalhesComponent {
       next: (response) => {
         this.dadosInfra = response.infraestrutura;
         this.empresa = response;
+        if (this.exibeRecursosContrato) {
+          this.carregarEquipamentos();
+          this.carregarManutencoes();
+          this.carregarRenovacoesContrato();
+        }
       },
       error: (error) => {
         console.log(error);
@@ -131,15 +152,38 @@ export class DetalhesComponent {
   }
 
   public carregarHistoricoAtendimentos() {
-    this.atendimentoService.buscarAtendimentosPorPagina(this.page, this.limit, this.id).subscribe({
+    this.atendimentoService.buscarAtendimentosPorPagina(this.pageHistorico, this.limitHistorico, this.id).subscribe({
       next: (response: ListaAtendimentoResponse) => {
         this.listaAtendimentos.set(response);
-        this.totalPagesHistorico = Math.ceil(response.total / this.limit);
+        this.totalPagesHistorico = Math.ceil(response.total / this.limitHistorico);
       },
       error: (error: any) => {
         console.log(error);
       },
     })
+  }
+
+  public carregarManutencoes() {
+    this.manutencaoService.buscarManutencoesPorCliente(this.pageManutencao, this.limit, this.id).subscribe({
+      next: (response: ListaManutencaoResponse) => {
+        this.listaManutencoes.set(response);
+        this.totalPagesManutencao = Math.ceil(response.total / this.limit);
+      },
+      error: (error: any) => {
+        console.log(error);
+      },
+    })
+  }
+
+  public carregarRenovacoesContrato() {
+    this.empresaService.listarRenovacoes(this.id).subscribe({
+      next: (response) => {
+        this.renovacoesContrato.set(response ?? []);
+      },
+      error: () => {
+        this.renovacoesContrato.set([]);
+      }
+    });
   }
 
   public salvarDadosInfra() {
@@ -161,7 +205,11 @@ export class DetalhesComponent {
   }
 
   public alterarEmpresa() {
-    this.router.navigate([`/empresas/cadastrar/${this.id}`]);
+    this.router.navigate([`/clientes/cadastrar/${this.id}`]);
+  }
+
+  public renovarContrato() {
+    this.router.navigate([`/clientes/cadastrar/${this.id}`]);
   }
 
   public modalExcluirEmpresa() {
@@ -178,7 +226,7 @@ export class DetalhesComponent {
     this.empresaService.excluirEmpresa(this.idExcluir).subscribe({
       next: () => {
         this.toastService.success('Empresa excluída com sucesso.');
-        this.router.navigate(['/empresas/listar']);
+        this.router.navigate(['/clientes/listar']);
       },
       error: (error: any) => {
         this.toastService.error(getHttpErrorMessage(error, 'Erro ao excluir a empresa!'));
@@ -201,7 +249,7 @@ export class DetalhesComponent {
 
   public cadastrarNovoAtendimento() {
     this.router.navigate(
-      ['/atendimentos/cadastrar'],
+      ['/ordens-servico/cadastrar'],
       { queryParams: { id_empresa: this.id } }
     );
   }
@@ -282,9 +330,13 @@ export class DetalhesComponent {
   }
 
   public detalharAtendimento(id: number) {
-    this.router.navigate([`/atendimentos/detalhes/${id}`],
+    this.router.navigate([`/ordens-servico/detalhes/${id}`],
       { queryParams: { id_empresa: this.id } }
     );
+  }
+
+  public detalharManutencao(id: number) {
+    this.router.navigate([`/manutencao/detalhes/${id}`], { queryParams: { id_empresa: this.id } });
   }
 
   public mudarTamanhoHistorico() {
@@ -323,12 +375,12 @@ export class DetalhesComponent {
 
   public redirecionar() {
     if (!this.resposta.includes("Erro") && this.excluir === false) {
-      this.router.navigate(['/empresas/listar'])
+      this.router.navigate(['/clientes/listar'])
     }
   }
 
   public voltar() {
-    this.router.navigate(['/empresas/listar'])
+    this.router.navigate(['/clientes/listar'])
   }
 
   public exportarPdf() {
@@ -345,6 +397,10 @@ export class DetalhesComponent {
   public cancelarEdicaoInfra() {
     this.editandoInfra = false;
     this.dadosInfra = this.empresa?.infraestrutura;
+  }
+
+  public get exibeRecursosContrato(): boolean {
+    return !!(this.empresa?.possui_contrato || this.empresa?.teve_contrato);
   }
 
   formatarExecutores(json: string): string {
