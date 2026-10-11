@@ -1,7 +1,7 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { CaixaFechado, CaixaResumoPagamento, ComercialService, FecharCaixaItemPayload } from '@services/comercial.service';
 import { ToastService } from '@services/toast.service';
@@ -9,7 +9,7 @@ import { ToastService } from '@services/toast.service';
 @Component({
   selector: 'app-caixa-listar',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule, MatButtonModule, CurrencyMaskModule],
+  imports: [AeroNativeButtonComponent, CommonModule, CurrencyPipe, DatePipe, FormsModule, CurrencyMaskModule],
   templateUrl: './listar.component.html',
   styleUrl: './listar.component.css'
 })

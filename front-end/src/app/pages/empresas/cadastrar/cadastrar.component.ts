@@ -1,13 +1,8 @@
+import { AeroCheckboxComponent, AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, AeroRadioGroupComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { NgxMaskDirective } from 'ngx-mask';
 import { EmpresasService } from '@services/empresas.service';
@@ -17,17 +12,11 @@ import { getHttpErrorMessage } from 'app/utils/http-error.util';
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [
+  imports: [AeroCheckboxComponent, AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, AeroRadioGroupComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     NgxMaskDirective,
-    MatButtonModule,
-    MatCardModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRadioModule,
     FormSubmitLoaderComponent
   ],
   templateUrl: './cadastrar.component.html',

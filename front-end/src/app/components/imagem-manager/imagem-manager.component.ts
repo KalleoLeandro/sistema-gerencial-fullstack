@@ -1,6 +1,6 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { Imagem } from '@models/imagem';
 import { ImagemService } from '@services/imagem.service';
 import { ToastService } from '@services/toast.service';
@@ -10,7 +10,7 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-imagem-manager',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [AeroNativeButtonComponent, CommonModule],
   templateUrl: './imagem-manager.component.html',
   styleUrl: './imagem-manager.component.css'
 })

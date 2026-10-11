@@ -1,6 +1,9 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
+import { AeroThemeToggleComponent } from '@components/aero/theme-toggle/aero-theme-toggle.component';
+import { AeroButtonComponent } from '@components/aero/button/aero-button.component';
 import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ToastComponent } from '@components/toast/toast.component';
 import { LoginService } from '@services/login.service';
@@ -16,12 +19,14 @@ type NavItem = {
 
 @Component({
   selector: 'app-main-layout',
-  imports: [
+  imports: [AeroNativeButtonComponent,
     CommonModule,
+    AeroThemeToggleComponent,
+    AeroButtonComponent,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    MatButtonModule,
+
     ToastComponent
   ],
   templateUrl: './main-layout.component.html',

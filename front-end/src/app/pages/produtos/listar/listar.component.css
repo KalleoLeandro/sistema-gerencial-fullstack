@@ -22,7 +22,7 @@
   text-align: center;
 }
 
-.actions-col .btn + .btn {
+.actions-col [aeroButton] + [aeroButton] {
   margin-left: 0.5rem;
 }
 

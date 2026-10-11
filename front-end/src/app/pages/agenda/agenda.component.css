@@ -204,12 +204,6 @@
 
 :host ::ng-deep .fc {
   --fc-border-color: rgba(148, 163, 184, 0.18);
-  --fc-button-bg-color: #0f172a;
-  --fc-button-border-color: #0f172a;
-  --fc-button-hover-bg-color: #1e293b;
-  --fc-button-hover-border-color: #1e293b;
-  --fc-button-active-bg-color: #2563eb;
-  --fc-button-active-border-color: #2563eb;
   --fc-event-border-color: transparent;
   --fc-event-text-color: #0f172a;
   --fc-page-bg-color: transparent;
@@ -228,14 +222,7 @@
   font-weight: 700;
 }
 
-:host ::ng-deep .fc .fc-button {
-  border-radius: 0.85rem;
-  box-shadow: none !important;
-  font-size: 0.82rem;
-  font-weight: 600;
-  padding: 0.55rem 0.8rem;
-  text-transform: capitalize;
-}
+
 
 :host ::ng-deep .fc .fc-daygrid-day-frame {
   min-height: 6.3rem;

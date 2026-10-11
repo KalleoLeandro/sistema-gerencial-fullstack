@@ -1,13 +1,7 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, AeroRadioGroupComponent } from '@components/aero';
 ﻿import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { AvulsoService } from '@services/avulso.service';
@@ -23,7 +17,7 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgxMaskDirective, CurrencyMaskModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatTimepickerModule, FormSubmitLoaderComponent],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, AeroRadioGroupComponent, CommonModule, FormsModule, ReactiveFormsModule, NgxMaskDirective, CurrencyMaskModule, FormSubmitLoaderComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })

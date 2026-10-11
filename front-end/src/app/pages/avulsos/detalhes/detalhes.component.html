@@ -3,7 +3,7 @@
     <div class="card h-100 mb-4" id="avulso-detalhes-pdf">
         <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
             <h6 class="m-0 font-weight-bold text-secondary">Detalhes da Ordem de Servico #{{avulso?.id}}</h6>
-            <button mat-flat-button type="button" class="btn btn-primary pdf-hide" (click)="exportarPdf()">
+            <button aeroButton="primary" type="button" class="pdf-hide" (click)="exportarPdf()">
                 Exportar PDF
             </button>
         </div>
@@ -11,7 +11,7 @@
             <div class="d-flex align-items-center justify-content-between gap-3">
                 <ul class="nav nav-tabs flex-grow-1" id="tabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="tab1" data-bs-toggle="tab" data-bs-target="#home" type="button"
+                        <button aeroButton="secondary" class="nav-link active" id="tab1" data-bs-toggle="tab" data-bs-target="#home" type="button"
                             role="tab" aria-controls="home" aria-selected="true">Dados Basicos</button>
                     </li>
                 </ul>
@@ -21,20 +21,20 @@
                     <div class="tab-pane fade show active" id="home" role="tabpanel"
                         aria-labelledby="home-tab">
                         <div class="details-actions pdf-hide">
-                            <button mat-flat-button type="button" class="btn btn-action-edit" *ngIf="!mostrarSelecao"
+                            <button aeroButton="secondary" type="button"  *ngIf="!mostrarSelecao"
                                 (click)="alterarAvulso()">Alterar</button>
-                            <button mat-flat-button type="button" class="btn btn-primary"
+                            <button aeroButton="primary" type="button"
                                 (click)="abrirFluxoComercial()">Orcamento / Venda</button>
-                            <button mat-flat-button type="button" class="btn btn-status-change" *ngIf="
+                            <button aeroButton="secondary" type="button"  *ngIf="
                                     !mostrarSelecao &&
                                     (
                                         perfil !== 'USER' ||
                                         (perfil === 'USER' && avulso?.status_atendimento !== 3 && avulso?.status_atendimento !== 4)
                                     )
                                 " (click)="mostrarSelecao = true">Mudar Status</button>
-                            <button mat-flat-button type="button" class="btn btn-status-change" *ngIf="mostrarSelecao"
+                            <button aeroButton="secondary" type="button"  *ngIf="mostrarSelecao"
                                 (click)="alterarStatusAvulso()">Salvar Status</button>
-                            <select class="form-control details-actions__select" [(ngModel)]="statusSelecionado" *ngIf="mostrarSelecao">
+                            <select aeroControl class="form-control details-actions__select" [(ngModel)]="statusSelecionado" *ngIf="mostrarSelecao">
                                 <option [ngValue]="null">--Selecione uma opcao</option>
                                 <option *ngFor="let item of status_atendimento" [ngValue]="item.id">
                                     {{ item.descricao }}
@@ -170,8 +170,8 @@
                             </div>
                         </div>
                         <div id="modal">
-                            <button type="button" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalConfirmacao"></button>
-                            <button type="button" id="botaoModalMotivoCancelamento" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalMotivoCancelamento"></button>
+                            <button aeroButton="secondary" type="button" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalConfirmacao"></button>
+                            <button aeroButton="secondary" type="button" id="botaoModalMotivoCancelamento" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalMotivoCancelamento"></button>
                         </div>
                     </div>
                 </div>
@@ -185,14 +185,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalConfirmacao">Cadastro de Atendimentos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
                 <span>{{resposta}}</span>
             </div>
             <div class="modal-footer">
-                <button mat-flat-button *ngIf="excluir" type="button" class="btn btn-action-delete" (click)="excluirAvulso()">Excluir</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="redirecionar()">Fechar</button>
+                <button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirAvulso()">Excluir</button>
+                <button aeroButton="secondary" type="button"  data-bs-dismiss="modal" (click)="redirecionar()">Fechar</button>
             </div>
         </div>
     </div>
@@ -203,19 +203,19 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalMotivoCancelamento">Cadastro de Avulso</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body" *ngIf="statusSelecionado !== 0">
                 <label>Descreva o motivo do cancelamento</label>
-                <textarea [(ngModel)]="motivo_cancelamento" class="details-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+                <textarea aeroControl [(ngModel)]="motivo_cancelamento" class="details-textarea" rows="8" placeholder="Digite a descricao"></textarea>
             </div>
             <div class="modal-body" *ngIf="statusSelecionado === 0">
                 <span>{{resposta}}</span>
             </div>
             <div class="modal-footer">
-                <button *ngIf="motivo_cancelamento && statusSelecionado !== 0" type="button" class="btn btn-danger" (click)="salvarStatusAvulso()">Salvar</button>
-                <button type="button" *ngIf="statusSelecionado !== 0" class="btn btn-secondary" data-bs-dismiss="modal" (click)="statusSelecionado = null">Cancelar</button>
-                <button type="button" *ngIf="statusSelecionado === 0" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button aeroButton="danger" *ngIf="motivo_cancelamento && statusSelecionado !== 0" type="button"  (click)="salvarStatusAvulso()">Salvar</button>
+                <button aeroButton="secondary" type="button" *ngIf="statusSelecionado !== 0"  data-bs-dismiss="modal" (click)="statusSelecionado = null">Cancelar</button>
+                <button aeroButton="secondary" type="button" *ngIf="statusSelecionado === 0"  data-bs-dismiss="modal">Fechar</button>
             </div>
             <div class="modal-footer"></div>
         </div>

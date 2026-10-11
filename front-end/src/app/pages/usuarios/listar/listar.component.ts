@@ -1,14 +1,15 @@
+import { AeroNativeButtonComponent } from '@components/aero';
+import { AeroSelectComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListaLoginsResponse } from '@models/listaLoginsResponse';
 import { LoginService } from '@services/login.service';
 
 @Component({
   selector: 'app-listar',
-  imports: [CommonModule, FormsModule, MatButtonModule],
+  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule],
   templateUrl: './listar.component.html',
   styleUrl: './listar.component.css'
 })
@@ -34,6 +35,7 @@ export class ListarComponent {
   {
     numero: 50, descricao: '50 por página'
   }];
+  public readonly pageSizeOptions = this.paginacao.map(item => ({ value: item.numero, label: item.descricao }));
 
   constructor() { }
 

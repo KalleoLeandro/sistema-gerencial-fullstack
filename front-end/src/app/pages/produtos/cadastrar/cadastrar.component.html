@@ -9,41 +9,41 @@
       </div>
 
       <div class="form-grid">
-        <mat-form-field appearance="fill">
-          <mat-label>Codigo</mat-label>
-          <input matInput [ngModel]="form.codigo || ''" readonly />
-          <mat-hint>{{ id ? 'Gerado automaticamente pelo sistema.' : 'Sera gerado automaticamente ao salvar.' }}</mat-hint>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Nome</mat-label>
-          <input matInput [(ngModel)]="form.nome" />
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="full">
-          <mat-label>Descricao</mat-label>
-          <textarea matInput [(ngModel)]="form.descricao" rows="4"></textarea>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Unidade</mat-label>
-          <input matInput [(ngModel)]="form.unidade_medida" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Valor de custo</mat-label>
-          <input matInput [(ngModel)]="form.valor_custo" type="text" currencyMask [options]="moneyMaskOptions" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Valor de venda</mat-label>
-          <input matInput [(ngModel)]="form.valor_venda" type="text" currencyMask [options]="moneyMaskOptions" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Estoque atual</mat-label>
-          <input matInput [(ngModel)]="form.estoque_atual" type="number" min="0" step="0.001" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Estoque minimo</mat-label>
-          <input matInput [(ngModel)]="form.estoque_minimo" type="number" min="0" step="0.001" />
-        </mat-form-field>
+        <app-aero-field>
+          <span aeroLabel>Codigo</span>
+          <input aeroControl [ngModel]="form.codigo || ''" readonly />
+          <span aeroHint>{{ id ? 'Gerado automaticamente pelo sistema.' : 'Sera gerado automaticamente ao salvar.' }}</span>
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Nome</span>
+          <input aeroControl [(ngModel)]="form.nome" />
+        </app-aero-field>
+        <app-aero-field class="full">
+          <span aeroLabel>Descricao</span>
+          <textarea aeroControl [(ngModel)]="form.descricao" rows="4"></textarea>
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Unidade</span>
+          <input aeroControl [(ngModel)]="form.unidade_medida" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Valor de custo</span>
+          <input aeroControl [(ngModel)]="form.valor_custo" type="text" currencyMask [options]="moneyMaskOptions" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Valor de venda</span>
+          <input aeroControl [(ngModel)]="form.valor_venda" type="text" currencyMask [options]="moneyMaskOptions" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Estoque atual</span>
+          <input aeroControl [(ngModel)]="form.estoque_atual" type="number" min="0" step="0.001" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Estoque minimo</span>
+          <input aeroControl [(ngModel)]="form.estoque_minimo" type="number" min="0" step="0.001" />
+        </app-aero-field>
         <div class="toggle-field">
-          <mat-checkbox [(ngModel)]="form.ativo">Produto ativo</mat-checkbox>
+          <app-aero-checkbox [(ngModel)]="form.ativo" label="Produto ativo"></app-aero-checkbox>
         </div>
       </div>
 
@@ -71,8 +71,8 @@
       </div>
 
       <div class="actions">
-        <button mat-flat-button type="button" class="btn btn-light" (click)="voltar()">Voltar</button>
-        <button mat-flat-button type="button" class="btn btn-primary" (click)="salvar()" [disabled]="salvando">Salvar</button>
+        <button aeroButton="secondary" type="button"  (click)="voltar()">Voltar</button>
+        <button aeroButton="primary" type="button"  (click)="salvar()" [disabled]="salvando">Salvar</button>
       </div>
     </div>
   </div>

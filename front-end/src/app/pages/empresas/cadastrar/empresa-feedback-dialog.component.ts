@@ -1,19 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
+import { AeroNativeButtonComponent } from '@components/aero';
 
 @Component({
   selector: 'app-empresa-feedback-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  imports: [CommonModule, MatDialogModule, AeroNativeButtonComponent],
   template: `
     <h2 mat-dialog-title>Cadastro de Empresas</h2>
     <mat-dialog-content>
       <span>{{ data.message }}</span>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-flat-button class="dialog-close-button" (click)="fechar()">Fechar</button>
+      <button aeroButton="primary" type="button" (click)="fechar()">Fechar</button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -21,10 +21,6 @@ import { MatButtonModule } from '@angular/material/button';
       color: rgb(33, 37, 41);
     }
 
-    .dialog-close-button {
-      background: #212529;
-      color: #D99E04;
-    }
   `]
 })
 export class EmpresaFeedbackDialogComponent {

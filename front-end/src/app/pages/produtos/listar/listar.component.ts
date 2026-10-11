@@ -1,9 +1,8 @@
+import { AeroNativeButtonComponent } from '@components/aero';
+import { AeroSelectComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListaPaginada } from '@models/lista-paginada';
 import { Produto } from '@models/produto';
@@ -13,7 +12,7 @@ import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-produtos-listar',
-  imports: [CommonModule, FormsModule, CurrencyPipe, MatButtonModule, MatFormFieldModule, MatSelectModule],
+  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe],
   templateUrl: './listar.component.html',
   styleUrl: './listar.component.css'
 })
@@ -30,6 +29,7 @@ export class ListarComponent implements OnInit {
     { numero: 25, descricao: '25 por pagina' },
     { numero: 50, descricao: '50 por pagina' }
   ];
+  public readonly pageSizeOptions = this.paginacao.map(item => ({ value: item.numero, label: item.descricao }));
   public limit = 10;
   public page = 1;
   public totalPages = 0;

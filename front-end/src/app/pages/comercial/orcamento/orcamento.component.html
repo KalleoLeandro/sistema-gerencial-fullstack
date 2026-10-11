@@ -8,13 +8,13 @@
           <p *ngIf="orcamento">{{ descricaoTela }}</p>
         </div>
         <div class="toolbar-actions">
-          <button *ngIf="somenteLeitura && (orcamento || venda)" mat-flat-button type="button" class="btn btn-primary pdf-hide" (click)="exportarPdf()">
+          <button aeroButton="primary" *ngIf="somenteLeitura && (orcamento || venda)" type="button" class="pdf-hide" (click)="exportarPdf()">
             Exportar PDF
           </button>
-          <button *ngIf="modoPdv && !somenteLeitura" mat-flat-button type="button" class="btn btn-outline-primary" (click)="novoPdv()" [disabled]="processando || carregando">
+          <button aeroButton="secondary" *ngIf="modoPdv && !somenteLeitura" type="button"  (click)="novoPdv()" [disabled]="processando || carregando">
             Novo PDV
           </button>
-          <button mat-flat-button type="button" class="btn btn-light" (click)="voltar()">Voltar</button>
+          <button aeroButton="secondary" type="button"  (click)="voltar()">Voltar</button>
         </div>
       </div>
 
@@ -39,7 +39,7 @@
                 {{ clienteNome || 'Consumidor final' }}
               </strong>
 
-              <button mat-flat-button type="button" class="btn btn-outline-primary" (click)="abrirModalPesquisaCliente()" [disabled]="orcamentoBloqueado || consultandoCliente">
+              <button aeroButton="secondary" type="button"  (click)="abrirModalPesquisaCliente()" [disabled]="orcamentoBloqueado || consultandoCliente">
                 Pesquisar cliente
               </button>
             </div>
@@ -61,30 +61,30 @@
               </div>
 
               <div class="pdv-search-controls" *ngIf="!somenteLeitura">
-                <mat-form-field appearance="fill" class="catalog-search__field">
-                  <mat-label>Pesquisar produto ou servico</mat-label>
+                <app-aero-field class="catalog-search__field">
+                  <span aeroLabel>Pesquisar produto ou servico</span>
                   <input
-                    matInput
+                    aeroControl
                     [(ngModel)]="catalogoPesquisa"
                     (ngModelChange)="aoAlterarPesquisa()"
                     (keydown)="aoTeclaPesquisa($event)"
                     [disabled]="orcamentoBloqueado"
                     placeholder="Digite nome, codigo ou descricao" />
-                </mat-form-field>
+                </app-aero-field>
 
                 <div class="pdv-quantity-control">
                   <span>Quantidade</span>
                   <div class="pdv-quantity-stepper">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="alterarQuantidadePesquisa(-1)" [disabled]="orcamentoBloqueado">-</button>
-                    <input [(ngModel)]="quantidadePesquisa" type="text" inputmode="numeric" pattern="[0-9]*" (keydown)="bloquearEntradaQuantidade($event)" (ngModelChange)="aoAlterarQuantidadePesquisa()" [disabled]="orcamentoBloqueado" />
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="alterarQuantidadePesquisa(1)" [disabled]="orcamentoBloqueado">+</button>
+                    <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="alterarQuantidadePesquisa(-1)" [disabled]="orcamentoBloqueado">-</button>
+                    <input aeroControl [(ngModel)]="quantidadePesquisa" type="text" inputmode="numeric" pattern="[0-9]*" (keydown)="bloquearEntradaQuantidade($event)" (ngModelChange)="aoAlterarQuantidadePesquisa()" [disabled]="orcamentoBloqueado" />
+                    <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="alterarQuantidadePesquisa(1)" [disabled]="orcamentoBloqueado">+</button>
                   </div>
                 </div>
               </div>
 
               <div *ngIf="catalogoPesquisa.trim() && !somenteLeitura" class="pdv-search-stage">
                 <div *ngIf="resultadosCatalogo.length; else pdvEstadoInicial" class="pdv-results">
-                  <button
+                  <button aeroButton="secondary"
                     type="button"
                     class="pdv-result-card"
                     *ngFor="let resultado of resultadosCatalogo; let i = index"
@@ -119,28 +119,27 @@
               </div>
 
               <div class="form-grid">
-                <mat-form-field appearance="fill">
-                  <mat-label>Validade</mat-label>
-                  <input matInput [matDatepicker]="validadeDatePicker" [(ngModel)]="validadeEm" [min]="minDate" [disabled]="orcamentoBloqueado" />
-                  <mat-datepicker-toggle matIconSuffix [for]="validadeDatePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #validadeDatePicker></mat-datepicker>
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Desconto financeiro</mat-label>
-                  <input matInput [(ngModel)]="descontoFinanceiro" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularResumo()" [disabled]="orcamentoBloqueado" />
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Acrescimo financeiro</mat-label>
-                  <input matInput [(ngModel)]="acrescimoFinanceiro" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularResumo()" [disabled]="orcamentoBloqueado" />
-                </mat-form-field>
-                <mat-form-field appearance="fill" class="full">
-                  <mat-label>Observacoes</mat-label>
-                  <textarea matInput [(ngModel)]="observacoes" rows="4" [disabled]="orcamentoBloqueado"></textarea>
-                </mat-form-field>
-                <mat-form-field *ngIf="dados.status === 'REJEITADO'" appearance="fill" class="full">
-                  <mat-label>Motivo da rejeicao</mat-label>
-                  <textarea matInput [(ngModel)]="motivoRejeicao" rows="3" [disabled]="true"></textarea>
-                </mat-form-field>
+                <app-aero-field>
+                  <span aeroLabel>Validade</span>
+                  <input aeroControl aeroDate="date" [(ngModel)]="validadeEm" [min]="minDate" [disabled]="orcamentoBloqueado" />
+
+                </app-aero-field>
+                <app-aero-field>
+                  <span aeroLabel>Desconto financeiro</span>
+                  <input aeroControl [(ngModel)]="descontoFinanceiro" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularResumo()" [disabled]="orcamentoBloqueado" />
+                </app-aero-field>
+                <app-aero-field>
+                  <span aeroLabel>Acrescimo financeiro</span>
+                  <input aeroControl [(ngModel)]="acrescimoFinanceiro" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="recalcularResumo()" [disabled]="orcamentoBloqueado" />
+                </app-aero-field>
+                <app-aero-field class="full">
+                  <span aeroLabel>Observacoes</span>
+                  <textarea aeroControl [(ngModel)]="observacoes" rows="4" [disabled]="orcamentoBloqueado"></textarea>
+                </app-aero-field>
+                <app-aero-field *ngIf="dados.status === 'REJEITADO'" class="full">
+                  <span aeroLabel>Motivo da rejeicao</span>
+                  <textarea aeroControl [(ngModel)]="motivoRejeicao" rows="3" [disabled]="true"></textarea>
+                </app-aero-field>
               </div>
             </article>
           </div>
@@ -151,7 +150,7 @@
                 <h3>Carrinho</h3>
                 <p>{{ itens.length }} {{ itens.length === 1 ? 'item' : 'itens' }} {{ modoPdv ? 'na venda' : 'no orçamento' }}</p>
               </div>
-              <button *ngIf="itens.length && !somenteLeitura" type="button" class="btn btn-outline-danger btn-sm" (click)="limparCarrinho()" [disabled]="orcamentoBloqueado">
+              <button aeroButton="secondary" *ngIf="itens.length && !somenteLeitura" type="button" class="aero-button--sm" (click)="limparCarrinho()" [disabled]="orcamentoBloqueado">
                 Limpar
               </button>
             </div>
@@ -172,13 +171,13 @@
                       <div class="pdv-cart-item__meta">
                         <div class="pdv-quantity-control pdv-cart-quantity-control">
                           <div class="pdv-quantity-stepper pdv-quantity-stepper--compact">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="alterarQuantidadeCarrinho(item, -1)" [disabled]="orcamentoBloqueado">-</button>
-                            <input [(ngModel)]="item.quantidade" type="text" inputmode="numeric" pattern="[0-9]*" (keydown)="bloquearEntradaQuantidade($event)" (ngModelChange)="aoAlterarQuantidade(item)" [disabled]="orcamentoBloqueado" />
-                            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="alterarQuantidadeCarrinho(item, 1)" [disabled]="orcamentoBloqueado">+</button>
+                            <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="alterarQuantidadeCarrinho(item, -1)" [disabled]="orcamentoBloqueado">-</button>
+                            <input aeroControl [(ngModel)]="item.quantidade" type="text" inputmode="numeric" pattern="[0-9]*" (keydown)="bloquearEntradaQuantidade($event)" (ngModelChange)="aoAlterarQuantidade(item)" [disabled]="orcamentoBloqueado" />
+                            <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="alterarQuantidadeCarrinho(item, 1)" [disabled]="orcamentoBloqueado">+</button>
                           </div>
                         </div>
 
-                        <button *ngIf="!somenteLeitura" type="button" class="btn btn-sm btn-outline-danger pdv-cart-remove" (click)="removerItem(i)" [disabled]="orcamentoBloqueado">
+                        <button aeroButton="secondary" *ngIf="!somenteLeitura" type="button" class="aero-button--sm pdv-cart-remove" (click)="removerItem(i)" [disabled]="orcamentoBloqueado">
                           Remover
                         </button>
                       </div>
@@ -195,22 +194,22 @@
               </div>
 
               <div *ngIf="!somenteLeitura && modoPdv" class="actions">
-                <button mat-flat-button type="button" class="btn btn-success" (click)="finalizarVenda()" [disabled]="orcamentoBloqueado">
+                <button aeroButton="success" type="button"  (click)="finalizarVenda()" [disabled]="orcamentoBloqueado">
                   Finalizar venda
                 </button>
               </div>
 
               <div *ngIf="!somenteLeitura && !modoPdv" class="actions pdv-budget-actions">
-                <button mat-flat-button type="button" class="btn btn-primary" (click)="salvarOrcamento()" [disabled]="orcamentoBloqueado">
+                <button aeroButton="primary" type="button"  (click)="salvarOrcamento()" [disabled]="orcamentoBloqueado">
                   Salvar orçamento
                 </button>
-                <button *ngIf="podeReabrirOrcamento" mat-flat-button type="button" class="btn btn-outline-secondary" (click)="reabrirOrcamento()">
+                <button aeroButton="secondary" *ngIf="podeReabrirOrcamento" type="button"  (click)="reabrirOrcamento()">
                   Reabrir orçamento
                 </button>
-                <button mat-flat-button type="button" class="btn btn-danger" (click)="rejeitarOrcamento()" [disabled]="!emEdicao && (dados.status === 'APROVADO' || dados.status === 'REJEITADO')">
+                <button aeroButton="danger" type="button"  (click)="rejeitarOrcamento()" [disabled]="!emEdicao && (dados.status === 'APROVADO' || dados.status === 'REJEITADO')">
                   {{ dados.status === 'REJEITADO' ? 'Orçamento rejeitado' : 'Rejeitar orçamento' }}
                 </button>
-                <button mat-flat-button type="button" class="btn btn-success" (click)="irParaVenda()" [disabled]="!emEdicao && (dados.status === 'APROVADO' || dados.status === 'REJEITADO')">
+                <button aeroButton="success" type="button"  (click)="irParaVenda()" [disabled]="!emEdicao && (dados.status === 'APROVADO' || dados.status === 'REJEITADO')">
                   {{ dados.status === 'APROVADO' ? 'Orçamento aprovado' : 'Ir para venda' }}
                 </button>
               </div>
@@ -256,28 +255,28 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalPesquisaClienteLabel">Pesquisar cliente</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <p class="mb-3">Pesquise por nome, CPF ou CNPJ para vincular um cliente a este {{ modoPdv ? 'PDV' : 'orçamento' }}.</p>
 
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Nome, CPF ou CNPJ</mat-label>
+        <app-aero-field class="w-100">
+          <span aeroLabel>Nome, CPF ou CNPJ</span>
           <input
-            matInput
+            aeroControl
             [(ngModel)]="clientePesquisa"
             (ngModelChange)="aoAlterarPesquisaCliente()"
             (keyup.enter)="buscarCliente()"
             [disabled]="consultandoCliente"
             placeholder="Ex.: Maria Silva, 123.456.789-00 ou 12.345.678/0001-90" />
-        </mat-form-field>
+        </app-aero-field>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-light" (click)="aplicarConsumidorFinal(); fecharModalPesquisaCliente()">
+        <button aeroButton="secondary" type="button"  (click)="aplicarConsumidorFinal(); fecharModalPesquisaCliente()">
           Usar consumidor final
         </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="buscarCliente()" [disabled]="consultandoCliente">
+        <button aeroButton="secondary" type="button"  data-bs-dismiss="modal">Cancelar</button>
+        <button aeroButton="primary" type="button"  (click)="buscarCliente()" [disabled]="consultandoCliente">
           {{ consultandoCliente ? 'Consultando...' : 'Pesquisar cliente' }}
         </button>
       </div>
@@ -290,7 +289,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalSelecaoClienteLabel">Selecionar cliente</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <p class="mb-3">Encontramos mais de um cliente. Escolha qual voce quer usar nesta venda.</p>
@@ -309,7 +308,7 @@
                 <td>{{ cliente.nome }}</td>
                 <td>{{ cliente.documento || '-' }}</td>
                 <td class="actions-col">
-                  <button type="button" class="btn btn-sm btn-primary" (click)="selecionarClienteEncontrado(cliente)">Usar este</button>
+                  <button aeroButton="primary" type="button" class="aero-button--sm" (click)="selecionarClienteEncontrado(cliente)">Usar este</button>
                 </td>
               </tr>
             </tbody>
@@ -317,10 +316,10 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" (click)="fecharModalSelecaoCliente(); cadastrarClienteManual()">
+        <button aeroButton="secondary" type="button"  (click)="fecharModalSelecaoCliente(); cadastrarClienteManual()">
           Adicionar cliente
         </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button aeroButton="secondary" type="button"  data-bs-dismiss="modal">Cancelar</button>
       </div>
     </div>
   </div>
@@ -331,67 +330,67 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalCadastroClienteLabel">Novo cliente</h5>
-        <button type="button" class="btn-close" (click)="fecharModalCadastroCliente()" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  (click)="fecharModalCadastroCliente()" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <div class="form-grid">
-          <mat-form-field appearance="fill">
-            <mat-label>Nome do cliente</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroNome" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>CPF ou CNPJ</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroDocumento" [mask]="'000.000.000-00||00.000.000/0000-00'" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>CEP</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroCep" mask="00.000-000" (input)="buscarCepCadastroCliente()" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Endereco</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroEndereco" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Numero</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroNumero" type="number" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Complemento</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroComplemento" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Bairro</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroBairro" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Cidade</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroCidade" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>UF</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroUf" maxlength="2" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Telefone</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroTelefone" mask="(00) 0000-0000" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Celular</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroCelular" mask="(00) 00000-0000" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Email</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroEmail" />
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Contato</mat-label>
-            <input matInput [(ngModel)]="clienteCadastroContato" />
-          </mat-form-field>
+          <app-aero-field>
+            <span aeroLabel>Nome do cliente</span>
+            <input aeroControl [(ngModel)]="clienteCadastroNome" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>CPF ou CNPJ</span>
+            <input aeroControl [(ngModel)]="clienteCadastroDocumento" [mask]="'000.000.000-00||00.000.000/0000-00'" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>CEP</span>
+            <input aeroControl [(ngModel)]="clienteCadastroCep" mask="00.000-000" (input)="buscarCepCadastroCliente()" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Endereco</span>
+            <input aeroControl [(ngModel)]="clienteCadastroEndereco" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Numero</span>
+            <input aeroControl [(ngModel)]="clienteCadastroNumero" type="number" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Complemento</span>
+            <input aeroControl [(ngModel)]="clienteCadastroComplemento" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Bairro</span>
+            <input aeroControl [(ngModel)]="clienteCadastroBairro" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Cidade</span>
+            <input aeroControl [(ngModel)]="clienteCadastroCidade" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>UF</span>
+            <input aeroControl [(ngModel)]="clienteCadastroUf" maxlength="2" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Telefone</span>
+            <input aeroControl [(ngModel)]="clienteCadastroTelefone" mask="(00) 0000-0000" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Celular</span>
+            <input aeroControl [(ngModel)]="clienteCadastroCelular" mask="(00) 00000-0000" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Email</span>
+            <input aeroControl [(ngModel)]="clienteCadastroEmail" />
+          </app-aero-field>
+          <app-aero-field>
+            <span aeroLabel>Contato</span>
+            <input aeroControl [(ngModel)]="clienteCadastroContato" />
+          </app-aero-field>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="fecharModalCadastroCliente()">Cancelar</button>
-        <button type="button" class="btn btn-success" (click)="confirmarCadastroCliente()">Usar este cliente</button>
+        <button aeroButton="secondary" type="button"  (click)="fecharModalCadastroCliente()">Cancelar</button>
+        <button aeroButton="success" type="button"  (click)="confirmarCadastroCliente()">Usar este cliente</button>
       </div>
     </div>
   </div>
@@ -402,14 +401,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalPagamentoVendaLabel">Finalizar venda</h5>
-        <button type="button" class="btn-close" (click)="fecharModalPagamentoVenda()" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  (click)="fecharModalPagamentoVenda()" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <div class="pagamentos-grid">
-          <mat-form-field appearance="fill" *ngFor="let pagamento of pagamentosEdicao">
-            <mat-label>{{ formaPagamentoLabel(pagamento.forma_pagamento) }}</mat-label>
-            <input matInput [(ngModel)]="pagamento.valor_informado" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="aoAlterarValorPagamento()" [disabled]="orcamentoBloqueado || processando" />
-          </mat-form-field>
+          <app-aero-field *ngFor="let pagamento of pagamentosEdicao">
+            <span aeroLabel>{{ formaPagamentoLabel(pagamento.forma_pagamento) }}</span>
+            <input aeroControl [(ngModel)]="pagamento.valor_informado" type="text" currencyMask [options]="moneyMaskOptions" (ngModelChange)="aoAlterarValorPagamento()" [disabled]="orcamentoBloqueado || processando" />
+          </app-aero-field>
         </div>
 
         <div class="totals-panel pagamentos-totais">
@@ -419,14 +418,14 @@
           <div><span>Troco</span><strong>{{ trocoPagamento | currency:'BRL':'symbol':'1.2-2' }}</strong></div>
         </div>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Observacoes</mat-label>
-          <textarea matInput [(ngModel)]="observacoes" rows="3" [disabled]="orcamentoBloqueado || processando"></textarea>
-        </mat-form-field>
+        <app-aero-field class="full-width">
+          <span aeroLabel>Observacoes</span>
+          <textarea aeroControl [(ngModel)]="observacoes" rows="3" [disabled]="orcamentoBloqueado || processando"></textarea>
+        </app-aero-field>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="fecharModalPagamentoVenda()" [disabled]="processando">Cancelar</button>
-        <button type="button" class="btn btn-success" (click)="confirmarFinalizacaoVenda()" [disabled]="orcamentoBloqueado || processando">
+        <button aeroButton="secondary" type="button"  (click)="fecharModalPagamentoVenda()" [disabled]="processando">Cancelar</button>
+        <button aeroButton="success" type="button"  (click)="confirmarFinalizacaoVenda()" [disabled]="orcamentoBloqueado || processando">
           Finalizar venda
         </button>
       </div>
@@ -439,14 +438,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalExportarPdfLabel">Exportar PDF</h5>
-        <button type="button" class="btn-close" (click)="confirmarExportacaoPdf(false)" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  (click)="confirmarExportacaoPdf(false)" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         Deseja exportar o PDF agora antes de continuar?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="confirmarExportacaoPdf(false)">Nao</button>
-        <button type="button" class="btn btn-primary" (click)="confirmarExportacaoPdf(true)">Sim, exportar PDF</button>
+        <button aeroButton="secondary" type="button"  (click)="confirmarExportacaoPdf(false)">Nao</button>
+        <button aeroButton="primary" type="button"  (click)="confirmarExportacaoPdf(true)">Sim, exportar PDF</button>
       </div>
     </div>
   </div>

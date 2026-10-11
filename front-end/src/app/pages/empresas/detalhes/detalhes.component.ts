@@ -1,6 +1,6 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { Empresa } from '@models/empresa';
@@ -21,7 +21,7 @@ import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-detalhes',
-  imports: [CommonModule, FormsModule, RouterLink, StatusPipe, MatButtonModule],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, CommonModule, FormsModule, RouterLink, StatusPipe, ],
   templateUrl: './detalhes.component.html',
   styleUrl: './detalhes.component.css'
 })

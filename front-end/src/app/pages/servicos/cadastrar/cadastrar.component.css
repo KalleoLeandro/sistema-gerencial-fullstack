@@ -23,7 +23,7 @@
   gap: 1rem;
 }
 
-.form-grid mat-form-field {
+.form-grid app-aero-field {
   width: 100%;
 }
 

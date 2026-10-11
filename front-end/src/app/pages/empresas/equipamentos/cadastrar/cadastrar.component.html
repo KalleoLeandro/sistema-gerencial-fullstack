@@ -13,94 +13,94 @@
           </div>
 
         <div class="form-grid">
-          <mat-form-field appearance="fill">
-            <mat-label>Setor</mat-label>
-            <mat-select formControlName="setor">
-              <mat-option value="">--Selecione uma opcao--</mat-option>
-              <mat-option *ngFor="let item of setores" [value]="item">{{ item }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="cadastroForm.controls['setor'].touched && cadastroForm.controls['setor'].invalid">
+          <app-aero-field>
+            <span aeroLabel>Setor</span>
+            <select aeroControl formControlName="setor">
+              <option value="">--Selecione uma opcao--</option>
+              <option *ngFor="let item of setores" [ngValue]="item">{{ item }}</option>
+            </select>
+            <span aeroError *ngIf="cadastroForm.controls['setor'].touched && cadastroForm.controls['setor'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>Tipo Equipamento</mat-label>
-            <mat-select formControlName="tipo_equipamento">
-              <mat-option value="">--Selecione uma opcao--</mat-option>
-              <mat-option *ngFor="let item of tipo_equipamento" [value]="item">{{ item }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="cadastroForm.controls['tipo_equipamento'].touched && cadastroForm.controls['tipo_equipamento'].invalid">
+          <app-aero-field>
+            <span aeroLabel>Tipo Equipamento</span>
+            <select aeroControl formControlName="tipo_equipamento">
+              <option value="">--Selecione uma opcao--</option>
+              <option *ngFor="let item of tipo_equipamento" [ngValue]="item">{{ item }}</option>
+            </select>
+            <span aeroError *ngIf="cadastroForm.controls['tipo_equipamento'].touched && cadastroForm.controls['tipo_equipamento'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="span-4">
-            <mat-label>Nome da Maquina</mat-label>
-            <input matInput type="text" formControlName="nome_maquina" name="nome_maquina">
-            <mat-error *ngIf="cadastroForm.controls['nome_maquina'].touched && cadastroForm.controls['nome_maquina'].invalid">
+          <app-aero-field class="span-4">
+            <span aeroLabel>Nome da Maquina</span>
+            <input aeroControl type="text" formControlName="nome_maquina" name="nome_maquina">
+            <span aeroError *ngIf="cadastroForm.controls['nome_maquina'].touched && cadastroForm.controls['nome_maquina'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
-            <mat-label>Placa Mae</mat-label>
-            <input matInput type="text" formControlName="placa_mae" name="placa_mae">
-          </mat-form-field>
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
+            <span aeroLabel>Placa Mae</span>
+            <input aeroControl type="text" formControlName="placa_mae" name="placa_mae">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
-            <mat-label>Marca</mat-label>
-            <input matInput type="text" formControlName="marca" name="marca">
-          </mat-form-field>
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <span aeroLabel>Marca</span>
+            <input aeroControl type="text" formControlName="marca" name="marca">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
-            <mat-label>Modelo</mat-label>
-            <input matInput type="text" formControlName="modelo" name="modelo">
-          </mat-form-field>
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <span aeroLabel>Modelo</span>
+            <input aeroControl type="text" formControlName="modelo" name="modelo">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
-            <mat-label>Numero de Serie</mat-label>
-            <input matInput type="text" formControlName="numero_serie" name="numero_serie">
-          </mat-form-field>
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <span aeroLabel>Numero de Serie</span>
+            <input aeroControl type="text" formControlName="numero_serie" name="numero_serie">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>Processador</mat-label>
-            <input matInput type="text" formControlName="processador" name="processador">
-          </mat-form-field>
+          <app-aero-field>
+            <span aeroLabel>Processador</span>
+            <input aeroControl type="text" formControlName="processador" name="processador">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>Memoria</mat-label>
-            <input matInput type="text" formControlName="memoria" name="memoria">
-          </mat-form-field>
+          <app-aero-field>
+            <span aeroLabel>Memoria</span>
+            <input aeroControl type="text" formControlName="memoria" name="memoria">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>HD/SSD</mat-label>
-            <input matInput type="text" formControlName="hd_ssd" name="hd_ssd">
-          </mat-form-field>
+          <app-aero-field>
+            <span aeroLabel>HD/SSD</span>
+            <input aeroControl type="text" formControlName="hd_ssd" name="hd_ssd">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].valid">
-            <mat-label>{{ cadastroForm.controls['tipo_equipamento'].value === 'Desktop' ? 'Fonte' : 'Carregador' }}</mat-label>
-            <input matInput type="text" formControlName="fonte" name="fonte">
-          </mat-form-field>
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].valid">
+            <span aeroLabel>{{ cadastroForm.controls['tipo_equipamento'].value === 'Desktop' ? 'Fonte' : 'Carregador' }}</span>
+            <input aeroControl type="text" formControlName="fonte" name="fonte">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
-            <mat-label>Gabinete</mat-label>
-            <input matInput type="text" formControlName="gabinete" name="gabinete">
-          </mat-form-field>
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
+            <span aeroLabel>Gabinete</span>
+            <input aeroControl type="text" formControlName="gabinete" name="gabinete">
+          </app-aero-field>
 
           <div class="span-12 editor-shell">
             <label>Observacoes</label>
-            <textarea formControlName="observacoes" class="editor-textarea" rows="8"
+            <textarea aeroControl formControlName="observacoes" class="editor-textarea" rows="8"
               placeholder="Digite a descricao"></textarea>
           </div>
         </div>
         </div>
 
         <div class="form-actions">
-          <button mat-flat-button class="btn btn-primary" (click)="$event.preventDefault(); cadastrarAtualizarEquipamento()">
+          <button aeroButton="primary"  (click)="$event.preventDefault(); cadastrarAtualizarEquipamento()">
             {{ id ? 'Atualizar' : 'Cadastrar' }}
           </button>
-          <button mat-stroked-button class="btn btn-warning" (click)="$event.preventDefault(); limparFormulario()">
+          <button aeroButton="secondary"  (click)="$event.preventDefault(); limparFormulario()">
             {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
           </button>
         </div>

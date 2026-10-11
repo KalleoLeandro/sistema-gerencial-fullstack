@@ -4,15 +4,15 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
-    "baseUrl": "src",
     "paths": {
-      "@components/*": ["app/components/*"],
-      "@pages/*": ["app/pages/*"],
-      "@services/*": ["app/services/*"],
-      "@models/*": ["app/models/*"],
-      "@environments/*": ["app/environments/*"],
-      "@utils/*": ["app/utils/*"],
-      "@guards/*": ["app/guards/*"]
+      "@components/*": ["./src/app/components/*"],
+      "@pages/*": ["./src/app/pages/*"],
+      "@services/*": ["./src/app/services/*"],
+      "@models/*": ["./src/app/models/*"],
+      "@environments/*": ["./src/app/environments/*"],
+      "@utils/*": ["./src/app/utils/*"],
+      "@guards/*": ["./src/app/guards/*"],
+      "app/*": ["./src/app/*"]
     },
     "strict": true,
     "noImplicitOverride": true,

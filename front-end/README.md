@@ -7,10 +7,24 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+O perfil de desenvolvimento em `angular.json` habilita `watch`, `hmr` e
+`liveReload`, com `poll: 1000` para verificar alterações nos arquivos a cada
+segundo, inclusive quando as notificações do sistema de arquivos falham.
+O polling pode consumir mais CPU do que a observação por eventos.
+
+Estilos e templates elegíveis são atualizados por HMR; mudanças que exigem
+recarregar a página, como alterações de rotas, usam live reload. Reinicie
+`npm start` ao alterar a configuração do servidor em `angular.json` ou instalar
+dependências. Alterações comuns no código não devem exigir reiniciar o servidor.
+
+`npm run watch` apenas recompila arquivos em disco e não inicia o servidor
+de desenvolvimento. Para atualização automática no navegador, use `npm start`.
+As opções seguem a [configuração oficial de ng serve](https://angular.dev/cli/serve).
 
 ## Code scaffolding
 

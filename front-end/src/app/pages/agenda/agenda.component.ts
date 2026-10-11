@@ -1,6 +1,6 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
@@ -23,9 +23,8 @@ interface AgendaFiltro {
 @Component({
   selector: 'app-agenda',
   standalone: true,
-  imports: [
+  imports: [AeroNativeButtonComponent,
     CommonModule,
-    MatButtonModule,
     MatCardModule,
     MatChipsModule,
     FullCalendarModule

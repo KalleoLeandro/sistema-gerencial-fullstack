@@ -38,7 +38,7 @@
           </mat-select>
         </mat-form-field>
         <div class="search-action">
-          <button mat-flat-button type="button" class="btn btn-success" (click)="carregarHistoricoAvulsos()">
+          <button aeroButton="success" type="button"  (click)="carregarHistoricoAvulsos()">
             Pesquisar
           </button>
         </div>
@@ -51,15 +51,15 @@
           </small>
           <ul class="pagination justify-content-center mt-2">
             <li class="page-item" [class.disabled]="page === 1">
-              <button class="page-link text-secondary" (click)="paginaAnterior()">Anterior</button>
+              <button aeroButton="secondary"  (click)="paginaAnterior()" [disabled]="page <= 1">Anterior</button>
             </li>
             <li class="page-item" *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina">
-              <button class="page-link text-secondary" (click)="irParaPagina(pagina)">
+              <button [aeroButton]="page === pagina ? 'primary' : 'secondary'"  (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
                 {{ pagina }}
               </button>
             </li>
             <li class="page-item" [class.disabled]="page === totalPages">
-              <button class="page-link text-secondary" (click)="proximaPagina()">Proximo</button>
+              <button aeroButton="secondary"  (click)="proximaPagina()" [disabled]="page >= totalPages">Proximo</button>
             </li>
           </ul>
         </nav>
@@ -95,33 +95,30 @@
       </table>
 
       <div class="col-5 my-3">
-        <button mat-flat-button type="button" class="btn btn-primary mx-1" (click)="cadastrarNovo()">
+        <button aeroButton="primary" type="button" class="mx-1" (click)="cadastrarNovo()">
           Cadastrar
         </button>
       </div>
 
       <div class="d-flex flex-column justify-content-between w-100 p-4 list-pagination-bar">
-        <mat-form-field appearance="fill" class="limit-field">
-          <mat-label>Quantidade por pagina</mat-label>
-          <mat-select [(ngModel)]="limit" name="limit" (selectionChange)="mudarTamanho()">
-            <mat-option *ngFor="let item of paginacao; let i = index" [value]="item.numero">{{item.descricao}}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <app-aero-select class="limit-field" label="Quantidade por página"
+          [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
+          (ngModelChange)="limit = $event; mudarTamanho()" />
         <nav aria-label="Paginacao" class="mt-5 list-pagination-nav">
           <small class="text-secondary">
             Exibindo {{ limit }} itens de {{ listaAvulsos().total }}
           </small>
           <ul class="pagination justify-content-center mt-2">
             <li class="page-item" [class.disabled]="page === 1">
-              <button class="page-link text-secondary" (click)="paginaAnterior()">Anterior</button>
+              <button aeroButton="secondary"  (click)="paginaAnterior()" [disabled]="page <= 1">Anterior</button>
             </li>
             <li class="page-item" *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina">
-              <button class="page-link text-secondary" (click)="irParaPagina(pagina)">
+              <button [aeroButton]="page === pagina ? 'primary' : 'secondary'"  (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
                 {{ pagina }}
               </button>
             </li>
             <li class="page-item" [class.disabled]="page === totalPages">
-              <button class="page-link text-secondary" (click)="proximaPagina()">Proximo</button>
+              <button aeroButton="secondary"  (click)="proximaPagina()" [disabled]="page >= totalPages">Proximo</button>
             </li>
           </ul>
         </nav>
@@ -138,14 +135,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalConfirmacao">Cadastro de Atendimentos Avulsos</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <span>{{resposta}}</span>
       </div>
       <div class="modal-footer">
-        <button *ngIf="excluir" type="button" class="btn btn-danger" (click)="excluirAvulso()">Excluir</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirAvulso()">Excluir</button>
+        <button aeroButton="secondary" type="button"  data-bs-dismiss="modal">Fechar</button>
       </div>
     </div>
   </div>

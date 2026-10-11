@@ -12,7 +12,7 @@
         </span>
         <span class="toast-message">{{ toast.message }}</span>
       </div>
-      <button type="button" class="toast-close" (click)="dismiss(toast.id)">
+      <button aeroButton="quiet" type="button" class="toast-close" aria-label="Fechar notificação" (click)="dismiss(toast.id)">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>

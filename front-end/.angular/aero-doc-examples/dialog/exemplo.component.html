@@ -1,0 +1,5 @@
+<app-aero-button label="Excluir" (pressed)="dialog.open()" />
+<app-aero-dialog #dialog title="Excluir registro"
+  description="Deseja continuar?" destructive
+  confirmLabel="Excluir" (confirmed)="confirm()" />
+<p>{{ message }}</p>

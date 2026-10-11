@@ -1,10 +1,10 @@
+import { AeroNativeButtonComponent } from '@components/aero';
+import { AeroSelectComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Empresa } from '@models/empresa';
 import { ListaEmpresaResponse } from '@models/listaEmpresaResponse';
@@ -16,7 +16,7 @@ import { getHttpErrorMessage } from 'app/utils/http-error.util';
 @Component({
   selector: 'app-listar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, RouterLink, RouterLinkActive, MatFormFieldModule, MatInputModule],
   templateUrl: './listar.component.html',
   styleUrl: './listar.component.css'
 })
@@ -38,6 +38,7 @@ export class ListarComponent {
     { numero: 50, descricao: '50 por página' }
   ];
 
+  public readonly pageSizeOptions = this.paginacao.map(item => ({ value: item.numero, label: item.descricao }));
   public limit = 10;
   public totalPages = 0;
   public totalItens = 0;

@@ -15,91 +15,88 @@
         <div class="app-form-grid">
           <div class="span-3">
             <label>Tipo de Pessoa</label>
-            <mat-radio-group class="app-radio-group" [ngModel]="cadastroForm.get('tipo_pessoa')?.value" (ngModelChange)="cadastroForm.get('tipo_pessoa')?.patchValue($event); onTipoPessoaChange($event)" [ngModelOptions]="{standalone: true}">
-              <mat-radio-button value="f">Pessoa Fisica</mat-radio-button>
-              <mat-radio-button value="j">Pessoa Juridica</mat-radio-button>
-            </mat-radio-group>
+            <app-aero-radio-group class="app-radio-group" [ngModel]="cadastroForm.get('tipo_pessoa')?.value" (ngModelChange)="cadastroForm.get('tipo_pessoa')?.patchValue($event); onTipoPessoaChange($event)" [ngModelOptions]="{standalone: true}" [options]="[{label: 'Pessoa Física', value: 'f'}, {label: 'Pessoa Jurídica', value: 'j'}]"></app-aero-radio-group>
           </div>
 
           <div class="span-1" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'"></div>
 
-          <mat-form-field appearance="fill" class="span-8 wide-client-field" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
-            <mat-label>Razao Social</mat-label>
-            <input matInput type="text" formControlName="razao_social">
-          </mat-form-field>
+          <app-aero-field class="span-8 wide-client-field" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+            <span aeroLabel>Razao Social</span>
+            <input aeroControl type="text" formControlName="razao_social">
+          </app-aero-field>
 
           <div class="span-12"></div>
 
-          <mat-form-field appearance="fill" class="span-10 wide-client-field form-row-main">
-            <mat-label>Nome do Cliente</mat-label>
-            <input matInput type="text" formControlName="nome_cliente">
-          </mat-form-field>
+          <app-aero-field class="span-10 wide-client-field form-row-main">
+            <span aeroLabel>Nome do Cliente</span>
+            <input aeroControl type="text" formControlName="nome_cliente">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="span-2 cpf-field form-row-side">
-            <mat-label>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</mat-label>
-            <input matInput type="text" formControlName="cpf_cnpj" [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'" (input)="buscarCnpj()">
-          </mat-form-field>
+          <app-aero-field class="span-2 cpf-field form-row-side">
+            <span aeroLabel>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</span>
+            <input aeroControl type="text" formControlName="cpf_cnpj" [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'" (input)="buscarCnpj()">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
-            <mat-label>Inscricao Estadual</mat-label>
-            <input matInput type="text" formControlName="ie">
-          </mat-form-field>
+          <app-aero-field class="app-field span-3" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+            <span aeroLabel>Inscricao Estadual</span>
+            <input aeroControl type="text" formControlName="ie">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>CEP</mat-label>
-            <input matInput type="text" formControlName="cep" mask="00.000-000" (input)="buscarCep()">
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>CEP</span>
+            <input aeroControl type="text" formControlName="cep" mask="00.000-000" (input)="buscarCep()">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-6">
-            <mat-label>Endereco</mat-label>
-            <input matInput type="text" formControlName="endereco">
-          </mat-form-field>
+          <app-aero-field class="app-field span-6">
+            <span aeroLabel>Endereco</span>
+            <input aeroControl type="text" formControlName="endereco">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-2">
-            <mat-label>Numero</mat-label>
-            <input matInput type="number" formControlName="numero" min="0">
-          </mat-form-field>
+          <app-aero-field class="app-field span-2">
+            <span aeroLabel>Numero</span>
+            <input aeroControl type="number" formControlName="numero" min="0">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-4">
-            <mat-label>Complemento</mat-label>
-            <input matInput type="text" formControlName="complemento">
-          </mat-form-field>
+          <app-aero-field class="app-field span-4">
+            <span aeroLabel>Complemento</span>
+            <input aeroControl type="text" formControlName="complemento">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-4">
-            <mat-label>Bairro</mat-label>
-            <input matInput type="text" formControlName="bairro">
-          </mat-form-field>
+          <app-aero-field class="app-field span-4">
+            <span aeroLabel>Bairro</span>
+            <input aeroControl type="text" formControlName="bairro">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-4">
-            <mat-label>Cidade</mat-label>
-            <input matInput type="text" formControlName="cidade">
-          </mat-form-field>
+          <app-aero-field class="app-field span-4">
+            <span aeroLabel>Cidade</span>
+            <input aeroControl type="text" formControlName="cidade">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-2">
-            <mat-label>UF</mat-label>
-            <input matInput type="text" formControlName="uf">
-          </mat-form-field>
+          <app-aero-field class="app-field span-2">
+            <span aeroLabel>UF</span>
+            <input aeroControl type="text" formControlName="uf">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Telefone</mat-label>
-            <input matInput type="text" formControlName="telefone" mask="(00) 0000-0000">
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Telefone</span>
+            <input aeroControl type="text" formControlName="telefone" mask="(00) 0000-0000">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Celular</mat-label>
-            <input matInput type="text" formControlName="celular" mask="(00) 00000-0000">
-            <mat-error *ngIf="cadastroForm.controls['celular'].hasError('minDigits')">Minimo de 11 digitos</mat-error>
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Celular</span>
+            <input aeroControl type="text" formControlName="celular" mask="(00) 00000-0000">
+            <span aeroError *ngIf="cadastroForm.controls['celular'].hasError('minDigits')">Minimo de 11 digitos</span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-4">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email">
-          </mat-form-field>
+          <app-aero-field class="app-field span-4">
+            <span aeroLabel>Email</span>
+            <input aeroControl type="email" formControlName="email">
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-4">
-            <mat-label>Contato</mat-label>
-            <input matInput type="text" formControlName="contato">
-          </mat-form-field>
+          <app-aero-field class="app-field span-4">
+            <span aeroLabel>Contato</span>
+            <input aeroControl type="text" formControlName="contato">
+          </app-aero-field>
         </div>
 
         <div class="card-header py-3 mb-2">
@@ -107,69 +104,65 @@
         </div>
 
         <div class="app-form-grid">
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Data Inicio</mat-label>
-            <input matInput [matDatepicker]="inicioDatePicker" [ngModel]="inicioData" (ngModelChange)="onInicioDataChange($event)" [ngModelOptions]="{standalone: true}">
-            <mat-datepicker-toggle matIconSuffix [for]="inicioDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #inicioDatePicker></mat-datepicker>
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Data Inicio</span>
+            <input aeroControl aeroDate="date" [ngModel]="inicioData" (ngModelChange)="onInicioDataChange($event)" [ngModelOptions]="{standalone: true}">
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Hora Inicio</mat-label>
-            <input matInput [matTimepicker]="inicioTimePicker" [ngModel]="inicioHora" (ngModelChange)="onInicioHoraChange($event)" [ngModelOptions]="{standalone: true}">
-            <mat-timepicker-toggle matIconSuffix [for]="inicioTimePicker"></mat-timepicker-toggle>
-            <mat-timepicker #inicioTimePicker></mat-timepicker>
-          </mat-form-field>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Data Fim</mat-label>
-            <input matInput [matDatepicker]="fimDatePicker" [ngModel]="fimData" (ngModelChange)="onFimDataChange($event)" [ngModelOptions]="{standalone: true}" [min]="getMinFimData()">
-            <mat-datepicker-toggle matIconSuffix [for]="fimDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #fimDatePicker></mat-datepicker>
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Hora Inicio</span>
+            <input aeroControl aeroDate="time" [ngModel]="inicioHora" (ngModelChange)="onInicioHoraChange($event)" [ngModelOptions]="{standalone: true}">
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Hora Fim</mat-label>
-            <input matInput [matTimepicker]="fimTimePicker" [ngModel]="fimHora" (ngModelChange)="onFimHoraChange($event)" [ngModelOptions]="{standalone: true}" [matTimepickerMin]="getMinFimHora()">
-            <mat-timepicker-toggle matIconSuffix [for]="fimTimePicker"></mat-timepicker-toggle>
-            <mat-timepicker #fimTimePicker></mat-timepicker>
-            <mat-error *ngIf="cadastroForm.hasError('intervaloInvalido')">A data/hora final nao pode ser menor que a inicial</mat-error>
-          </mat-form-field>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Valor do Servico</mat-label>
-            <input matInput type="text" formControlName="valor_servico" name="valor_servico" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left', max: 10000}" (input)="onChangePreco($event)">
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Data Fim</span>
+            <input aeroControl aeroDate="date" [ngModel]="fimData" (ngModelChange)="onFimDataChange($event)" [ngModelOptions]="{standalone: true}" [min]="getMinFimData()">
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Tipo de Atendimento</mat-label>
-            <mat-select formControlName="tipo_atendimento">
-              <mat-option value="">--Selecione uma opcao--</mat-option>
-              <mat-option *ngFor="let item of tipo_atendimento" [value]="item">{{ item }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-2">
-            <mat-label>Deslocamento (km)</mat-label>
-            <input matInput type="number" formControlName="deslocamento" min="0" name="deslocamento" (input)="onChangePreco($event)">
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Hora Fim</span>
+            <input aeroControl aeroDate="time" [ngModel]="fimHora" (ngModelChange)="onFimHoraChange($event)" [ngModelOptions]="{standalone: true}" [min]="getMinFimHora()">
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Valor Deslocamento</mat-label>
-            <input matInput type="text" formControlName="valor_deslocamento" name="valor_deslocamento" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left', max: 10000}" (input)="onChangePreco($event)">
-          </mat-form-field>
+            <span aeroError *ngIf="cadastroForm.hasError('intervaloInvalido')">A data/hora final nao pode ser menor que a inicial</span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="app-field span-3">
-            <mat-label>Total</mat-label>
-            <input matInput type="text" formControlName="total" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left'}" readonly>
-          </mat-form-field>
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Valor do Servico</span>
+            <input aeroControl type="text" formControlName="valor_servico" name="valor_servico" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left', max: 10000}" (input)="onChangePreco($event)">
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Tipo de Atendimento</span>
+            <select aeroControl formControlName="tipo_atendimento">
+              <option value="">--Selecione uma opcao--</option>
+              <option *ngFor="let item of tipo_atendimento" [ngValue]="item">{{ item }}</option>
+            </select>
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-2">
+            <span aeroLabel>Deslocamento (km)</span>
+            <input aeroControl type="number" formControlName="deslocamento" min="0" name="deslocamento" (input)="onChangePreco($event)">
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Valor Deslocamento</span>
+            <input aeroControl type="text" formControlName="valor_deslocamento" name="valor_deslocamento" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left', max: 10000}" (input)="onChangePreco($event)">
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Total</span>
+            <input aeroControl type="text" formControlName="total" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left'}" readonly>
+          </app-aero-field>
 
           <div class="span-8 executor-row">
             <div class="executor-meta">
               <label>Executores</label>
               <div class="input-wrapper">
                 <span class="item-lateral">
-                  <button type="button" id="botaoModalBusca" data-bs-toggle="modal" data-bs-target="#modalBusca"><i class="fa-solid fa-search"></i></button>
+                  <button aeroButton="secondary" type="button" id="botaoModalBusca" data-bs-toggle="modal" data-bs-target="#modalBusca"><i class="fa-solid fa-search"></i></button>
                 </span>
               </div>
             </div>
@@ -179,7 +172,7 @@
                 @for(item of listaExecutores(); track item.id){
                 <tr>
                   <td>{{ item.nome }}</td>
-                  <td><button type="button" (click)="removerExecutor(item.id)"><i class="fa-solid fa-xmark"></i></button></td>
+                  <td><button aeroButton="secondary" type="button" (click)="removerExecutor(item.id)"><i class="fa-solid fa-xmark"></i></button></td>
                 </tr>
                 }
               </tbody>
@@ -188,7 +181,7 @@
 
           <div class="span-12 app-editor-shell">
             <label>Descricao</label>
-            <textarea formControlName="descricao" class="app-editor-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+            <textarea aeroControl formControlName="descricao" class="app-editor-textarea" rows="8" placeholder="Digite a descricao"></textarea>
           </div>
 
           <div class="span-12">
@@ -198,8 +191,8 @@
         </div>
 
         <div class="app-form-actions">
-          <button mat-flat-button class="btn btn-primary btn-avulso-primary" (click)="$event.preventDefault(); cadastrarAtualizarAvulso()">{{ id ? 'Atualizar' : 'Cadastrar' }}</button>
-          <button mat-stroked-button class="btn btn-warning" (click)="$event.preventDefault(); limparFormulario()">{{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}</button>
+          <button aeroButton="primary"  (click)="$event.preventDefault(); cadastrarAtualizarAvulso()">{{ id ? 'Atualizar' : 'Cadastrar' }}</button>
+          <button aeroButton="secondary"  (click)="$event.preventDefault(); limparFormulario()">{{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}</button>
         </div>
       </form>
     </div>
@@ -212,20 +205,20 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalJustificativaDataLabel">Justificar alteracao de horario</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <div [formGroup]="cadastroForm">
-          <mat-form-field appearance="fill" class="app-field span-12">
-            <mat-label>Justificativa</mat-label>
-            <textarea matInput formControlName="justificativa_alteracao_data" rows="4" placeholder="Informe o motivo da alteracao"></textarea>
-            <mat-error *ngIf="cadastroForm.controls['justificativa_alteracao_data'].touched && !cadastroForm.controls['justificativa_alteracao_data'].value">Campo obrigatorio</mat-error>
-          </mat-form-field>
+          <app-aero-field class="app-field span-12">
+            <span aeroLabel>Justificativa</span>
+            <textarea aeroControl formControlName="justificativa_alteracao_data" rows="4" placeholder="Informe o motivo da alteracao"></textarea>
+            <span aeroError *ngIf="cadastroForm.controls['justificativa_alteracao_data'].touched && !cadastroForm.controls['justificativa_alteracao_data'].value">Campo obrigatorio</span>
+          </app-aero-field>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary modal-close-button" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary modal-confirm-button" (click)="confirmarJustificativaAlteracao()">Confirmar</button>
+        <button aeroButton="secondary" type="button" class="modal-close-button" data-bs-dismiss="modal">Cancelar</button>
+        <button aeroButton="primary" type="button" class="modal-confirm-button" (click)="confirmarJustificativaAlteracao()">Confirmar</button>
       </div>
     </div>
   </div>
@@ -236,7 +229,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalBusca">Cadastro de Atendimentos</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
       <div class="modal-body">
         <div class="col-12">
@@ -251,20 +244,20 @@
               @for(item of executores(); track item.id){
               <tr>
                 <td>{{ item.nome }}</td>
-                <td><button type="button" (click)="setExecutor(item)"><i class="fa-solid fa-check"></i></button></td>
+                <td><button aeroButton="secondary" type="button" (click)="setExecutor(item)"><i class="fa-solid fa-check"></i></button></td>
               </tr>
               }
               <tr>
                 <td>Outros</td>
-                <td><button type="button" (click)="setExecutor({ id: 0, nome: '' })"><i class="fa-solid fa-check"></i></button></td>
+                <td><button aeroButton="secondary" type="button" (click)="setExecutor({ id: 0, nome: '' })"><i class="fa-solid fa-check"></i></button></td>
               </tr>
               <tr *ngIf="mostrarOutro()">
                 <td colspan="2">
-                  <mat-form-field appearance="fill" class="app-field span-6">
-                    <mat-label>Informe o nome</mat-label>
-                    <input matInput type="text" [ngModel]="outroNome()" (ngModelChange)="outroNome.set($event)" [ngModelOptions]="{standalone: true}">
-                  </mat-form-field>
-                  <button mat-flat-button class="btn btn-primary btn-sm modal-confirm-button" (click)="confirmarOutro()" [disabled]="!outroNome()">Adicionar</button>
+                  <app-aero-field class="app-field span-6">
+                    <span aeroLabel>Informe o nome</span>
+                    <input aeroControl type="text" [ngModel]="outroNome()" (ngModelChange)="outroNome.set($event)" [ngModelOptions]="{standalone: true}">
+                  </app-aero-field>
+                  <button aeroButton="primary" class="aero-button--sm modal-confirm-button" (click)="confirmarOutro()" [disabled]="!outroNome()">Adicionar</button>
                 </td>
               </tr>
             </tbody>
@@ -272,7 +265,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="close-modal-escolha" class="btn btn-secondary modal-close-button" data-bs-dismiss="modal">Fechar</button>
+        <button aeroButton="secondary" type="button" id="close-modal-escolha" class="modal-close-button" data-bs-dismiss="modal">Fechar</button>
       </div>
     </div>
   </div>

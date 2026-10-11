@@ -1,0 +1,16 @@
+:host { display: block; min-width: 0; }
+.component-page { display: grid; gap: 1.75rem; max-width: 80rem; margin: auto; }
+.eyebrow { color: var(--aero-muted); font-size: .85rem; font-weight: 700; }
+h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin: .4rem 0; }
+h2 { font-size: 1.3rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+code { color: var(--aero-muted); overflow-wrap: anywhere; }
+.description { max-width: 65rem; margin: 1rem 0; line-height: 1.7; }
+.demo-hint { color: var(--aero-muted); }
+.demo-content { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.demo-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.demo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.field-example { max-width: 32rem; }
+.glass-stage { border-radius: 1.5rem; background: linear-gradient(135deg, #e4f8ff, #def5e9); }
+.demo-status { margin: 1rem 0 0; color: var(--aero-leaf-deep); }
+@media (max-width: 700px) { .demo-grid { grid-template-columns: 1fr; } .demo { padding: 1rem; } }

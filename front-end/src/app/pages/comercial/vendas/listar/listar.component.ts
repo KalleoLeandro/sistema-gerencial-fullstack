@@ -1,10 +1,10 @@
+import { AeroNativeButtonComponent } from '@components/aero';
+import { AeroSelectComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListaPaginada } from '@models/lista-paginada';
 import { Venda } from '@models/venda';
@@ -13,7 +13,7 @@ import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-comercial-vendas-listar',
-  imports: [CommonModule, FormsModule, CurrencyPipe, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe, MatFormFieldModule, MatInputModule],
   templateUrl: './listar.component.html',
   styleUrl: './listar.component.css'
 })
@@ -30,6 +30,7 @@ export class ListarComponent implements OnInit {
     { numero: 50, descricao: '50 por pagina' }
   ];
   public pesquisa = '';
+  public readonly pageSizeOptions = this.paginacao.map(item => ({ value: item.numero, label: item.descricao }));
   public limit = 10;
   public page = 1;
   public totalPages = 0;

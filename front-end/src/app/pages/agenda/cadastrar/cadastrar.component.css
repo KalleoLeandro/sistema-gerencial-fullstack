@@ -49,10 +49,6 @@
   padding: 1.25rem;
 }
 
-:host ::ng-deep .agenda-form .mat-mdc-form-field {
-  width: 100%;
-}
-
 .span-full {
   grid-column: 1 / -1;
 }

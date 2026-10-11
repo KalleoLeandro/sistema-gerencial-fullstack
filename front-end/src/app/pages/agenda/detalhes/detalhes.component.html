@@ -9,13 +9,12 @@
         </div>
 
         <div class="page-actions">
-          <a mat-stroked-button class="btn btn-warning" routerLink="/agenda">
+          <a aeroButton="secondary"  routerLink="/agenda">
             Voltar
           </a>
-          <a
+          <a aeroButton="primary"
             *ngIf="agendamento"
-            mat-flat-button
-            class="btn btn-primary"
+
             [routerLink]="['/agenda/cadastrar', agendamento.id]">
             Alterar
           </a>
@@ -52,7 +51,7 @@
       </div>
 
       <div class="details-footer">
-        <button mat-stroked-button type="button" class="btn btn-danger" (click)="excluir()">
+        <button aeroButton="danger" type="button"  (click)="excluir()">
           Excluir agendamento
         </button>
       </div>

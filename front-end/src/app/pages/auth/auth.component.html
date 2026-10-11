@@ -8,6 +8,7 @@
     </section>
 
     <section class="login-form-panel">
+      <div class="d-flex justify-content-end mb-3"><app-aero-theme-toggle /></div>
       <div class="login-form-header">
         <p class="login-form-kicker">Acesso seguro</p>
         <h2>Entrar na plataforma</h2>
@@ -38,14 +39,14 @@
               formControlName="senha"
               placeholder="Digite sua senha"
               autocomplete="current-password">
-            <button type="button" mat-button matSuffix (click)="togglePasswordVisibility()">
+            <button aeroButton="quiet" type="button" matSuffix (click)="togglePasswordVisibility()">
               {{ hidePassword ? 'Mostrar' : 'Ocultar' }}
             </button>
             <mat-error *ngIf="AuthForm.controls['senha'].touched && AuthForm.controls['senha'].invalid">Informe sua senha</mat-error>
           </mat-form-field>
         </div>
 
-        <button
+        <button aeroButton="primary"
           type="submit"
           class="login-button"
           [disabled]="this.AuthForm.invalid">

@@ -10,7 +10,7 @@
           </p>
         </div>
 
-        <button mat-flat-button type="button" class="btn btn-primary create-button" (click)="abrirCadastroAgendamento()">
+        <button aeroButton="primary" type="button" class="create-button" (click)="abrirCadastroAgendamento()">
           <i class="fa-solid fa-plus"></i>
           <span>Cadastrar agendamento</span>
         </button>
@@ -58,7 +58,7 @@
         </div>
 
         <div class="contract-list">
-          <button
+          <button aeroButton="secondary"
             *ngFor="let evento of eventosFiltrados | slice:0:12"
             type="button"
             class="contract-item"

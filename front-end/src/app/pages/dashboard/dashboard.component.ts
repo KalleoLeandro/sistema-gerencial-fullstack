@@ -1,3 +1,4 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -14,7 +15,7 @@ import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, MatCardModule, FullCalendarModule],
+  imports: [AeroNativeButtonComponent, CommonModule, MatCardModule, FullCalendarModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

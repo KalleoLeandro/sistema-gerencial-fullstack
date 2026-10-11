@@ -1,6 +1,6 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { Produto } from '@models/produto';
 import { ProdutoService } from '@services/produto.service';
@@ -8,7 +8,7 @@ import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-produtos-em-falta',
-  imports: [CommonModule, CurrencyPipe, MatButtonModule],
+  imports: [AeroNativeButtonComponent, CommonModule, CurrencyPipe],
   templateUrl: './em-falta.component.html',
   styleUrl: './em-falta.component.css'
 })

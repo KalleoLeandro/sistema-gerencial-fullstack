@@ -5,7 +5,7 @@
             <h6 class="m-0 font-weight-bold text-secondary">
                 {{ empresa?.nome_fantasia || empresa?.nome_cliente }}
             </h6>
-            <button mat-flat-button type="button" class="btn btn-primary pdf-hide" (click)="exportarPdf()">
+            <button aeroButton="primary" type="button" class="pdf-hide" (click)="exportarPdf()">
                 Exportar PDF
             </button>
         </div>
@@ -14,22 +14,22 @@
 
             <ul class="nav nav-tabs" id="tabs" role="tablist">
                 <li class="nav-item">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#home">
+                    <button aeroButton="secondary" class="nav-link active" data-bs-toggle="tab" data-bs-target="#home">
                         Dados basicos
                     </button>
                 </li>
                 <li class="nav-item" *ngIf="exibeRecursosContrato">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile">
+                    <button aeroButton="secondary" class="nav-link" data-bs-toggle="tab" data-bs-target="#profile">
                         Equipamentos
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-atendimento">
+                    <button aeroButton="secondary" class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-atendimento">
                         Ordens de servico
                     </button>
                 </li>
                 <li class="nav-item" *ngIf="exibeRecursosContrato">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-manutencao">
+                    <button aeroButton="secondary" class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-manutencao">
                         Manutencoes
                     </button>
                 </li>
@@ -144,14 +144,14 @@
                                 </div>
 
                                 <div class="d-flex gap-2 mb-3 pdf-hide">
-                                    <button mat-flat-button type="button" class="btn btn-action-edit" (click)="alterarEmpresa()">
+                                    <button aeroButton="secondary" type="button"  (click)="alterarEmpresa()">
                                         Alterar
                                     </button>
-                                    <button mat-flat-button type="button" class="btn btn-primary" *ngIf="empresa?.teve_contrato || empresa?.possui_contrato"
+                                    <button aeroButton="primary" type="button"  *ngIf="empresa?.teve_contrato || empresa?.possui_contrato"
                                         (click)="renovarContrato()">
                                         Renovar contrato
                                     </button>
-                                    <button mat-flat-button type="button" class="btn btn-action-delete" (click)="modalExcluirEmpresa()">
+                                    <button aeroButton="danger" type="button"  (click)="modalExcluirEmpresa()">
                                         Excluir
                                     </button>
                                 </div>
@@ -194,7 +194,7 @@
                                     </div>
 
                                     <ng-template #infraEditor>
-                                        <textarea
+                                        <textarea aeroControl
                                             [(ngModel)]="dadosInfra"
                                             class="details-textarea details-infra-textarea"
                                             rows="14"
@@ -204,18 +204,18 @@
                                 </div>
 
                                 <div class="d-grid gap-2 pdf-hide" *ngIf="perfil !== 'USER'">
-                                    <button type="button" class="btn btn-primary w-100"
+                                    <button aeroButton="primary" type="button" class="w-100"
                                         (click)="habilitarEdicaoInfra()" *ngIf="!editandoInfra">
                                         Editar dados de infraestrutura
                                     </button>
 
-                                    <button type="button" class="btn btn-success w-100"
+                                    <button aeroButton="success" type="button" class="w-100"
                                         (click)="$event.preventDefault(); salvarDadosInfra()" *ngIf="editandoInfra"
                                         [disabled]="!dadosInfra?.trim()">
                                         Salvar dados de infraestrutura
                                     </button>
 
-                                    <button type="button" class="btn btn-secondary w-100"
+                                    <button aeroButton="secondary" type="button" class="w-100"
                                         (click)="cancelarEdicaoInfra()" *ngIf="editandoInfra">
                                         Cancelar
                                     </button>
@@ -228,7 +228,7 @@
 
                     <div class="tab-pane fade details-pane" id="profile" *ngIf="exibeRecursosContrato">
                         <div class="d-flex p-2 pdf-hide details-toolbar">
-                            <button mat-flat-button type="button" class="btn btn-primary" (click)="cadastrarNovoEquipamento()">
+                            <button aeroButton="primary" type="button"  (click)="cadastrarNovoEquipamento()">
                                 Cadastrar novo equipamento
                             </button>
                         </div>
@@ -260,7 +260,7 @@
 
                     <div class="tab-pane fade details-pane" id="historico-atendimento">
                         <div class="d-flex p-2 pdf-hide details-toolbar">
-                            <button mat-flat-button type="button" class="btn btn-primary" (click)="cadastrarNovoAtendimento()">
+                            <button aeroButton="primary" type="button"  (click)="cadastrarNovoAtendimento()">
                                 Cadastrar nova ordem de servico
                             </button>
                         </div>
@@ -288,7 +288,7 @@
                                         <td>{{ formatarExecutores(item.executores) }}</td>
                                         <td>{{ item.status_atendimento | statusAtendimento }}</td>
                                         <td>
-                                            <button (click)="detalharAtendimento(item.id)">
+                                            <button aeroButton="secondary" (click)="detalharAtendimento(item.id)">
                                                 <i class="fa-solid fa-search"></i>
                                             </button>
                                         </td>
@@ -321,7 +321,7 @@
                                         <td>{{ item.tipo_servico }}</td>
                                         <td>{{ item.status_atendimento | statusAtendimento }}</td>
                                         <td>
-                                            <button (click)="detalharManutencao(item.id)">
+                                            <button aeroButton="secondary" (click)="detalharManutencao(item.id)">
                                                 <i class="fa-solid fa-search"></i>
                                             </button>
                                         </td>

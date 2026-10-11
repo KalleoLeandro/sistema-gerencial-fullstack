@@ -117,7 +117,7 @@
   margin-top: 0.65rem;
 }
 
-.summary-card__search .btn {
+.summary-card__search [aeroButton] {
   min-height: 44px;
   white-space: nowrap;
   padding-inline: 1rem;
@@ -161,7 +161,7 @@
 
 .catalog-search__field,
 .full-width,
-.form-grid mat-form-field {
+.form-grid app-aero-field {
   width: 100%;
 }
 
@@ -189,7 +189,7 @@
   gap: 0.75rem;
 }
 
-.cliente-actions .btn {
+.cliente-actions [aeroButton] {
   min-height: 56px;
   display: inline-flex;
   align-items: center;
@@ -459,7 +459,7 @@
   justify-content: stretch;
 }
 
-.pdv-budget-actions .btn {
+.pdv-budget-actions [aeroButton] {
   flex: 1 1 220px;
 }
 
@@ -483,7 +483,7 @@
   gap: 1rem;
 }
 
-.pagamentos-grid mat-form-field {
+.pagamentos-grid app-aero-field {
   width: 100%;
 }
 
@@ -565,7 +565,7 @@
     flex-wrap: wrap;
   }
 
-  .cliente-actions .btn {
+  .cliente-actions [aeroButton] {
     width: 100%;
   }
 }

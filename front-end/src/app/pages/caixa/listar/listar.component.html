@@ -14,7 +14,7 @@
           <span class="card-label">Caixa do dia</span>
           <h3>{{ hoje | date:'dd/MM/yyyy' }}</h3>
         </div>
-        <button mat-flat-button type="button" class="btn btn-primary" [disabled]="fechandoCaixa()" (click)="abrirModalFechamento()">Fechar caixa</button>
+        <button aeroButton="primary" type="button"  [disabled]="fechandoCaixa()" (click)="abrirModalFechamento()">Fechar caixa</button>
       </div>
 
       <div class="caixa-total">
@@ -69,7 +69,7 @@
                 {{ caixa.valor_quebra ? ('Quebra: ' + (caixa.valor_quebra | currency:'BRL':'symbol':'1.2-2')) : 'Sem quebra' }}
               </small>
             </div>
-            <button type="button" class="btn btn-link btn-editar-fechamento" [disabled]="fechandoCaixa()" (click)="editarFechamento(caixa)">
+            <button aeroButton="secondary" type="button"  [disabled]="fechandoCaixa()" (click)="editarFechamento(caixa)">
               Editar
             </button>
           </div>
@@ -90,7 +90,7 @@
             {{ dataReferenciaFechamento | date:'dd/MM/yyyy' }}
           </small>
         </div>
-        <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModalFechamento()"></button>
+        <button aeroButton="quiet" type="button"  aria-label="Fechar" (click)="fecharModalFechamento()"><span aria-hidden="true">×</span></button>
       </div>
 
       <div class="conferencia-grid">
@@ -137,8 +137,8 @@
       ></textarea>
 
       <div class="modal-actions">
-        <button type="button" class="btn btn-outline-secondary" [disabled]="fechandoCaixa()" (click)="fecharModalFechamento()">Cancelar</button>
-        <button mat-flat-button type="button" class="btn btn-primary" [disabled]="fechandoCaixa()" (click)="confirmarFechamento()">
+        <button aeroButton="secondary" type="button"  [disabled]="fechandoCaixa()" (click)="fecharModalFechamento()">Cancelar</button>
+        <button aeroButton="primary" type="button"  [disabled]="fechandoCaixa()" (click)="confirmarFechamento()">
           {{ fechandoCaixa() ? 'Salvando...' : (editandoFechamento ? 'Atualizar fechamento' : 'Confirmar fechamento') }}
         </button>
       </div>

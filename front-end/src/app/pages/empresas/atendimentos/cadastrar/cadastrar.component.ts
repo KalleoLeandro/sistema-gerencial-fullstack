@@ -1,12 +1,7 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective } from '@components/aero';
 ﻿import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 
@@ -21,7 +16,7 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CurrencyMaskModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTimepickerModule, FormSubmitLoaderComponent],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, CommonModule, FormsModule, ReactiveFormsModule, CurrencyMaskModule, FormSubmitLoaderComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })

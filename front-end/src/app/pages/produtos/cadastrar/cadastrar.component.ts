@@ -1,10 +1,7 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroCheckboxComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ImagemManagerComponent } from '@components/imagem-manager/imagem-manager.component';
@@ -14,7 +11,7 @@ import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-produtos-cadastrar',
-  imports: [CommonModule, FormsModule, CurrencyMaskModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatInputModule, FormSubmitLoaderComponent, ImagemManagerComponent],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroCheckboxComponent, CommonModule, FormsModule, CurrencyMaskModule, FormSubmitLoaderComponent, ImagemManagerComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })

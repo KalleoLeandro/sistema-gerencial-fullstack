@@ -6,7 +6,7 @@
       </div>
 
       <form [formGroup]="cadastroForm" class="empresa-form">
-        <input type="text" name="id" id="id" formControlName="id">
+        <input aeroControl type="text" name="id" id="id" formControlName="id">
 
         <div class="card section-card">
           <div class="card-header py-3 mb-2 section-heading">
@@ -16,107 +16,104 @@
           <div class="form-grid form-grid-empresa">
             <div class="full-span d-flex flex-column gap-2">
               <label class="fw-semibold">Tipo de pessoa</label>
-              <mat-radio-group class="d-flex gap-4" [ngModel]="cadastroForm.get('tipo_pessoa')?.value"
+              <app-aero-radio-group class="d-flex gap-4" [ngModel]="cadastroForm.get('tipo_pessoa')?.value"
                 (ngModelChange)="cadastroForm.get('tipo_pessoa')?.patchValue($event)"
-                [ngModelOptions]="{ standalone: true }">
-                <mat-radio-button value="f">Pessoa Fisica</mat-radio-button>
-                <mat-radio-button value="j">Pessoa Juridica</mat-radio-button>
-              </mat-radio-group>
+                [ngModelOptions]="{ standalone: true }" [options]="[{label: 'Pessoa Física', value: 'f'}, {label: 'Pessoa Jurídica', value: 'j'}]"></app-aero-radio-group>
             </div>
 
-            <mat-form-field appearance="fill" class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
-              <mat-label>Razao social</mat-label>
-              <input matInput type="text" formControlName="razao_social">
-              <mat-error *ngIf="isInvalid('razao_social')">Campo obrigatorio</mat-error>
-            </mat-form-field>
+            <app-aero-field class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <span aeroLabel>Razao social</span>
+              <input aeroControl type="text" formControlName="razao_social">
+              <span aeroError *ngIf="isInvalid('razao_social')">Campo obrigatorio</span>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" class="full-span">
-              <mat-label>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'Nome fantasia' : 'Nome' }}</mat-label>
-              <input matInput type="text" formControlName="nome_fantasia">
-              <mat-error *ngIf="isInvalid('nome_fantasia')">Campo obrigatorio</mat-error>
-            </mat-form-field>
+            <app-aero-field class="full-span">
+              <span aeroLabel>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'Nome fantasia' : 'Nome' }}</span>
+              <input aeroControl type="text" formControlName="nome_fantasia">
+              <span aeroError *ngIf="isInvalid('nome_fantasia')">Campo obrigatorio</span>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
-              <mat-label>Nome exibido</mat-label>
-              <input matInput type="text" formControlName="nome_cliente">
-              <mat-error *ngIf="isInvalid('nome_cliente')">Campo obrigatorio</mat-error>
-            </mat-form-field>
+            <app-aero-field class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <span aeroLabel>Nome exibido</span>
+              <input aeroControl type="text" formControlName="nome_cliente">
+              <span aeroError *ngIf="isInvalid('nome_cliente')">Campo obrigatorio</span>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</mat-label>
-              <input matInput type="text" formControlName="cpf_cnpj"
+            <app-aero-field>
+              <span aeroLabel>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</span>
+              <input aeroControl type="text" formControlName="cpf_cnpj"
                 [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'"
                 (input)="buscarCnpj()">
-            </mat-form-field>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
-              <mat-label>IE</mat-label>
-              <input matInput type="text" formControlName="ie" maxlength="20">
-            </mat-form-field>
+            <app-aero-field *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <span aeroLabel>IE</span>
+              <input aeroControl type="text" formControlName="ie" maxlength="20">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>CEP</mat-label>
-              <input matInput type="text" formControlName="cep" name="cep" mask="00.000-000" (input)="buscarCep()">
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>CEP</span>
+              <input aeroControl type="text" formControlName="cep" name="cep" mask="00.000-000" (input)="buscarCep()">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" class="wide-span">
-              <mat-label>Endereco</mat-label>
-              <input matInput type="text" formControlName="endereco" name="endereco">
-            </mat-form-field>
+            <app-aero-field class="wide-span">
+              <span aeroLabel>Endereco</span>
+              <input aeroControl type="text" formControlName="endereco" name="endereco">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>Numero</mat-label>
+            <app-aero-field>
+              <span aeroLabel>Numero</span>
               <input
-                matInput
+                aeroControl
                 type="number"
                 formControlName="numero"
                 name="numero"
                 min="0"
                 step="1"
                 onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '+';">
-              <mat-error *ngIf="isInvalid('numero')">Numero invalido</mat-error>
-            </mat-form-field>
+              <span aeroError *ngIf="isInvalid('numero')">Numero invalido</span>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>Complemento</mat-label>
-              <input matInput type="text" formControlName="complemento" name="complemento">
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Complemento</span>
+              <input aeroControl type="text" formControlName="complemento" name="complemento">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>Bairro</mat-label>
-              <input matInput type="text" formControlName="bairro" name="bairro">
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Bairro</span>
+              <input aeroControl type="text" formControlName="bairro" name="bairro">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" class="wide-span">
-              <mat-label>Cidade</mat-label>
-              <input matInput type="text" formControlName="cidade" name="cidade">
-            </mat-form-field>
+            <app-aero-field class="wide-span">
+              <span aeroLabel>Cidade</span>
+              <input aeroControl type="text" formControlName="cidade" name="cidade">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>UF</mat-label>
-              <input matInput type="text" formControlName="uf" name="uf">
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>UF</span>
+              <input aeroControl type="text" formControlName="uf" name="uf">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>Telefone</mat-label>
-              <input matInput type="text" formControlName="telefone" name="telefone" mask="(00) 0000-0000">
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Telefone</span>
+              <input aeroControl type="text" formControlName="telefone" name="telefone" mask="(00) 0000-0000">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>Celular</mat-label>
-              <input matInput type="text" formControlName="celular" name="celular" mask="(00) 00000-0000">
-              <mat-error *ngIf="isInvalid('celular')">Informe pelo menos 11 digitos</mat-error>
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Celular</span>
+              <input aeroControl type="text" formControlName="celular" name="celular" mask="(00) 00000-0000">
+              <span aeroError *ngIf="isInvalid('celular')">Informe pelo menos 11 digitos</span>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" name="email">
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Email</span>
+              <input aeroControl type="email" formControlName="email" name="email">
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" class="full-span">
-              <mat-label>Contato</mat-label>
-              <input matInput type="text" formControlName="contato" name="contato">
-            </mat-form-field>
+            <app-aero-field class="full-span">
+              <span aeroLabel>Contato</span>
+              <input aeroControl type="text" formControlName="contato" name="contato">
+            </app-aero-field>
           </div>
         </div>
 
@@ -129,36 +126,28 @@
             <div class="full-span d-flex flex-column gap-2">
               <label class="fw-semibold">Situacao do contrato</label>
               <div class="d-flex flex-wrap gap-4">
-                <label class="d-flex align-items-center gap-2">
-                  <input type="checkbox" formControlName="possui_contrato">
-                  <span>Possui contrato ativo</span>
-                </label>
-                <label class="d-flex align-items-center gap-2">
-                  <input type="checkbox" formControlName="teve_contrato">
-                  <span>Possui historico de contrato</span>
-                </label>
+                <app-aero-checkbox formControlName="possui_contrato" label="Possui contrato ativo" />
+                <app-aero-checkbox formControlName="teve_contrato" label="Possui histórico de contrato" />
               </div>
             </div>
 
-            <mat-form-field *ngIf="possuiHistoricoContrato" appearance="fill">
-              <mat-label>Inicio do contrato</mat-label>
-              <input matInput [matDatepicker]="pickerInicio" formControlName="data_inicio" placeholder="Selecione a data">
-              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
-              <mat-datepicker #pickerInicio></mat-datepicker>
-              <mat-error *ngIf="cadastroForm.get('data_inicio')?.hasError('required')">Campo obrigatorio</mat-error>
-              <mat-error *ngIf="hasDateRangeError('data_inicio')">A data inicial nao pode ser maior que a data final</mat-error>
-            </mat-form-field>
+            <app-aero-field *ngIf="possuiHistoricoContrato">
+              <span aeroLabel>Inicio do contrato</span>
+              <input aeroControl aeroDate="date" formControlName="data_inicio" placeholder="Selecione a data">
 
-            <mat-form-field *ngIf="possuiHistoricoContrato" appearance="fill">
-              <mat-label>Fim do contrato</mat-label>
-              <input matInput [matDatepicker]="pickerFim" [min]="minDate" formControlName="data_fim" placeholder="Selecione a data">
-              <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
-              <mat-datepicker #pickerFim></mat-datepicker>
-              <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('required')">Campo obrigatorio</mat-error>
-              <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataPassada')">A data final nao pode ser menor que hoje</mat-error>
-              <mat-error *ngIf="cadastroForm.get('data_fim')?.hasError('dataFinalMenorQueDataInicial')">A data final deve ser igual ou maior que a data inicial</mat-error>
-              <mat-error *ngIf="hasDateRangeError('data_fim')">A data final deve ser igual ou maior que a data inicial</mat-error>
-            </mat-form-field>
+              <span aeroError *ngIf="cadastroForm.get('data_inicio')?.hasError('required')">Campo obrigatorio</span>
+              <span aeroError *ngIf="hasDateRangeError('data_inicio')">A data inicial nao pode ser maior que a data final</span>
+            </app-aero-field>
+
+            <app-aero-field *ngIf="possuiHistoricoContrato">
+              <span aeroLabel>Fim do contrato</span>
+              <input aeroControl aeroDate="date" [min]="minDate" formControlName="data_fim" placeholder="Selecione a data">
+
+              <span aeroError *ngIf="cadastroForm.get('data_fim')?.hasError('required')">Campo obrigatorio</span>
+              <span aeroError *ngIf="cadastroForm.get('data_fim')?.hasError('dataPassada')">A data final nao pode ser menor que hoje</span>
+              <span aeroError *ngIf="cadastroForm.get('data_fim')?.hasError('dataFinalMenorQueDataInicial')">A data final deve ser igual ou maior que a data inicial</span>
+              <span aeroError *ngIf="hasDateRangeError('data_fim')">A data final deve ser igual ou maior que a data inicial</span>
+            </app-aero-field>
           </div>
         </div>
 
@@ -168,42 +157,40 @@
           </div>
 
           <div class="form-grid form-grid-atendimento">
-            <mat-form-field appearance="fill">
-              <mat-label>Novo inicio do contrato</mat-label>
-              <input matInput [matDatepicker]="pickerRenovacaoInicio" [(ngModel)]="renovacaoDataInicio" [ngModelOptions]="{ standalone: true }" placeholder="Selecione a data">
-              <mat-datepicker-toggle matIconSuffix [for]="pickerRenovacaoInicio"></mat-datepicker-toggle>
-              <mat-datepicker #pickerRenovacaoInicio></mat-datepicker>
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Novo inicio do contrato</span>
+              <input aeroControl aeroDate="date" [(ngModel)]="renovacaoDataInicio" [ngModelOptions]="{ standalone: true }" placeholder="Selecione a data">
 
-            <mat-form-field appearance="fill">
-              <mat-label>Novo fim do contrato</mat-label>
-              <input matInput [matDatepicker]="pickerRenovacaoFim" [(ngModel)]="renovacaoDataFim" [ngModelOptions]="{ standalone: true }" [min]="minDate" placeholder="Selecione a data">
-              <mat-datepicker-toggle matIconSuffix [for]="pickerRenovacaoFim"></mat-datepicker-toggle>
-              <mat-datepicker #pickerRenovacaoFim></mat-datepicker>
-            </mat-form-field>
+            </app-aero-field>
 
-            <mat-form-field appearance="fill" class="full-span">
-              <mat-label>Observacoes da renovacao</mat-label>
-              <textarea matInput rows="4" [(ngModel)]="renovacaoObservacoes" [ngModelOptions]="{ standalone: true }"></textarea>
-            </mat-form-field>
+            <app-aero-field>
+              <span aeroLabel>Novo fim do contrato</span>
+              <input aeroControl aeroDate="date" [(ngModel)]="renovacaoDataFim" [ngModelOptions]="{ standalone: true }" [min]="minDate" placeholder="Selecione a data">
+
+            </app-aero-field>
+
+            <app-aero-field class="full-span">
+              <span aeroLabel>Observacoes da renovacao</span>
+              <textarea aeroControl rows="4" [(ngModel)]="renovacaoObservacoes" [ngModelOptions]="{ standalone: true }"></textarea>
+            </app-aero-field>
           </div>
 
           <div class="form-actions">
-            <button mat-flat-button class="primary-action" type="button" (click)="renovarContrato()"
+            <button aeroButton="primary" class="primary-action" type="button" (click)="renovarContrato()"
               [disabled]="renovandoContrato || !renovacaoDataInicio || !renovacaoDataFim">
               Registrar renovacao
             </button>
-            <button mat-stroked-button class="secondary-action" type="button" (click)="limparRenovacaoContrato()">
+            <button aeroButton="secondary" class="secondary-action" type="button" (click)="limparRenovacaoContrato()">
               Limpar renovacao
             </button>
           </div>
         </div>
 
         <div class="form-actions">
-          <button mat-flat-button class="primary-action" type="button" (click)="cadastrarAtualizarEmpresa()">
+          <button aeroButton="primary" class="primary-action" type="button" (click)="cadastrarAtualizarEmpresa()">
             Salvar cliente
           </button>
-          <button mat-stroked-button class="secondary-action" type="button" (click)="limparFormulario()">
+          <button aeroButton="secondary" class="secondary-action" type="button" (click)="limparFormulario()">
             {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
           </button>
         </div>

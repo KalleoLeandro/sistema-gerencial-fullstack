@@ -1,6 +1,6 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Atendimento } from '@models/atendimento';
@@ -12,7 +12,7 @@ import { StatusPipe } from 'app/pipes/status.pipe';
 
 @Component({
   selector: 'app-detalhes',
-  imports: [CommonModule, FormsModule, StatusPipe, MatButtonModule],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, CommonModule, FormsModule, StatusPipe, ],
   templateUrl: './detalhes.component.html',
   styleUrl: './detalhes.component.css'
 })

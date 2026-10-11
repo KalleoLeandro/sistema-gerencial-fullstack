@@ -1,6 +1,6 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { FormGroup, FormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Avulso } from '@models/avulso';
@@ -13,7 +13,7 @@ import { StatusPipe } from 'app/pipes/status.pipe';
 
 @Component({
   selector: 'app-detalhes',
-  imports: [CommonModule, FormsModule, StatusPipe, MatButtonModule],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, CommonModule, FormsModule, StatusPipe, ],
   templateUrl: './detalhes.component.html',
   styleUrl: './detalhes.component.css'
 })
@@ -62,8 +62,8 @@ export class DetalhesComponent implements AfterViewInit, OnDestroy {
   public carregarAtendimentoAvulso() {
     this.avulsoService.buscarPorId(this.id).subscribe({
       next: (response) => {
-        this.avulso = response; 
-        this.motivo_cancelamento = response.motivo_cancelamento;       
+        this.avulso = response;
+        this.motivo_cancelamento = response.motivo_cancelamento;
         this.listaExecutores = JSON.parse(response.executores);
       },
       error: (error) => {

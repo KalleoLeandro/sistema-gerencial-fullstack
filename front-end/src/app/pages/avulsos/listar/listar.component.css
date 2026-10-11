@@ -35,7 +35,7 @@ label {
     flex: 0 0 auto;
 }
 
-.search-action .btn {
+.search-action [aeroButton] {
     min-width: 8.5rem;
 }
 
@@ -72,7 +72,7 @@ label {
         width: 100%;
     }
 
-    .search-action .btn {
+    .search-action [aeroButton] {
         width: 100%;
     }
 }

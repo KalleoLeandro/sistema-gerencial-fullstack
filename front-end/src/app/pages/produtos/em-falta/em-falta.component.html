@@ -9,7 +9,7 @@
 
       <div class="shortage-actions">
         <span class="shortage-badge">{{ totalProdutos }} produto(s) em alerta</span>
-        <button mat-flat-button type="button" class="btn btn-dark" (click)="voltarParaDashboard()">Voltar ao dashboard</button>
+        <button aeroButton="secondary" type="button"  (click)="voltarParaDashboard()">Voltar ao dashboard</button>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
                 </td>
                 <td>{{ item.valor_venda | currency:'BRL':'symbol':'1.2-2' }}</td>
                 <td class="actions-col">
-                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="editar(item.id)">Editar</button>
+                  <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="editar(item.id)">Editar</button>
                 </td>
               </tr>
             } @empty {

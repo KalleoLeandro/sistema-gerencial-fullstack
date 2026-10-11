@@ -1,6 +1,9 @@
 @import "tailwindcss";
+@import "./aero.css";
+@import "./aero-dark.css";
 
 :root {
+  --aero-page-bg: #ffffff;
   --aero-sky-top: #eefef4;
   --aero-sky-mid: #d5f7ec;
   --aero-sky-bottom: #6fbfcd;
@@ -27,13 +30,7 @@ body {
   margin: 0;
   color: var(--aero-text);
   font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.92), transparent 28%),
-    radial-gradient(circle at 18% 72%, rgba(118, 223, 180, 0.26), transparent 22%),
-    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.8), transparent 20%),
-    radial-gradient(circle at 88% 78%, rgba(255, 241, 168, 0.24), transparent 18%),
-    linear-gradient(180deg, var(--aero-sky-top) 0%, #dbf7ff 24%, var(--aero-sky-mid) 44%, #a0d9d7 72%, var(--aero-sky-bottom) 100%);
-  background-attachment: fixed;
+  background: var(--aero-page-bg);
 }
 
 * {

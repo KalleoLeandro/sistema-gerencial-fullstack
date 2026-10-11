@@ -1,0 +1,35 @@
+<div class="design-system-shell">
+  <header class="design-system-header aero-glass">
+    <div class="design-system-header-content">
+      <div class="design-system-brand">
+        <img src="/leal-informatica-wordmark.svg" alt="Leal Informática" width="160" height="40">
+        <span>Biblioteca de componentes</span>
+      </div>
+      <div class="design-system-actions">
+        <app-aero-theme-toggle />
+        <a class="aero-button" routerLink="/dashboard">Voltar ao sistema</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="design-system-body">
+    <aside id="component-sidebar" class="component-sidebar">
+      <h2>Componentes</h2>
+      <nav aria-label="Componentes do design system">
+        <a routerLink="/design-system/classes-css" routerLinkActive="active"
+          ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }"
+          (click)="content.focus()">Classes CSS</a>
+        @for (component of components; track component.id) {
+          <a [routerLink]="['/design-system', component.id]" routerLinkActive="active"
+            ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }"
+            (click)="content.focus()">{{ component.name }}</a>
+        }
+      </nav>
+    </aside>
+    <main #content class="design-system-content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+
+  <footer class="design-system-footer">Aero · Design system Leal Informática</footer>
+</div>

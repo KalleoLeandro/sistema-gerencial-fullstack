@@ -1,7 +1,7 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as bootstrap from 'bootstrap';
 
@@ -15,7 +15,7 @@ import { getHttpErrorMessage } from '@utils/http-error.util';
 
 @Component({
   selector: 'app-detalhes',
-  imports: [CommonModule, FormsModule, MatButtonModule],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, CommonModule, FormsModule, ],
   templateUrl: './detalhes.component.html',
   styleUrl: './detalhes.component.css'
 })

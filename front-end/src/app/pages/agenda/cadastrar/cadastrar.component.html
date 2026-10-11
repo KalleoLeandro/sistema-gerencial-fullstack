@@ -9,65 +9,64 @@
             <p class="page-description">{{ subtituloPagina }}</p>
           </div>
 
-          <a mat-stroked-button class="btn btn-warning" routerLink="/agenda">
+          <a aeroButton="secondary"  routerLink="/agenda">
             Voltar para agenda
           </a>
         </div>
       </div>
-  
-      <mat-card class="form-card">
+
+      <app-aero-card class="form-card">
         <form [formGroup]="cadastroForm" class="agenda-form">
-        <mat-form-field appearance="fill">
-          <mat-label>Título da tarefa</mat-label>
-          <input matInput formControlName="titulo" placeholder="Ex.: Visita ao cliente XPTO">
-          <mat-error *ngIf="cadastroForm.controls['titulo'].touched && cadastroForm.controls['titulo'].invalid">
+        <app-aero-field>
+          <span aeroLabel>Título da tarefa</span>
+          <input aeroControl formControlName="titulo" placeholder="Ex.: Visita ao cliente XPTO">
+          <span aeroError *ngIf="cadastroForm.controls['titulo'].touched && cadastroForm.controls['titulo'].invalid">
             Campo obrigatório
-          </mat-error>
-        </mat-form-field>
+          </span>
+        </app-aero-field>
 
-        <mat-form-field appearance="fill">
-          <mat-label>Tipo de tarefa</mat-label>
-          <mat-select formControlName="tipoTarefa">
-            <mat-option value="">--Selecione uma opção--</mat-option>
-            <mat-option *ngFor="let tipo of tiposTarefa" [value]="tipo">{{ tipo }}</mat-option>
-          </mat-select>
-          <mat-error *ngIf="cadastroForm.controls['tipoTarefa'].touched && cadastroForm.controls['tipoTarefa'].invalid">
+        <app-aero-field>
+          <span aeroLabel>Tipo de tarefa</span>
+          <select aeroControl formControlName="tipoTarefa">
+            <option value="">--Selecione uma opção--</option>
+            <option *ngFor="let tipo of tiposTarefa" [ngValue]="tipo">{{ tipo }}</option>
+          </select>
+          <span aeroError *ngIf="cadastroForm.controls['tipoTarefa'].touched && cadastroForm.controls['tipoTarefa'].invalid">
             Campo obrigatório
-          </mat-error>
-        </mat-form-field>
+          </span>
+        </app-aero-field>
 
-        <mat-form-field appearance="fill">
-          <mat-label>Data</mat-label>
-          <input matInput [matDatepicker]="agendamentoDatePicker" formControlName="data">
-          <mat-datepicker-toggle matIconSuffix [for]="agendamentoDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #agendamentoDatePicker></mat-datepicker>
-          <mat-error *ngIf="cadastroForm.controls['data'].touched && cadastroForm.controls['data'].invalid">
-            Campo obrigatório
-          </mat-error>
-        </mat-form-field>
+        <app-aero-field>
+          <span aeroLabel>Data</span>
+          <input aeroControl aeroDate="date" formControlName="data">
 
-        <mat-form-field appearance="fill" class="span-full">
-          <mat-label>Detalhes</mat-label>
-          <textarea matInput formControlName="detalhes" rows="6" placeholder="Descreva os detalhes da tarefa"></textarea>
-          <mat-error *ngIf="cadastroForm.controls['detalhes'].touched && cadastroForm.controls['detalhes'].invalid">
+          <span aeroError *ngIf="cadastroForm.controls['data'].touched && cadastroForm.controls['data'].invalid">
             Campo obrigatório
-          </mat-error>
-        </mat-form-field>
+          </span>
+        </app-aero-field>
+
+        <app-aero-field class="span-full">
+          <span aeroLabel>Detalhes</span>
+          <textarea aeroControl formControlName="detalhes" rows="6" placeholder="Descreva os detalhes da tarefa"></textarea>
+          <span aeroError *ngIf="cadastroForm.controls['detalhes'].touched && cadastroForm.controls['detalhes'].invalid">
+            Campo obrigatório
+          </span>
+        </app-aero-field>
 
         <div class="form-note span-full">
           Este cadastro é salvo localmente no navegador enquanto o fluxo backend de agendamentos não estiver disponível.
         </div>
 
         <div class="form-actions span-full">
-          <button mat-flat-button type="button" class="btn btn-primary" (click)="salvar()">
+          <button aeroButton="primary" type="button"  (click)="salvar()">
             {{ agendamentoId ? 'Salvar alterações' : 'Cadastrar agendamento' }}
           </button>
-          <button mat-stroked-button type="button" class="btn btn-warning" (click)="limpar()">
+          <button aeroButton="secondary" type="button"  (click)="limpar()">
             {{ agendamentoId ? 'Restaurar dados' : 'Limpar formulário' }}
           </button>
         </div>
         </form>
-      </mat-card>
+      </app-aero-card>
     </div>
   </div>
 </app-form-submit-loader>

@@ -13,49 +13,49 @@
           </div>
 
         <div class="form-grid">
-          <mat-form-field appearance="fill" class="span-6">
-            <mat-label>Nome</mat-label>
-            <input matInput type="text" formControlName="nome" name="nome">
-            <mat-error *ngIf="cadastroForm.controls['nome'].touched && cadastroForm.controls['nome'].invalid">
+          <app-aero-field class="span-6">
+            <span aeroLabel>Nome</span>
+            <input aeroControl type="text" formControlName="nome" name="nome">
+            <span aeroError *ngIf="cadastroForm.controls['nome'].touched && cadastroForm.controls['nome'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>Login</mat-label>
-            <input matInput type="text" formControlName="login" name="login">
-            <mat-error *ngIf="cadastroForm.controls['login'].touched && cadastroForm.controls['login'].invalid">
+          <app-aero-field>
+            <span aeroLabel>Login</span>
+            <input aeroControl type="text" formControlName="login" name="login">
+            <span aeroError *ngIf="cadastroForm.controls['login'].touched && cadastroForm.controls['login'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill">
-            <mat-label>Senha</mat-label>
-            <input matInput type="password" formControlName="senha" name="senha">
-            <mat-error *ngIf="cadastroForm.controls['senha'].touched && cadastroForm.controls['senha'].invalid">
+          <app-aero-field>
+            <span aeroLabel>Senha</span>
+            <input aeroControl type="password" formControlName="senha" name="senha">
+            <span aeroError *ngIf="cadastroForm.controls['senha'].touched && cadastroForm.controls['senha'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
 
-          <mat-form-field appearance="fill" class="span-4">
-            <mat-label>Perfil</mat-label>
-            <mat-select formControlName="perfil">
-              <mat-option value="">--Selecione o perfil--</mat-option>
-              <mat-option *ngFor="let item of perfil" [value]="item">{{ item }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="cadastroForm.controls['perfil'].touched && cadastroForm.controls['perfil'].invalid">
+          <app-aero-field class="span-4">
+            <span aeroLabel>Perfil</span>
+            <select aeroControl formControlName="perfil">
+              <option value="">--Selecione o perfil--</option>
+              <option *ngFor="let item of perfil" [ngValue]="item">{{ item }}</option>
+            </select>
+            <span aeroError *ngIf="cadastroForm.controls['perfil'].touched && cadastroForm.controls['perfil'].invalid">
               Campo obrigatorio
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </app-aero-field>
         </div>
         </div>
 
         <div class="form-actions">
-          <button mat-flat-button class="btn btn-primary" [disabled]="cadastroForm.invalid"
+          <button type="button" aeroButton="primary"  [disabled]="cadastroForm.invalid"
             (click)="$event.preventDefault(); cadastrarAtualizarUsuario()">
             {{ id ? 'Atualizar' : 'Cadastrar' }}
           </button>
-          <button mat-stroked-button class="btn btn-warning" (click)="$event.preventDefault(); limparFormulario()">
+          <button type="button" aeroButton="secondary"  (click)="$event.preventDefault(); limparFormulario()">
             {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
           </button>
         </div>

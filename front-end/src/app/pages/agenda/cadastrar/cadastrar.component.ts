@@ -1,12 +1,7 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, AeroCardComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { AgendamentoService } from '@services/agendamento.service';
@@ -15,16 +10,10 @@ import { ToastService } from '@services/toast.service';
 @Component({
   selector: 'app-agenda-cadastrar',
   standalone: true,
-  imports: [
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, AeroCardComponent,
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     FormSubmitLoaderComponent
   ],
   templateUrl: './cadastrar.component.html',

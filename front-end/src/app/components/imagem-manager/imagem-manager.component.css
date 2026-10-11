@@ -28,11 +28,6 @@
   display: none;
 }
 
-.image-panel__upload .btn.disabled {
-  pointer-events: none;
-  opacity: 0.65;
-}
-
 .image-panel__hint,
 .image-panel__state {
   margin-top: 1rem;
@@ -146,7 +141,7 @@
   }
 
   .image-panel__upload,
-  .image-panel__upload .btn {
+  .image-panel__upload [aeroButton] {
     width: 100%;
   }
 }

@@ -5,12 +5,12 @@
       <p *ngIf="descricao">{{ descricao }}</p>
     </div>
 
-    <label *ngIf="!leitura" class="pdf-hide image-panel__upload">
-      <input type="file" accept="image/*" [multiple]="multiple" [disabled]="enviando" (change)="aoSelecionarArquivos($event)" />
-      <span class="btn btn-primary" [class.disabled]="enviando || !entityId">
+    <div *ngIf="!leitura" class="pdf-hide image-panel__upload">
+      <input #imageInput type="file" accept="image/*" [multiple]="multiple" [disabled]="enviando || !entityId" (change)="aoSelecionarArquivos($event)" />
+      <button aeroButton="primary" type="button" [disabled]="enviando || !entityId" (click)="imageInput.click()">
         {{ enviando ? 'Enviando...' : (multiple ? 'Adicionar imagens' : 'Adicionar imagem') }}
-      </span>
-    </label>
+      </button>
+    </div>
   </div>
 
   <div class="image-panel__hint pdf-hide" *ngIf="!entityId && !leitura">
@@ -37,10 +37,10 @@
         <div class="image-card__meta" *ngIf="imagem.principal">
           <span class="image-card__badge">Principal</span>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-primary" (click)="abrirImagem(imagem)">
+        <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="abrirImagem(imagem)">
           Abrir
         </button>
-        <button *ngIf="!leitura" type="button" class="btn btn-sm btn-outline-danger pdf-hide" (click)="excluir(imagem)">
+        <button aeroButton="danger" *ngIf="!leitura" type="button" class="aero-button--sm pdf-hide" (click)="excluir(imagem)">
           Excluir
         </button>
       </figcaption>
@@ -52,7 +52,7 @@
   <div class="image-modal__dialog" (click)="$event.stopPropagation()">
     <div class="image-modal__header">
       <strong>{{ imagemAberta.nomeArquivo }}</strong>
-      <button type="button" class="btn btn-sm btn-light" (click)="fecharImagem()">Fechar</button>
+      <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="fecharImagem()">Fechar</button>
     </div>
     <div class="image-modal__body">
       <img [src]="urlConteudo(imagemAberta)" [alt]="imagemAberta.nomeArquivo" />

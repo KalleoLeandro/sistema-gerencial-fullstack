@@ -128,7 +128,7 @@ label {
   min-width: fit-content;
 }
 
-.search-button-wrap .btn {
+.search-button-wrap [aeroButton] {
   white-space: nowrap;
 }
 
@@ -144,7 +144,7 @@ label {
     justify-content: stretch !important;
   }
 
-  .search-button-wrap .btn {
+  .search-button-wrap [aeroButton] {
     width: 100%;
   }
 }

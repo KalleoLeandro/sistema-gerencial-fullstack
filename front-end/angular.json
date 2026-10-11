@@ -32,7 +32,7 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/styles.css"
             ],
-            "scripts": [                            
+            "scripts": [
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.min.js"
@@ -64,6 +64,12 @@
                   "with": "src/app/environments/environment.development.ts"
                 }
               ]
+            },
+            "storybook": {
+              "optimization": false,
+              "sourceMap": false,
+              "extractLicenses": false,
+              "scripts": []
             }
           },
           "defaultConfiguration": "production"
@@ -75,7 +81,11 @@
               "buildTarget": "front-end:build:production"
             },
             "development": {
-              "buildTarget": "front-end:build:development"
+              "buildTarget": "front-end:build:development",
+              "watch": true,
+              "hmr": true,
+              "liveReload": true,
+              "poll": 1000
             }
           },
           "defaultConfiguration": "development"
@@ -109,12 +119,41 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/styles.css"
             ],
-            "scripts": [                            
+            "scripts": [
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.min.js"
             ]
           }
+        },
+        "storybook": {
+          "options": {
+            "tsConfig": ".storybook/tsconfig.json",
+            "compodoc": false,
+            "open": false,
+            "configDir": ".storybook",
+            "port": 6006,
+            "browserTarget": "front-end:build:storybook",
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
+            ]
+          },
+          "builder": "@storybook/angular:start-storybook"
+        },
+        "build-storybook": {
+          "options": {
+            "configDir": ".storybook",
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
+            ],
+            "tsConfig": ".storybook/tsconfig.json",
+            "outputDir": "storybook-static",
+            "compodoc": false,
+            "browserTarget": "front-end:build:storybook"
+          },
+          "builder": "@storybook/angular:build-storybook"
         }
       }
     }

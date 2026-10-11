@@ -1,8 +1,4 @@
 <div class="relative min-h-screen overflow-hidden">
-  <div class="aero-orb left-[-7rem] top-[6rem] h-40 w-40 bg-white/60"></div>
-  <div class="aero-orb right-[12%] top-[4rem] h-32 w-32 bg-cyan-100/70"></div>
-  <div class="aero-orb bottom-[10%] right-[22%] h-44 w-44 bg-emerald-200/65"></div>
-  <div class="aero-orb left-[18%] top-[24%] h-24 w-24 bg-lime-100/50"></div>
 
   <div class="relative z-10 flex min-h-screen flex-col">
     <header class="aero-glass rounded-none border-x-0 border-t-0 px-4 py-4 sm:px-6 lg:px-8">
@@ -11,10 +7,10 @@
           <div class="hidden items-center gap-3 text-center lg:flex">
             <img src="/leal-informatica-wordmark.svg" alt="Leal Informatica" class="h-8 w-auto sm:h-9" />
           </div>
-          <button
+          <button aeroButton="secondary"
             type="button"
-            mat-icon-button
-            class="hamburger-toggle !min-w-0 !rounded-full !px-3"
+
+            class="aero-button hamburger-toggle !min-w-0 !rounded-full !px-3"
             aria-label="Alternar menu lateral"
             (click)="toggleSidebar()"
           >
@@ -25,12 +21,11 @@
         </div>
 
         <div class="flex items-center justify-end gap-3 text-right">
+          <app-aero-theme-toggle />
           <div class="aero-panel aero-panel-green hidden rounded-full px-4 py-2 text-sm text-teal-950/75 sm:block">
             {{ welcomeLabel() }}
           </div>
-          <button type="button" mat-flat-button color="primary" class="!rounded-full !px-5" (click)="logout()">
-            Sair
-          </button>
+          <app-aero-button label="Sair" variant="primary" (pressed)="logout()" />
         </div>
       </div>
     </header>
@@ -50,7 +45,7 @@
           <div class="flex-1 text-center">
             <h1 class="mt-2 text-2xl font-black text-sky-950">Painel principal</h1>
           </div>
-        </div>        
+        </div>
 
         <nav class="flex-1 space-y-2">
           <a
@@ -83,7 +78,7 @@
 
     <footer class="aero-glass rounded-none border-x-0 border-b-0 px-5 py-2 text-sm text-sky-900/70">
       <div class="mx-auto flex max-w-6xl flex-col items-center justify-center gap-1 text-center">
-        <p>Leal Informatica - &copy; Todos os direitos reservados - {{ currentYear }}</p>        
+        <p>Leal Informatica - &copy; Todos os direitos reservados - {{ currentYear }}</p>
       </div>
     </footer>
   </div>

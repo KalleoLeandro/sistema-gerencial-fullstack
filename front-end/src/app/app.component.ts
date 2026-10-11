@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ThemeService } from '@services/theme.service';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from '@components/toast/toast.component';
 
@@ -9,5 +10,6 @@ import { ToastComponent } from '@components/toast/toast.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  private readonly theme = inject(ThemeService);
   title = 'front-end';
 }

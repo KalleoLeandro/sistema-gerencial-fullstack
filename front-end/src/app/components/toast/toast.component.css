@@ -43,13 +43,7 @@
   line-height: 1.45;
 }
 
-.toast-close {
-  border: 0;
-  background: transparent;
-  color: #475569;
-  cursor: pointer;
-  padding: 0;
-}
+
 
 .toast-success {
   border-color: #86efac;

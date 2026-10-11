@@ -1,12 +1,8 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,7 +41,7 @@ interface PagamentoEdicao {
 
 @Component({
   selector: 'app-comercial-orcamento',
-  imports: [CommonModule, FormsModule, CurrencyPipe, CurrencyMaskModule, NgxMaskDirective, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormSubmitLoaderComponent],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, CommonModule, FormsModule, CurrencyPipe, CurrencyMaskModule, NgxMaskDirective, FormSubmitLoaderComponent],
   templateUrl: './orcamento.component.html',
   styleUrl: './orcamento.component.css'
 })

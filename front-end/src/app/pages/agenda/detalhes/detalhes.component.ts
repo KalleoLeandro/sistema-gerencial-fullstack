@@ -1,6 +1,6 @@
+import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Agendamento } from '@models/agendamento';
 import { AgendamentoService } from '@services/agendamento.service';
@@ -9,7 +9,7 @@ import { ToastService } from '@services/toast.service';
 @Component({
   selector: 'app-agenda-detalhes',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule],
+  imports: [AeroNativeButtonComponent, CommonModule, RouterLink, ],
   templateUrl: './detalhes.component.html',
   styleUrl: './detalhes.component.css'
 })

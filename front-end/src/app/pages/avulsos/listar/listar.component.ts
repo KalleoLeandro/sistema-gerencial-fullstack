@@ -1,7 +1,8 @@
+import { AeroNativeButtonComponent } from '@components/aero';
+import { AeroSelectComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +15,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-listar',
-  imports: [CommonModule, FormsModule, CurrencyPipe, RouterLink, RouterLinkActive, NgxMaskDirective, StatusPipe, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe, RouterLink, RouterLinkActive, NgxMaskDirective, StatusPipe, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule],
   templateUrl: './listar.component.html',
   styleUrl: './listar.component.css'
 })
@@ -46,6 +47,7 @@ export class ListarComponent implements OnInit {
     { numero: 25, descricao: '25 por pagina' },
     { numero: 50, descricao: '50 por pagina' }
   ];
+  public readonly pageSizeOptions = this.paginacao.map(item => ({ value: item.numero, label: item.descricao }));
 
   ngOnInit(): void {
     const pageParam = Number(this.activatedRoute.snapshot.queryParamMap.get('page'));

@@ -9,30 +9,30 @@
       </div>
 
       <div class="form-grid">
-        <mat-form-field appearance="fill">
-          <mat-label>Codigo</mat-label>
-          <input matInput [(ngModel)]="form.codigo" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Nome</mat-label>
-          <input matInput [(ngModel)]="form.nome" />
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="full">
-          <mat-label>Descricao</mat-label>
-          <textarea matInput [(ngModel)]="form.descricao" rows="4"></textarea>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Valor padrao</mat-label>
-          <input matInput [(ngModel)]="form.valor_padrao" type="text" currencyMask [options]="moneyMaskOptions" />
-        </mat-form-field>
+        <app-aero-field>
+          <span aeroLabel>Codigo</span>
+          <input aeroControl [(ngModel)]="form.codigo" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Nome</span>
+          <input aeroControl [(ngModel)]="form.nome" />
+        </app-aero-field>
+        <app-aero-field class="full">
+          <span aeroLabel>Descricao</span>
+          <textarea aeroControl [(ngModel)]="form.descricao" rows="4"></textarea>
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Valor padrao</span>
+          <input aeroControl [(ngModel)]="form.valor_padrao" type="text" currencyMask [options]="moneyMaskOptions" />
+        </app-aero-field>
         <div class="toggle-field">
-          <mat-checkbox [(ngModel)]="form.ativo">Servico ativo</mat-checkbox>
+          <app-aero-checkbox [(ngModel)]="form.ativo" label="Servico ativo"></app-aero-checkbox>
         </div>
       </div>
 
       <div class="actions">
-        <button mat-flat-button type="button" class="btn btn-light" (click)="voltar()">Voltar</button>
-        <button mat-flat-button type="button" class="btn btn-primary" (click)="salvar()" [disabled]="salvando">Salvar</button>
+        <button aeroButton="secondary" type="button"  (click)="voltar()">Voltar</button>
+        <button aeroButton="primary" type="button"  (click)="salvar()" [disabled]="salvando">Salvar</button>
       </div>
     </div>
   </div>

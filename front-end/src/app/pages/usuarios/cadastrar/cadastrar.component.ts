@@ -1,10 +1,7 @@
+import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormSubmitLoaderComponent } from '@components/form-submit-loader/form-submit-loader.component';
 import { TiposLogin } from '@models/tipoLogin';
@@ -14,7 +11,7 @@ import { getHttpErrorMessage } from 'app/utils/http-error.util';
 
 @Component({
   selector: 'app-cadastrar',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormSubmitLoaderComponent],
+  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, CommonModule, FormsModule, ReactiveFormsModule, FormSubmitLoaderComponent],
   templateUrl: './cadastrar.component.html',
   styleUrl: './cadastrar.component.css'
 })

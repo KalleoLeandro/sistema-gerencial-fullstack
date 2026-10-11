@@ -1,0 +1,56 @@
+<section class="aero-card usage" aria-labelledby="usage-title">
+  <header>
+    <h2 id="usage-title">Como importar</h2>
+    <p>Copie os exemplos TypeScript e HTML para usar o componente. Os exemplos usam componentes standalone e os estilos Aero já carregados pelo projeto.</p>
+  </header>
+
+  @if (!fixedComponent) {
+  <div class="aero-field component-picker">
+    <label for="usage-component">Componente</label>
+    <select id="usage-component" class="aero-select" [value]="selected().id" (change)="selectComponent($event)">
+      @for (doc of docs; track doc.id) { <option [value]="doc.id">{{ doc.name }}</option> }
+    </select>
+  </div>
+  }
+
+  @let doc = selected();
+  <div>
+    <h3>{{ doc.name }}</h3>
+    <p><code>{{ doc.component }}</code> · <code>{{ doc.selector }}</code></p>
+    <p class="aero-alert">{{ doc.notes }}</p>
+  </div>
+
+  <div class="code-grid">
+    <section class="code-panel" aria-labelledby="usage-ts-title">
+      <div class="code-heading">
+        <h4 id="usage-ts-title">TypeScript · exemplo.component.ts</h4>
+        <app-aero-button label="Copiar TS" accessibleLabel="Copiar código TypeScript" (pressed)="copyCode(doc.ts, 'TypeScript')" />
+      </div>
+      <pre tabindex="0" aria-label="Código TypeScript"><code>{{ doc.ts }}</code></pre>
+    </section>
+    <section class="code-panel" aria-labelledby="usage-html-title">
+      <div class="code-heading">
+        <h4 id="usage-html-title">HTML · exemplo.component.html</h4>
+        <app-aero-button label="Copiar HTML" accessibleLabel="Copiar código HTML" (pressed)="copyCode(doc.html, 'HTML')" />
+      </div>
+      <pre tabindex="0" aria-label="Código HTML"><code>{{ doc.html }}</code></pre>
+    </section>
+  </div>
+  <p class="copy-status" role="status">{{ copyStatus() }}</p>
+
+  <section aria-labelledby="usage-api-title">
+    <h3 id="usage-api-title">Propriedades, eventos e métodos</h3>
+    <p>Use <code>[propriedade]="valor"</code> para dados e <code>(evento)="acao($event)"</code> para eventos. Propriedades com evento correspondente aceitam a ligação de duas vias indicada na tabela.</p>
+    <div class="aero-table-wrap" tabindex="0" role="region" aria-label="API do componente selecionado">
+      <table class="aero-table">
+        <caption>API de {{ doc.component }} · Inclui propriedades herdadas dos campos</caption>
+        <thead><tr><th scope="col">Nome</th><th scope="col">Categoria</th><th scope="col">Tipo / valores aceitos</th><th scope="col">Padrão</th><th scope="col">Descrição</th></tr></thead>
+        <tbody>
+          @for (property of doc.properties; track property.name) {
+            <tr><td><code>{{ property.name }}</code></td><td>{{ property.kind }}</td><td><code>{{ property.type }}</code></td><td><code>{{ property.defaultValue }}</code></td><td>{{ property.description }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

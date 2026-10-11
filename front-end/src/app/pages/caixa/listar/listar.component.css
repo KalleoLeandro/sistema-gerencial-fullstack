@@ -176,17 +176,9 @@
   background: #fef3c7;
 }
 
-.btn-editar-fechamento {
-  padding: 0;
-  font-weight: 700;
-  color: #0369a1;
-  text-decoration: none;
-}
 
-.btn-editar-fechamento:hover {
-  color: #075985;
-  text-decoration: underline;
-}
+
+
 
 .modal-backdrop-custom {
   position: fixed;
