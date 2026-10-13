@@ -71,5 +71,22 @@ pipeline {
                 }
             }
         }
+        
+        stage('Build e Testes BFF') {
+            steps {
+                dir('bff') {
+                    sh '''
+                        echo "Instalando dependencias..."
+                        npm ci
+
+                        echo "Executando testes com coverage..."
+                        npm test -- --coverage --watch=false
+
+                        echo "Compilando TypeScript..."
+                        npm run build
+                    '''
+                }
+            }
+        }
     }
 }
