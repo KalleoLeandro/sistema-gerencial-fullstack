@@ -75,22 +75,25 @@ pipeline {
         stage('SonarQube Backend') {
             steps {
                 dir('back-end') {
-                    withSonarQubeEnv('sonarqube-local') {
-                        withCredentials([
-                            string(
-                                credentialsId: 'sonar-token-backend',
-                                variable: 'SONAR_TOKEN'
-                            )
-                        ]) {
-                            withEnv([
-                                'JAVA_HOME=/opt/jdks/jdk-27',
-                                'PATH+JDK27=/opt/jdks/jdk-27/bin'
+                    script {
+                        def scannerHome = tool 'sonar-scanner'
+
+                        withSonarQubeEnv('sonarqube-local') {
+                            withCredentials([
+                                string(
+                                    credentialsId: 'sonar-token-backend',
+                                    variable: 'SONAR_TOKEN'
+                                )
                             ]) {
-                                sh '''
-                                    mvn sonar:sonar \
+                                withEnv([
+                                    "SCANNER_HOME=${scannerHome}"
+                                ]) {
+                                    sh '''
+                                        "$SCANNER_HOME/bin/sonar-scanner" \
                                         -Dsonar.token="$SONAR_TOKEN" \
-                                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                                '''
+                                        -Dsonar.host.url="$SONAR_HOST_URL"
+                                    '''
+                                }
                             }
                         }
                     }
