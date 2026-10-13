@@ -71,6 +71,40 @@ pipeline {
                 }
             }
         }
+
+        stage('SonarQube Backend') {
+            steps {
+                dir('back-end') {
+                    withSonarQubeEnv('sonarqube-local') {
+                        withCredentials([
+                            string(
+                                credentialsId: 'sonar-token-backend',
+                                variable: 'SONAR_TOKEN'
+                            )
+                        ]) {
+                            withEnv([
+                                'JAVA_HOME=/opt/jdks/jdk-27',
+                                'PATH+JDK27=/opt/jdks/jdk-27/bin'
+                            ]) {
+                                sh '''
+                                    mvn sonar:sonar \
+                                        -Dsonar.token="$SONAR_TOKEN" \
+                                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                                '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate Backend') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
         
         stage('Build e Testes BFF') {
             steps {
