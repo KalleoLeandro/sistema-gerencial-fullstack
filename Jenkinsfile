@@ -105,8 +105,7 @@ pipeline {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate(
-                        abortPipeline: true,
-                        installationName: 'sonarqube-local'
+                        abortPipeline: true
                     )
                 }
             }
