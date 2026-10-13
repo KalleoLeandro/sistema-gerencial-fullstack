@@ -77,6 +77,8 @@ export interface CaixaResumoPagamento {
   forma_pagamento: string;
   valor_total: number;
   valor_recebido: number;
+  valor_entregue?: number | null;
+  troco?: number | null;
 }
 
 export interface FecharCaixaItemPayload {

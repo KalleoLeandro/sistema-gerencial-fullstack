@@ -52,6 +52,18 @@
 
         <section class="pdv-layout">
           <div class="pdv-main-column">
+            <article *ngIf="somenteLeitura && detalheTipo === 'venda' && venda" class="editor-card sale-payments">
+              <div class="editor-toolbar"><div><h3>Pagamentos e troco</h3><p>Valores entregues, troco devolvido e valores líquidos registrados na venda.</p></div></div>
+              <div class="summary-grid summary-grid--compact">
+                <article class="summary-card"><span>Valor entregue</span><strong>{{ valorEntregueRegistrado === null ? 'Não registrado' : (valorEntregueRegistrado | currency:'BRL') }}</strong></article>
+                <article class="summary-card"><span>Troco devolvido</span><strong>{{ trocoRegistrado === null ? 'Não registrado' : (trocoRegistrado | currency:'BRL') }}</strong></article>
+                <article class="summary-card"><span>Líquido recebido</span><strong>{{ recebidoRegistrado | currency:'BRL' }}</strong></article>
+              </div>
+              <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Parcela</th><th>Forma</th><th>Entregue</th><th>Troco</th><th>Líquido</th></tr></thead><tbody>
+                <tr *ngFor="let pagamento of pagamentosRegistrados"><td>{{ pagamento.numero_parcela }}</td><td>{{ formaPagamentoLabel(pagamento.forma_pagamento) }}</td><td>{{ pagamento.valor_entregue == null ? 'Não registrado' : (pagamento.valor_entregue | currency:'BRL') }}</td><td>{{ pagamento.troco == null ? 'Não registrado' : (pagamento.troco | currency:'BRL') }}</td><td>{{ pagamento.valor_pago | currency:'BRL' }}</td></tr>
+                <tr *ngIf="!pagamentosRegistrados.length"><td colspan="5" class="empty-state">Nenhum pagamento registrado.</td></tr>
+              </tbody></table></div>
+            </article>
             <article *ngIf="!(somenteLeitura && detalheTipo === 'venda')" class="editor-card pdv-search-card">
               <div class="editor-toolbar pdv-search-toolbar">
                 <div>
@@ -61,16 +73,13 @@
               </div>
 
               <div class="pdv-search-controls" *ngIf="!somenteLeitura">
-                <app-aero-field class="catalog-search__field">
-                  <span aeroLabel>Pesquisar produto ou servico</span>
-                  <input
-                    aeroControl
+                <app-aero-input class="catalog-search__field" label="Pesquisar produto ou servico"
+
                     [(ngModel)]="catalogoPesquisa"
                     (ngModelChange)="aoAlterarPesquisa()"
                     (keydown)="aoTeclaPesquisa($event)"
                     [disabled]="orcamentoBloqueado"
-                    placeholder="Digite nome, codigo ou descricao" />
-                </app-aero-field>
+                    placeholder="Digite nome, codigo ou descricao"  type="search" />
 
                 <div class="pdv-quantity-control">
                   <span>Quantidade</span>
@@ -260,16 +269,13 @@
       <div class="modal-body">
         <p class="mb-3">Pesquise por nome, CPF ou CNPJ para vincular um cliente a este {{ modoPdv ? 'PDV' : 'orçamento' }}.</p>
 
-        <app-aero-field class="w-100">
-          <span aeroLabel>Nome, CPF ou CNPJ</span>
-          <input
-            aeroControl
+        <app-aero-input class="w-100" label="Nome, CPF ou CNPJ"
+
             [(ngModel)]="clientePesquisa"
             (ngModelChange)="aoAlterarPesquisaCliente()"
             (keyup.enter)="buscarCliente()"
             [disabled]="consultandoCliente"
-            placeholder="Ex.: Maria Silva, 123.456.789-00 ou 12.345.678/0001-90" />
-        </app-aero-field>
+            placeholder="Ex.: Maria Silva, 123.456.789-00 ou 12.345.678/0001-90"  type="search" />
       </div>
       <div class="modal-footer">
         <button aeroButton="secondary" type="button"  (click)="aplicarConsumidorFinal(); fecharModalPesquisaCliente()">

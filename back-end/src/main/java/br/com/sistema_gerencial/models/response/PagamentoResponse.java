@@ -20,6 +20,8 @@ public class PagamentoResponse {
 	private LocalDateTime data_pagamento;
 	private String forma_pagamento;
 	private BigDecimal valor_pago;
+	private BigDecimal valor_entregue;
+	private BigDecimal troco;
 	private String observacoes;
 	private LocalDateTime criado_em;
 }

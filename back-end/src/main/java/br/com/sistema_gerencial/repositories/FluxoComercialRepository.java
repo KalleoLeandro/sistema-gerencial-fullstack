@@ -126,6 +126,8 @@ public class FluxoComercialRepository {
 			.data_pagamento(getLocalDateTime(rs, "data_pagamento"))
 			.forma_pagamento(rs.getString("forma_pagamento"))
 			.valor_pago(rs.getBigDecimal("valor_pago"))
+			.valor_entregue(rs.getBigDecimal("valor_entregue"))
+			.troco(rs.getBigDecimal("troco"))
 			.observacoes(rs.getString("observacoes"))
 			.criado_em(getLocalDateTime(rs, "criado_em"))
 			.build();
@@ -134,6 +136,8 @@ public class FluxoComercialRepository {
 			.forma_pagamento(rs.getString("forma_pagamento"))
 			.valor_total(rs.getBigDecimal("valor_total"))
 			.valor_recebido(rs.getBigDecimal("valor_recebido"))
+			.valor_entregue(rs.getBigDecimal("valor_entregue"))
+			.troco(rs.getBigDecimal("troco"))
 			.build();
 
 	private final RowMapper<CaixaFechamentoResponse> caixaFechamentoMapper = (rs, rowNum) -> CaixaFechamentoResponse.builder()
@@ -525,9 +529,9 @@ public class FluxoComercialRepository {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		String sql = """
 				INSERT INTO pagamentos (
-					codigo, id_parcela, data_pagamento, forma_pagamento, valor_pago, observacoes
+					codigo, id_parcela, data_pagamento, forma_pagamento, valor_pago, observacoes, valor_entregue, troco
 				) VALUES (
-					:codigo, :idParcela, :dataPagamento, :formaPagamento, :valorPago, :observacoes
+					:codigo, :idParcela, :dataPagamento, :formaPagamento, :valorPago, :observacoes, :valorPago, 0
 				)
 				""";
 		MapSqlParameterSource params = new MapSqlParameterSource()
@@ -544,6 +548,11 @@ public class FluxoComercialRepository {
 			throw new DefaultErrorException("Erro ao registrar pagamento.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	public void registrarTrocoPagamento(int idPagamento, BigDecimal valorEntregue, BigDecimal troco) {
+        namedParameterJdbcTemplate.update("UPDATE pagamentos SET valor_entregue=:entregue,troco=:troco WHERE id=:id",
+            new MapSqlParameterSource("id",idPagamento).addValue("entregue",valorEntregue).addValue("troco",troco));
+    }
 
 	public void atualizarParcelaAposPagamento(int idParcela, BigDecimal valorPago, BigDecimal saldoAberto,
 			String status, LocalDateTime dataPagamento) {
@@ -825,7 +834,9 @@ public class FluxoComercialRepository {
 		String sql = """
 				SELECT p.forma_pagamento,
 				       SUM(p.valor_pago) AS valor_total,
-				       SUM(p.valor_pago) AS valor_recebido
+				       SUM(p.valor_pago) AS valor_recebido,
+				       CASE WHEN COUNT(p.valor_entregue)=COUNT(*) THEN SUM(p.valor_entregue) ELSE NULL END AS valor_entregue,
+				       CASE WHEN COUNT(p.troco)=COUNT(*) THEN SUM(p.troco) ELSE NULL END AS troco
 				FROM pagamentos p
 				INNER JOIN parcelas pa ON pa.id = p.id_parcela
 				INNER JOIN vendas v ON v.id = pa.id_venda
@@ -914,9 +925,9 @@ public class FluxoComercialRepository {
 					new MapSqlParameterSource("id", idFechamento));
 			String insertSql = """
 					INSERT INTO caixa_fechamento_itens (
-						id_caixa_fechamento, forma_pagamento, valor_total, quantidade_lancamentos
+						id_caixa_fechamento, forma_pagamento, valor_total, quantidade_lancamentos, valor_entregue, troco
 					) VALUES (
-						:idFechamento, :formaPagamento, :valorTotal, :quantidadeLancamentos
+						:idFechamento, :formaPagamento, :valorTotal, :quantidadeLancamentos, :valorEntregue, :troco
 					)
 					""";
 			for (CaixaResumoPagamentoResponse item : itens) {
@@ -924,6 +935,8 @@ public class FluxoComercialRepository {
 						.addValue("idFechamento", idFechamento)
 						.addValue("formaPagamento", item.getForma_pagamento())
 						.addValue("valorTotal", item.getValor_recebido())
+						.addValue("valorEntregue", item.getValor_entregue())
+						.addValue("troco", item.getTroco())
 						.addValue("quantidadeLancamentos", item.getValor_recebido() != null
 								&& item.getValor_recebido().compareTo(BigDecimal.ZERO) > 0 ? 1 : 0));
 			}
@@ -936,7 +949,7 @@ public class FluxoComercialRepository {
 		String sql = """
 				SELECT forma_pagamento,
 				       valor_total,
-				       valor_total AS valor_recebido
+				       valor_total AS valor_recebido, valor_entregue, troco
 				FROM caixa_fechamento_itens
 				WHERE id_caixa_fechamento = :idFechamento
 				ORDER BY forma_pagamento

@@ -1,3 +1,5 @@
+import { AeroInputComponent } from '@components/aero';
+import { } from '@components/aero';
 import { AeroNativeButtonComponent } from '@components/aero';
 import { AeroSelectComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
@@ -9,9 +11,9 @@ import { LoginService } from '@services/login.service';
 
 @Component({
   selector: 'app-listar',
-  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule],
+  imports: [AeroInputComponent, AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule],
   templateUrl: './listar.component.html',
-  styleUrl: './listar.component.css'
+  styleUrls: ['../../../components/aero/list-layout.css', './listar.component.css']
 })
 export class ListarComponent {
 

@@ -1,4 +1,4 @@
-<div class="budget-page">
+<div class="list-page">
   <section class="hero-card">
     <div>
       <small class="eyebrow">Vendas</small>
@@ -14,10 +14,7 @@
 
   <section class="content-card">
     <div class="search-row">
-      <mat-form-field appearance="fill" class="search-field">
-        <mat-label>Pesquisar</mat-label>
-        <input matInput [(ngModel)]="pesquisa" placeholder="Codigo, cliente, documento, origem ou status" (keyup.enter)="pesquisar()" />
-      </mat-form-field>
+      <app-aero-input class="search-field" label="Pesquisar"  [(ngModel)]="pesquisa" placeholder="Codigo, cliente, documento, origem ou status" (keyup.enter)="pesquisar()"  type="search" />
       <button aeroButton="primary" type="button"  (click)="pesquisar()">Pesquisar</button>
     </div>
 
@@ -29,7 +26,7 @@
     </div>
 
     <div class="table-shell">
-      <table class="table align-middle budget-table">
+      <table class="table align-middle list-table">
         <thead>
           <tr>
             <th>ID</th>

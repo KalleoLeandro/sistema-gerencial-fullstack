@@ -16,4 +16,6 @@ public class CaixaResumoPagamentoResponse {
 	private String forma_pagamento;
 	private BigDecimal valor_total;
 	private BigDecimal valor_recebido;
+	private BigDecimal valor_entregue;
+	private BigDecimal troco;
 }

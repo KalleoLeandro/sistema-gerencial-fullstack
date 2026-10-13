@@ -10,7 +10,7 @@ import { ToastService } from '@services/toast.service';
   selector: 'app-produtos-em-falta',
   imports: [AeroNativeButtonComponent, CommonModule, CurrencyPipe],
   templateUrl: './em-falta.component.html',
-  styleUrl: './em-falta.component.css'
+  styleUrls: ['../../../components/aero/list-layout.css', './em-falta.component.css']
 })
 export class EmFaltaComponent implements OnInit {
   private readonly router = inject(Router);

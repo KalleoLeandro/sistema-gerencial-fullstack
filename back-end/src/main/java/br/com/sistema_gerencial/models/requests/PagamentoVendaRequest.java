@@ -23,5 +23,6 @@ public class PagamentoVendaRequest {
 	private LocalDateTime data_pagamento;
 	private String forma_pagamento;
 	private BigDecimal valor_pago;
+	private BigDecimal valor_entregue;
 	private String observacoes;
 }

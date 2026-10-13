@@ -1,13 +1,11 @@
+import { AeroInputComponent } from '@components/aero';
+import { AeroNativeControlComponent, AeroFieldComponent, AeroDateDirective } from '@components/aero';
 import { AeroNativeButtonComponent } from '@components/aero';
 import { AeroSelectComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ListaAvulsoResponse } from '@models/listaAvulsoResponse';
 import { AvulsoService } from '@services/avulso.service';
 import { StatusPipe } from 'app/pipes/status.pipe';
@@ -15,9 +13,9 @@ import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-listar',
-  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe, RouterLink, RouterLinkActive, NgxMaskDirective, StatusPipe, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  imports: [AeroInputComponent, AeroNativeControlComponent, AeroFieldComponent, AeroDateDirective, AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe, RouterLink, NgxMaskDirective, StatusPipe],
   templateUrl: './listar.component.html',
-  styleUrl: './listar.component.css'
+  styleUrls: ['../../../components/aero/list-layout.css', './listar.component.css']
 })
 export class ListarComponent implements OnInit {
   private router = inject(Router);

@@ -1,3 +1,4 @@
+import { AeroInputComponent } from '@components/aero';
 import { AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -41,7 +42,7 @@ interface PagamentoEdicao {
 
 @Component({
   selector: 'app-comercial-orcamento',
-  imports: [AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, CommonModule, FormsModule, CurrencyPipe, CurrencyMaskModule, NgxMaskDirective, FormSubmitLoaderComponent],
+  imports: [AeroInputComponent, AeroNativeControlComponent, AeroNativeButtonComponent, AeroFieldComponent, AeroDateDirective, CommonModule, FormsModule, CurrencyPipe, CurrencyMaskModule, NgxMaskDirective, FormSubmitLoaderComponent],
   templateUrl: './orcamento.component.html',
   styleUrl: './orcamento.component.css'
 })
@@ -681,7 +682,7 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.inicializarPagamentosEdicao();
+    if (!this.venda?.id) this.inicializarPagamentosEdicao();
     this.abrirModalPagamentoVenda();
   }
 
@@ -952,6 +953,24 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number(Math.max(this.totalComercialAtual - this.totalPagoInformado, 0).toFixed(2));
   }
 
+  public get pagamentosRegistrados(): PagamentoVenda[] {
+    return (this.venda?.parcelas || []).flatMap(parcela => (parcela.pagamentos || []).map(pagamento => ({ ...pagamento, numero_parcela: parcela.numero_parcela })));
+  }
+
+  public get valorEntregueRegistrado(): number | null {
+    if (this.pagamentosRegistrados.some(p => p.valor_entregue == null)) return null;
+    return Number(this.pagamentosRegistrados.reduce((s,p) => s + Number(p.valor_entregue || 0),0).toFixed(2));
+  }
+
+  public get trocoRegistrado(): number | null {
+    if (this.pagamentosRegistrados.some(p => p.troco == null)) return null;
+    return Number(this.pagamentosRegistrados.reduce((s,p) => s + Number(p.troco || 0),0).toFixed(2));
+  }
+
+  public get recebidoRegistrado(): number {
+    return Number(this.pagamentosRegistrados.reduce((s,p) => s + Number(p.valor_pago || 0),0).toFixed(2));
+  }
+
   public get trocoPagamento(): number {
     return Number(Math.max(this.totalPagoInformado - this.totalComercialAtual, 0).toFixed(2));
   }
@@ -1120,9 +1139,14 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
         this.quantidadeParcelas = Number(response.quantidade_parcelas || 1);
         this.observacoes = response.observacoes || '';
         this.inicializarPagamentosEdicao(response.forma_pagamento || 'PIX', Number(response.total_geral || 0));
+
         this.comercialService.buscarOrcamentoPorId(response.id_orcamento).subscribe({
           next: (orcamento) => {
             this.preencherOrcamento(orcamento);
+        const pagamentos = (response.parcelas || []).flatMap(p => p.pagamentos || []);
+        if (pagamentos.length) this.pagamentosEdicao = this.formasPagamentoDisponiveis.map(forma => ({
+          forma_pagamento: forma, valor_informado: pagamentos.filter(p => p.forma_pagamento === forma).reduce((s,p) => s + Number(p.valor_entregue ?? p.valor_pago ?? 0),0)
+        }));
             this.itens = (response.itens || []).map((item, index) => ({
               ...item,
               chave: `${response.id}-${item.id || index}`,
@@ -1424,7 +1448,7 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
     let valorRestante = Number(this.totalComercialAtual.toFixed(2));
     const pagamentos: PagamentoVenda[] = [];
 
-    for (const pagamento of this.pagamentosPreenchidos) {
+    for (const pagamento of [...this.pagamentosPreenchidos].sort((a,b) => Number(a.forma_pagamento === 'DINHEIRO') - Number(b.forma_pagamento === 'DINHEIRO'))) {
       const valorInformado = Number(Number(pagamento.valor_informado || 0).toFixed(2));
       if (valorRestante <= 0 || valorInformado <= 0) {
         continue;
@@ -1436,7 +1460,8 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       if (valorAplicado > 0) {
         pagamentos.push({
           forma_pagamento: pagamento.forma_pagamento,
-          valor_pago: valorAplicado
+          valor_pago: valorAplicado,
+          valor_entregue: valorInformado
         });
       }
     }
@@ -1485,6 +1510,11 @@ export class OrcamentoComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
 
+    const totalSemDinheiro = this.pagamentosPreenchidos.filter(p => p.forma_pagamento !== 'DINHEIRO').reduce((s,p) => s + Number(p.valor_informado || 0),0);
+    if (Number(totalSemDinheiro.toFixed(2)) >= this.totalComercialAtual && this.trocoPagamento > 0 || (this.trocoPagamento > 0 && !this.pagamentosPreenchidos.some(p => p.forma_pagamento === 'DINHEIRO'))) {
+      if (exibirToast) this.toastService.warning('Troco só pode ser devolvido em pagamentos em dinheiro. Confira os valores informados.');
+      return false;
+    }
     if (this.saldoPagamento > 0) {
       if (exibirToast) {
         this.toastService.warning('O valor informado ainda nao cobre o total da venda.');

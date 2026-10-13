@@ -1,0 +1,158 @@
+<div class="list-page">
+  <section class="hero-card">
+    <div>
+      <small class="eyebrow">Financeiro</small>
+      <h2>Relatórios financeiros</h2>
+      <p>Saldos em aberto, vencimentos e fluxo de entradas e saídas.</p>
+    </div>
+    <div class="hero-actions">
+      <button
+        aeroButton="secondary"
+        type="button"
+        [disabled]="!relatorio() || carregando()"
+        (click)="exportar()"
+      >
+        Exportar CSV
+      </button>
+    </div>
+  </section>
+  <nav class="finance-tabs" aria-label="Financeiro">
+    <a aeroButton="secondary" routerLink="/financeiro/pagar">Contas a pagar</a
+    ><a aeroButton="secondary" routerLink="/financeiro/receber"
+      >Contas a receber</a
+    ><a
+      aeroButton="secondary"
+      class="finance-tab-active"
+      routerLink="/financeiro/relatorios"
+      >Relatórios</a
+    >
+  </nav>
+  <section class="content-card">
+    <form class="finance-filters" (ngSubmit)="carregar()">
+      <app-aero-input
+        label="Período de"
+        type="date"
+        name="inicio"
+        [(ngModel)]="inicio"
+      />
+      <app-aero-input label="Até" type="date" name="fim" [(ngModel)]="fim" />
+      <app-aero-select
+        label="Tipo"
+        name="tipo"
+        [(ngModel)]="tipo"
+        [options]="tipos"
+        placeholder="Todos"
+      />
+      <app-aero-input
+        label="Categoria"
+        name="categoria"
+        [(ngModel)]="categoria"
+        placeholder="Todas"
+      />
+      <button aeroButton="primary" type="submit" [disabled]="carregando()">
+        Gerar relatório
+      </button>
+    </form>
+    <p>
+      O período considera os vencimentos nos saldos previstos e a data das
+      baixas no fluxo realizado. Os saldos apresentados não incluem saldo
+      bancário inicial.
+    </p>
+  </section>
+  @if (carregando()) {
+    <p role="status">Carregando relatório...</p>
+  }
+  @if (relatorio(); as dados) {
+    <section class="finance-summary" aria-label="Resumo financeiro">
+      <article class="content-card">
+        <span>A pagar em aberto</span
+        ><strong>{{ dados.resumo.aPagar | currency: "BRL" }}</strong
+        ><small
+          >Vencido: {{ dados.resumo.pagarVencido | currency: "BRL" }}</small
+        >
+      </article>
+      <article class="content-card">
+        <span>A receber em aberto</span
+        ><strong>{{ dados.resumo.aReceber | currency: "BRL" }}</strong
+        ><small
+          >Vencido: {{ dados.resumo.receberVencido | currency: "BRL" }}</small
+        >
+      </article>
+      <article class="content-card">
+        <span>Saldo realizado</span
+        ><strong>{{ dados.resumo.saldoRealizado | currency: "BRL" }}</strong
+        ><small>Recebido: {{ dados.resumo.recebido | currency: "BRL" }}</small
+        ><small>Pago: {{ dados.resumo.pago | currency: "BRL" }}</small>
+      </article>
+      <article class="content-card">
+        <span>Saldo previsto</span
+        ><strong>{{ dados.resumo.saldoPrevisto | currency: "BRL" }}</strong
+        ><small>A receber menos a pagar em aberto</small>
+      </article>
+    </section>
+    <section class="content-card">
+      <h3>Fluxo realizado</h3>
+      <p>Recebimentos e pagamentos registrados por data de baixa.</p>
+      <div class="table-shell">
+        <table class="table align-middle list-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Entradas</th>
+              <th>Saídas</th>
+              <th>Saldo do dia</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (dia of dados.realizado; track dia.data) {
+              <tr>
+                <td>{{ dia.data | date: "dd/MM/yyyy" }}</td>
+                <td>{{ dia.entradas | currency: "BRL" }}</td>
+                <td>{{ dia.saidas | currency: "BRL" }}</td>
+                <td>{{ dia.saldo | currency: "BRL" }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty-state">
+                  Nenhuma movimentação no período.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="content-card">
+      <h3>Fluxo previsto</h3>
+      <p>Saldos ainda em aberto agrupados por vencimento.</p>
+      <div class="table-shell">
+        <table class="table align-middle list-table">
+          <thead>
+            <tr>
+              <th>Vencimento</th>
+              <th>A receber</th>
+              <th>A pagar</th>
+              <th>Saldo do dia</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (dia of dados.previsto; track dia.data) {
+              <tr>
+                <td>{{ dia.data | date: "dd/MM/yyyy" }}</td>
+                <td>{{ dia.entradas | currency: "BRL" }}</td>
+                <td>{{ dia.saidas | currency: "BRL" }}</td>
+                <td>{{ dia.saldo | currency: "BRL" }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty-state">
+                  Nenhum saldo em aberto no período.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>

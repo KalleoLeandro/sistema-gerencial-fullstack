@@ -25,7 +25,7 @@ describe('ListarComponent', () => {
     toastService = jasmine.createSpyObj<ToastService>('ToastService', ['success', 'error']);
 
     loginService.getPerfil.and.returnValue(of({ role: 'ADMIN' } as any));
-    empresaService.buscarEmpresasPorPagina.and.returnValue(of({ lista: [{ id: 1 }], total: 20 } as any));
+    empresaService.buscarEmpresasPorPagina.and.returnValue(of({ lista: [{ id: 1 }], total: 50 } as any));
     empresaService.buscarEmpresasPorPaginaENome.and.returnValue(of({ lista: [{ id: 2 }], total: 10 } as any));
     empresaService.excluirEmpresa.and.returnValue(of({} as any));
 
@@ -61,74 +61,62 @@ describe('ListarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('carrega pagina dupla com parametros iniciais', () => {
-    expect(component.spreadStart).toBe(3);
-    expect(component.limit).toBe(10);
-    expect(component.paginaEsquerda().lista.length).toBe(1);
-    expect(loginService.getPerfil).toHaveBeenCalled();
+  it('carrega apenas a página solicitada com o limite completo', () => {
+    expect(component.page).toBe(3);
+    expect(component.empresas().lista.length).toBe(1);
+    expect(empresaService.buscarEmpresasPorPagina).toHaveBeenCalledOnceWith(3, 10);
+    expect(fixture.nativeElement.querySelector('.book-shell')).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(1);
   });
 
-  it('calcula derivacoes de navegacao', () => {
-    component.spreadStart = 3;
-    component.totalPages = 5;
-
-    expect(component.paginaEsquerdaNumero).toBe(3);
-    expect(component.paginaDireitaNumero).toBe(4);
-    expect(component.itensPorLado).toBe(5);
-    expect(component.podeVoltar).toBeTrue();
-    expect(component.podeAvancar).toBeTrue();
-    expect(component.paginasVisiveis).toEqual([1, 3, 5]);
-    expect(component.rotuloPagina(3)).toBe('3-4');
-  });
-
-  it('troca paginas e atualiza query params', () => {
-    spyOn<any>(component, 'carregarLivro');
-    spyOn<any>(component, 'rolarParaTopo');
-    component.totalPages = 5;
-    component.spreadStart = 3;
-
-    component.paginaAnterior();
-    component.proximaPagina();
+  it('navega sequencialmente, incluindo páginas pares', () => {
     component.irParaPagina(4);
-
-    expect(router.navigate).toHaveBeenCalled();
-    expect((component as any).carregarLivro).toHaveBeenCalledTimes(3);
-    expect((component as any).rolarParaTopo).toHaveBeenCalledTimes(3);
+    expect(component.page).toBe(4);
+    expect(empresaService.buscarEmpresasPorPagina).toHaveBeenCalledWith(4, 10);
+    expect(component.paginasVisiveis).toEqual([3, 4, 5]);
   });
 
-  it('normaliza pagina par para o inicio do par e evita pagina vazia final', () => {
-    component.totalPages = 4;
+  it('reinicia a pagina ao alterar o tamanho', () => {
+    component.limit = 25;
+    component.mudarTamanho();
+    expect(component.page).toBe(1);
+    expect(empresaService.buscarEmpresasPorPagina).toHaveBeenCalledWith(1, 25);
+    expect(component.totalPages).toBe(2);
+  });
 
-    expect(component['normalizarSpreadStart'](4)).toBe(3);
-    expect(component['ajustarSpreadAoTotal'](9)).toBe(3);
+  it('ajusta a pagina quando o total diminui', () => {
+    empresaService.buscarEmpresasPorPagina.and.returnValue(of({ lista: [], total: 12 }));
+    component.irParaPagina(5);
+    expect(component.page).toBe(2);
+    expect(empresaService.buscarEmpresasPorPagina).toHaveBeenCalledWith(2, 10);
   });
 
   it('altera entre busca simples e por nome', () => {
     component.dadosPesquisa = undefined;
     component['buscarPagina'](1).subscribe();
-    expect(empresaService.buscarEmpresasPorPagina).toHaveBeenCalledWith(1, component.itensPorLado);
+    expect(empresaService.buscarEmpresasPorPagina).toHaveBeenCalledWith(1, component.limit);
 
     component.dadosPesquisa = 'Acme';
     component['buscarPagina'](1).subscribe();
-    expect(empresaService.buscarEmpresasPorPaginaENome).toHaveBeenCalledWith(1, component.itensPorLado, 'Acme');
+    expect(empresaService.buscarEmpresasPorPaginaENome).toHaveBeenCalledWith(1, component.limit, 'Acme');
   });
 
   it('abre cadastro e edicao', () => {
     component.cadastrarNovo();
     component.alterarEmpresa(4);
 
-    expect(router.navigate).toHaveBeenCalledWith(['/empresas/cadastrar']);
-    expect(router.navigate).toHaveBeenCalledWith(['/empresas/cadastrar/4']);
+    expect(router.navigate).toHaveBeenCalledWith(['/clientes/cadastrar']);
+    expect(router.navigate).toHaveBeenCalledWith(['/clientes/cadastrar/4']);
   });
 
   it('exclui empresa com sucesso', () => {
-    spyOn(component as any, 'carregarLivro');
+    spyOn(component as any, 'carregarPagina');
     component.id = 9;
 
     component.excluirEmpresa();
 
     expect(toastService.success).toHaveBeenCalled();
-    expect((component as any).carregarLivro).toHaveBeenCalledWith(component.spreadStart);
+    expect((component as any).carregarPagina).toHaveBeenCalledWith(component.page);
   });
 
   it('trata erro ao excluir empresa', () => {

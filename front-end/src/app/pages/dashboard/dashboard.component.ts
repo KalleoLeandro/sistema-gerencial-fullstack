@@ -1,6 +1,7 @@
 import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { CalendarOptions, EventInput } from '@fullcalendar/core';
@@ -24,6 +25,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private dashboardService = inject(DashboardService);
   private loginService = inject(LoginService);
   private router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private destroyed = false;
+  private areaCanvas?: HTMLCanvasElement;
+  private tipoCanvas?: HTMLCanvasElement;
+  private vendasCanvas?: HTMLCanvasElement;
+  private pendingArea?: { labels: string[]; valores: number[] };
+  private pendingTipo?: { labels: string[]; valores: number[] };
+  private pendingVendas?: { labels: string[]; valores: number[] };
+
+  @ViewChild('areaCanvas')
+  set areaCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.areaCanvas = ref?.nativeElement;
+    if (this.areaCanvas && this.pendingArea) {
+      this.renderAreaChart(this.pendingArea.labels, this.pendingArea.valores);
+    }
+  }
+
+  @ViewChild('tipoCanvas')
+  set tipoCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.tipoCanvas = ref?.nativeElement;
+    if (this.tipoCanvas && this.pendingTipo) {
+      this.renderTipoChart(this.pendingTipo.labels, this.pendingTipo.valores);
+    }
+  }
+
+  @ViewChild('vendasCanvas')
+  set vendasCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.vendasCanvas = ref?.nativeElement;
+    if (this.vendasCanvas && this.pendingVendas) {
+      this.renderVendasChart(this.pendingVendas.labels, this.pendingVendas.valores);
+    } else if (!this.vendasCanvas) {
+      this.vendasChart?.destroy();
+      this.vendasChart = null;
+    }
+  }
 
   public perfil = sessionStorage.getItem('perfil') || '';
 
@@ -72,7 +108,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private vendasChart: Chart | null = null;
 
   public ngOnInit(): void {
-    this.loginService.getPerfil().subscribe({
+    this.loginService.getPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.perfil = response.role || this.perfil;
         this.loginService.persistSessionMetadata(response);
@@ -86,6 +122,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
+    this.destroyed = true;
     this.areaChart?.destroy();
     this.tipoChart?.destroy();
     this.vendasChart?.destroy();
@@ -121,28 +158,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private carregarMetricasAdmin(): void {
-    this.dashboardService.retornarLucrosDoMes().subscribe({
+    this.dashboardService.retornarLucrosDoMes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.lucroMes = response.lucro || 0;
       },
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarLucrosDoAno().subscribe({
+    this.dashboardService.retornarLucrosDoAno().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.lucroAno = response.lucro || 0;
       },
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarContratosAcabando().subscribe({
+    this.dashboardService.retornarContratosAcabando().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.contratosEncerrando = response.total || 0;
       },
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarContratosCalendario().subscribe({
+    this.dashboardService.retornarContratosCalendario().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response: ContratoCalendario[]) => {
         this.contratosCalendario = response || [];
         this.atualizarEventosCalendario();
@@ -150,14 +187,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarChamadosCancelados().subscribe({
+    this.dashboardService.retornarChamadosCancelados().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.chamadosCancelados = response.total || 0;
       },
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarProdutosEmFalta().subscribe({
+    this.dashboardService.retornarProdutosEmFalta().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.produtosEmFalta = response.total || 0;
       },
@@ -166,21 +203,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private carregarMetricasUsuario(): void {
-    this.dashboardService.retornarTotalChamadosMes().subscribe({
+    this.dashboardService.retornarTotalChamadosMes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.chamadosMes = response.total || 0;
       },
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarChamadosAtrasados().subscribe({
+    this.dashboardService.retornarChamadosAtrasados().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.chamadosAtrasados = response.total || 0;
       },
       error: (error: any) => console.log(error)
     });
 
-    this.dashboardService.retornarChamadosAtendidosPorMim().subscribe({
+    this.dashboardService.retornarChamadosAtendidosPorMim().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.chamadosAtendidosPorMim = response.total || 0;
       },
@@ -189,7 +226,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private carregarGraficoPrincipal(): void {
-    this.dashboardService.retornarLucrosPorMes().subscribe({
+    this.dashboardService.retornarLucrosPorMes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         const labels = response.map((item: { mes: string }) => item.mes);
         const valores = response.map((item: { valor: number }) => item.valor);
@@ -200,7 +237,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private carregarGraficoTipoAtendimento(): void {
-    this.dashboardService.retornarQuantidadeAtendimentosPorTipo().subscribe({
+    this.dashboardService.retornarQuantidadeAtendimentosPorTipo().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         const labels = response.map((item: { tipo: string | null }) => {
           const tipo = item.tipo?.trim();
@@ -214,7 +251,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private carregarGraficoVendas(): void {
-    this.dashboardService.retornarVendasPorMes().subscribe({
+    this.dashboardService.retornarVendasPorMes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         const serie = this.normalizarSerieMensal(response);
         const labels = serie.map((item) => item.mes);
@@ -226,8 +263,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private renderAreaChart(labels: string[], valores: number[]): void {
+    if (this.destroyed) return;
+    this.pendingArea = { labels, valores };
+    if (!this.areaCanvas) return;
     this.areaChart?.destroy();
-    this.areaChart = new Chart('area', {
+    this.areaChart = new Chart(this.areaCanvas, {
       type: 'bar',
       data: {
         labels,
@@ -274,8 +314,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private renderTipoChart(labels: string[], valores: number[]): void {
+    if (this.destroyed) return;
+    this.pendingTipo = { labels, valores };
+    if (!this.tipoCanvas) return;
     this.tipoChart?.destroy();
-    this.tipoChart = new Chart('tipo-atendimento', {
+    this.tipoChart = new Chart(this.tipoCanvas, {
       type: 'doughnut',
       data: {
         labels,
@@ -300,8 +343,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private renderVendasChart(labels: string[], valores: number[]): void {
+    if (this.destroyed) return;
+    this.pendingVendas = { labels, valores };
+    if (!this.vendasCanvas) return;
     this.vendasChart?.destroy();
-    this.vendasChart = new Chart('vendas-mes', {
+    this.vendasChart = new Chart(this.vendasCanvas, {
       type: 'bar',
       data: {
         labels,

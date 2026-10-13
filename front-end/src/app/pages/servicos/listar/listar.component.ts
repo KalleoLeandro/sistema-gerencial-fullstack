@@ -13,7 +13,7 @@ import { ToastService } from '@services/toast.service';
   selector: 'app-servicos-listar',
   imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe],
   templateUrl: './listar.component.html',
-  styleUrl: './listar.component.css'
+  styleUrls: ['../../../components/aero/list-layout.css', './listar.component.css']
 })
 export class ListarComponent implements OnInit {
   private readonly router = inject(Router);

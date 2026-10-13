@@ -1,92 +1,64 @@
-<div class="container-fluid">
-  <div class="card mb-4">
-    <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
-      <h6 class="m-0 font-weight-bold text-secondary">Lista de Servicos</h6>
-      <button aeroButton="primary" type="button"  (click)="cadastrarNovo()">Cadastrar</button>
-    </div>
-
-    <div class="col-12">
-      <div class="d-flex flex-column justify-content-between w-100 p-4 list-pagination-bar">
-        <nav aria-label="Paginacao" class="mt-5 list-pagination-nav">
-          <small class="text-secondary">
-            Exibindo {{ servicos().lista.length }} itens de {{ servicos().total }}
-          </small>
-          <ul class="pagination justify-content-center mt-2">
-            <li class="page-item" [class.disabled]="page === 1">
-              <button type="button" aeroButton="secondary"  (click)="irParaPagina(page - 1)" [disabled]="page <= 1">Anterior</button>
-            </li>
-            <li class="page-item" *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina">
-              <button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
-                {{ pagina }}
-              </button>
-            </li>
-            <li class="page-item" [class.disabled]="page === totalPages">
-              <button type="button" aeroButton="secondary"  (click)="irParaPagina(page + 1)" [disabled]="page >= totalPages">Proximo</button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Codigo</th>
-              <th>Valor padrao</th>
-              <th>Status</th>
-              <th class="actions-col">Acoes</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of servicos().lista; track item.id) {
-              <tr>
-                <td>{{ item.id }}</td>
-                <td>{{ item.nome }}</td>
-                <td>{{ item.codigo || '-' }}</td>
-                <td>{{ item.valor_padrao | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td>
-                  <span class="status-chip" [class.inactive]="!item.ativo">{{ item.ativo ? 'Ativo' : 'Inativo' }}</span>
-                </td>
-                <td class="actions-col">
-                  <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="editar(item.id)">Editar</button>
-                  <button aeroButton="danger" type="button" class="aero-button--sm" (click)="excluir(item.id)">Excluir</button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6" class="empty-state">Nenhum servico cadastrado.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div class="d-flex flex-column justify-content-between w-100 p-4 list-pagination-bar">
-        <app-aero-select class="limit-field" label="Quantidade por página"
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Cadastros</small>
+<h2>Serviços</h2>
+<p>Serviços disponíveis e valores de referência.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="primary" type="button" (click)="cadastrarNovo()">Cadastrar</button>
+</div>
+</section>
+<section class="content-card">
+<div class="table-meta">
+<small>Exibindo {{ servicos().lista.length }} itens de {{ servicos().total }}</small>
+<app-aero-select class="limit-field" label="Quantidade por página"
           [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
           (ngModelChange)="limit = $event; mudarTamanho()" />
-
-        <nav aria-label="Paginacao" class="mt-5 list-pagination-nav">
-          <small class="text-secondary">
-            Exibindo {{ servicos().lista.length }} itens de {{ servicos().total }}
-          </small>
-          <ul class="pagination justify-content-center mt-2">
-            <li class="page-item" [class.disabled]="page === 1">
-              <button type="button" aeroButton="secondary"  (click)="irParaPagina(page - 1)" [disabled]="page <= 1">Anterior</button>
-            </li>
-            <li class="page-item" *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina">
-              <button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
-                {{ pagina }}
-              </button>
-            </li>
-            <li class="page-item" [class.disabled]="page === totalPages">
-              <button type="button" aeroButton="secondary"  (click)="irParaPagina(page + 1)" [disabled]="page >= totalPages">Proximo</button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-  </div>
+</div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Nome</th>
+<th>Codigo</th>
+<th>Valor padrao</th>
+<th>Status</th>
+<th class="actions-col">Acoes</th>
+</tr>
+</thead>
+<tbody>
+            @for (item of servicos().lista; track item.id) {
+              <tr>
+<td>{{ item.id }}</td>
+<td>{{ item.nome }}</td>
+<td>{{ item.codigo || '-' }}</td>
+<td>{{ item.valor_padrao | currency:'BRL':'symbol':'1.2-2' }}</td>
+<td>
+<span class="status-chip" [class.inactive]="!item.ativo">{{ item.ativo ? 'Ativo' : 'Inativo' }}</span>
+</td>
+<td class="actions-col">
+<button aeroButton="secondary" type="button" class="aero-button--sm" (click)="editar(item.id)">Editar</button>
+<button aeroButton="danger" type="button" class="aero-button--sm" (click)="excluir(item.id)">Excluir</button>
+</td>
+</tr>
+            } @empty {
+              <tr>
+<td colspan="6" class="empty-state">Nenhum servico cadastrado.</td>
+</tr>
+            }
+          </tbody>
+</table>
+</div>
+<nav aria-label="Paginacao" class="pagination-bar">
+<button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+<div class="page-list">
+<button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+</div>
+<button type="button" aeroButton="secondary"  [disabled]="page >= totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+</nav>
+</section>
 </div>

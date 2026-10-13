@@ -1,141 +1,64 @@
-<div class="container-fluid">
-  <div class="card mb-4">
-    <div class="card-header py-3 mb-2">
-      <h6 class="m-0 font-weight-bold text-secondary">Lista de Clientes</h6>
-    </div>
-
-    <div class="col-12">
-      <div class="d-flex justify-content-start align-items-end p-2 gap-2 search-toolbar">
-        <mat-form-field appearance="fill" class="search-field col-7">
-          <mat-label>Pesquisa</mat-label>
-          <input
-            matInput
-            type="search"
-            placeholder="Digite parte do nome do cliente"
-            aria-label="Pesquisar"
-            [(ngModel)]="dadosPesquisa"
-            (input)="verificarVazio()">
-        </mat-form-field>
-        <div class="col-1 d-flex justify-content-end search-button-wrap">
-          <button aeroButton="success" type="button"  (click)="carregarEmpresas()">
-            Pesquisar
-          </button>
-        </div>
-      </div>
-
-      <div class="d-flex flex-column justify-content-between w-100 p-4 list-pagination-bar">
-        <nav aria-label="Paginacao" class="mt-5 list-pagination-nav">
-          <small class="text-secondary">
-            Exibindo {{ paginaEsquerda().lista.length + paginaDireita().lista.length }} itens de {{ totalItens }}
-          </small>
-
-          <ul class="pagination justify-content-center mt-2">
-            <li class="page-item" [class.disabled]="!podeVoltar">
-              <button aeroButton="secondary"  (click)="paginaAnterior()" [disabled]="!podeVoltar">Anterior</button>
-            </li>
-
-            <li class="page-item" *ngFor="let pagina of paginasVisiveis" [class.active]="isPaginaAtiva(pagina)">
-              <button [aeroButton]="isPaginaAtiva(pagina) ? 'primary' : 'secondary'"  (click)="irParaPagina(pagina)" [attr.aria-current]="isPaginaAtiva(pagina) ? 'page' : null">
-                {{ rotuloPagina(pagina) }}
-              </button>
-            </li>
-
-            <li class="page-item" [class.disabled]="!podeAvancar">
-              <button aeroButton="secondary"  (click)="proximaPagina()" [disabled]="!podeAvancar">Próximo</button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <div class="book-shell" [class.book-shell--single]="!paginaDireitaNumero">
-        <section class="book-page">
-          <div class="book-page-header">
-            <span>Página {{ paginaEsquerdaNumero }}</span>
-          </div>
-
-          <div class="book-page-body">
-            @if (paginaEsquerda().lista.length === 0) {
-              <div class="book-empty">Nenhum cliente encontrado.</div>
-            } @else {
-              @for (item of paginaEsquerda().lista; track trackEmpresa($index, item)) {
-                <a class="book-line" [routerLink]="['/clientes/detalhes', item.id]" [routerLinkActive]="['active']">
-                  {{ item.nome_fantasia }}
-                </a>
-              }
-            }
-          </div>
-        </section>
-
-        <section class="book-page book-page-right" *ngIf="paginaDireitaNumero">
-          <div class="book-page-header">
-            <span>Página {{ paginaDireitaNumero }}</span>
-          </div>
-
-          <div class="book-page-body">
-            @for (item of paginaDireita().lista; track trackEmpresa($index, item)) {
-              <a class="book-line" [routerLink]="['/clientes/detalhes', item.id]" [routerLinkActive]="['active']">
-                {{ item.nome_fantasia }}
-              </a>
-            }
-          </div>
-        </section>
-      </div>
-
-      <div class="book-actions">
-        <button aeroButton="primary" type="button" class="mx-1 my-3" (click)="cadastrarNovo()" *ngIf="perfil != 'USER'">
-          Cadastrar
-        </button>
-      </div>
-
-      <div class="d-flex flex-column justify-content-between w-100 p-4 list-pagination-bar">
-        <app-aero-select class="limit-field" label="Quantidade por página"
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Cadastros</small>
+<h2>Clientes</h2>
+<p>Consulte os clientes e acesse seus dados e histórico.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="primary" type="button" (click)="cadastrarNovo()" *ngIf="perfil != 'USER'">Novo cliente</button>
+</div>
+</section>
+<section class="content-card">
+<div class="search-row">
+<app-aero-input class="search-field" label="Pesquisar"  type="search" placeholder="Digite parte do nome do cliente" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()" (keyup.enter)="carregarEmpresas()"  />
+<button aeroButton="primary" type="button" (click)="carregarEmpresas()">Pesquisar</button>
+</div>
+<div class="table-meta">
+<small>Exibindo {{ empresas().lista.length }} itens de {{ totalItens }}</small>
+<app-aero-select class="limit-field" label="Quantidade por página"
           [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
           (ngModelChange)="limit = $event; mudarTamanho()" />
-
-        <nav aria-label="Paginacao" class="mt-5 list-pagination-nav">
-          <small class="text-secondary">
-            Exibindo {{ paginaEsquerda().lista.length + paginaDireita().lista.length }} itens de {{ totalItens }}
-          </small>
-
-          <ul class="pagination justify-content-center mt-2">
-            <li class="page-item" [class.disabled]="!podeVoltar">
-              <button aeroButton="secondary"  (click)="paginaAnterior()" [disabled]="!podeVoltar">Anterior</button>
-            </li>
-
-            <li class="page-item" *ngFor="let pagina of paginasVisiveis" [class.active]="isPaginaAtiva(pagina)">
-              <button [aeroButton]="isPaginaAtiva(pagina) ? 'primary' : 'secondary'"  (click)="irParaPagina(pagina)" [attr.aria-current]="isPaginaAtiva(pagina) ? 'page' : null">
-                {{ rotuloPagina(pagina) }}
-              </button>
-            </li>
-
-            <li class="page-item" [class.disabled]="!podeAvancar">
-              <button aeroButton="secondary"  (click)="proximaPagina()" [disabled]="!podeAvancar">Próximo</button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-
-    <div id="modal">
-      <button type="button" id="botaoModal" data-bs-toggle="modal" data-bs-target="#modalConfirmacao"></button>
-    </div>
-  </div>
 </div>
-
-<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacao" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalConfirmacao">Cadastro de Clientes</h5>
-        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-      </div>
-      <div class="modal-body">
-        <span>{{ resposta }}</span>
-      </div>
-      <div class="modal-footer">
-        <button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirEmpresa()">Excluir</button>
-        <button aeroButton="secondary" type="button"  data-bs-dismiss="modal">Fechar</button>
-      </div>
-    </div>
-  </div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Cliente</th>
+<th>CPF/CNPJ</th>
+<th>Telefone</th>
+<th>Cidade</th>
+<th class="actions-col">Ações</th>
+</tr>
+</thead>
+<tbody>@for (item of empresas().lista; track item.id) {
+<tr>
+<td>{{ item.id }}</td>
+<td>{{ item.nome_cliente || item.nome_fantasia || item.razao_social }}</td>
+<td>{{ item.cpf_cnpj || item.cnpj || item.documento || '-' }}</td>
+<td>{{ item.telefone || item.celular || '-' }}</td>
+<td>{{ item.cidade || '-' }}</td>
+<td class="actions-col">
+<button aeroButton="primary" type="button" class="aero-button--sm" (click)="alterarEmpresa(item.id)" *ngIf="perfil != 'USER'">Editar</button>
+<a aeroButton="secondary" class="aero-button--sm" [routerLink]="['/clientes/detalhes', item.id]">Detalhes</a>
+</td>
+</tr>
+} @empty {
+<tr>
+<td colspan="6" class="empty-state">Nenhum cliente encontrado.</td>
+</tr>
+}</tbody>
+</table>
+</div>
+<nav aria-label="Paginacao" class="pagination-bar">
+<button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+<div class="page-list">
+<button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+</div>
+<button type="button" aeroButton="secondary"  [disabled]="page >= totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+</nav>
+</section>
 </div>

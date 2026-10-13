@@ -1,10 +1,10 @@
+import { AeroInputComponent } from '@components/aero';
+import { } from '@components/aero';
 import { AeroNativeButtonComponent } from '@components/aero';
 import { AeroSelectComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListaPaginada } from '@models/lista-paginada';
 import { Venda } from '@models/venda';
@@ -13,9 +13,9 @@ import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-comercial-vendas-listar',
-  imports: [AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe, MatFormFieldModule, MatInputModule],
+  imports: [AeroInputComponent, AeroNativeButtonComponent, AeroSelectComponent, CommonModule, FormsModule, CurrencyPipe],
   templateUrl: './listar.component.html',
-  styleUrl: './listar.component.css'
+  styleUrls: ['../../../../components/aero/list-layout.css', './listar.component.css']
 })
 export class ListarComponent implements OnInit {
   private readonly router = inject(Router);

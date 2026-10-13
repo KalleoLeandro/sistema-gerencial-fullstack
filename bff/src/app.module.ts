@@ -1,3 +1,4 @@
+import { FinanceiroController } from '@controllers/financeiro/financeiro.controller';
 import { AtendimentoController } from '@controllers/atendimento/atendimento.controller';
 import { AgendamentoController } from '@controllers/agendamento/agendamento.controller';
 import { AvulsoController } from '@controllers/avulso/avulso.controller';
@@ -19,6 +20,7 @@ import { ProxyService } from '@services/proxy/proxy.service';
 @Module({
   imports: [],
   controllers: [
+    FinanceiroController,
     LoginController,
     EmpresaController,
     EquipamentoController,

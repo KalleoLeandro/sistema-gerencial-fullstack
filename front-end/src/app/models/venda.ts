@@ -5,10 +5,13 @@ export interface PagamentoVenda {
   data_pagamento?: string | null;
   forma_pagamento?: string | null;
   valor_pago: number;
+  valor_entregue?: number | null;
+  troco?: number | null;
   observacoes?: string | null;
 }
 
 export interface ParcelaVenda {
+  pagamentos?: PagamentoVenda[];
   id: number;
   numero_parcela: number;
   data_vencimento: string;

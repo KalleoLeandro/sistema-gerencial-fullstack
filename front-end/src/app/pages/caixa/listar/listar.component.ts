@@ -1,6 +1,8 @@
+import { AeroInputComponent } from '@components/aero';
+import { AeroNativeControlComponent } from '@components/aero';
 import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { CaixaFechado, CaixaResumoPagamento, ComercialService, FecharCaixaItemPayload } from '@services/comercial.service';
@@ -9,11 +11,12 @@ import { ToastService } from '@services/toast.service';
 @Component({
   selector: 'app-caixa-listar',
   standalone: true,
-  imports: [AeroNativeButtonComponent, CommonModule, CurrencyPipe, DatePipe, FormsModule, CurrencyMaskModule],
+  imports: [AeroInputComponent, AeroNativeControlComponent, AeroNativeButtonComponent, CommonModule, CurrencyPipe, DatePipe, FormsModule, CurrencyMaskModule],
   templateUrl: './listar.component.html',
-  styleUrl: './listar.component.css'
+  styleUrls: ['./listar.component.css', '../../../components/aero/list-layout.css']
 })
 export class ListarComponent implements OnInit {
+  @ViewChild('dialogFechamento', { static: true }) private dialogFechamento!: ElementRef<HTMLDialogElement>;
   private readonly comercialService = inject(ComercialService);
   private readonly toastService = inject(ToastService);
 
@@ -29,8 +32,44 @@ export class ListarComponent implements OnInit {
   ]);
 
   public readonly caixasFechados = signal<CaixaFechado[]>([]);
+  private readonly periodoPadrao = this.ultimos30Dias();
+  public dataInicioFiltro = this.periodoPadrao.inicio;
+  public dataFimFiltro = this.periodoPadrao.fim;
+  private readonly periodoHistorico = signal(this.periodoPadrao);
+  public readonly caixasFiltrados = computed(() => {
+    const periodo = this.periodoHistorico();
+    return this.caixasFechados().filter(caixa => {
+      const data = (caixa.data_referencia || '').slice(0, 10);
+      return (!periodo.inicio || data >= periodo.inicio) && (!periodo.fim || data <= periodo.fim);
+    });
+  });
+
+  public filtrarHistorico(): void {
+    if (this.dataInicioFiltro && this.dataFimFiltro && this.dataInicioFiltro > this.dataFimFiltro) {
+      this.toastService.warning('A data inicial deve ser anterior ou igual à data final.');
+      return;
+    }
+    this.periodoHistorico.set({ inicio: this.dataInicioFiltro || '', fim: this.dataFimFiltro || '' });
+  }
+
+  public limparFiltroHistorico(): void {
+    const periodo = this.ultimos30Dias();
+    this.dataInicioFiltro = periodo.inicio;
+    this.dataFimFiltro = periodo.fim;
+    this.periodoHistorico.set(periodo);
+  }
+
+  private ultimos30Dias(): { inicio: string; fim: string } {
+    const fim = new Date();
+    const inicio = new Date(fim);
+    inicio.setDate(inicio.getDate() - 29);
+    const formatar = (data: Date) => [data.getFullYear(), String(data.getMonth() + 1).padStart(2, '0'), String(data.getDate()).padStart(2, '0')].join('-');
+    return { inicio: formatar(inicio), fim: formatar(fim) };
+  }
+
   public readonly modalFechamentoAberto = signal(false);
   public readonly fechandoCaixa = signal(false);
+  public resumoFechamento: CaixaResumoPagamento[] = [];
   public conferenciaPorTipo: FecharCaixaItemPayload[] = [];
   public valorEsperadoFechamento = 0;
   public dataReferenciaFechamento: string | null = null;
@@ -47,16 +86,21 @@ export class ListarComponent implements OnInit {
 
   public readonly hoje = new Date();
 
-  public readonly valorConferido = computed(() =>
-    this.conferenciaPorTipo.reduce((total, item) => total + Number(item.valor_informado || 0), 0)
-  );
+  public valorConferido(): number {
+    return Number(this.conferenciaPorTipo.reduce((total, item) => total + Number(item.valor_informado || 0), 0).toFixed(2));
+  }
 
   ngOnInit(): void {
     this.carregarResumoCaixaDia();
   }
 
+  public somarConferencia(resumo: CaixaResumoPagamento[], campo: 'valor_entregue' | 'troco'): number | null {
+    if (!resumo.length || resumo.some(item => item[campo] == null)) return null;
+    return resumo.reduce((total,item) => total + Number(item[campo] || 0),0);
+  }
+
   public quebraCaixa(): number {
-    return Number(this.valorConferido() || 0) - Number(this.valorEsperadoFechamento || 0);
+    return Number((Number(this.valorConferido() || 0) - Number(this.valorEsperadoFechamento || 0)).toFixed(2));
   }
 
   public formaPagamentoLabel(forma: string | null | undefined): string {
@@ -74,28 +118,34 @@ export class ListarComponent implements OnInit {
   }
 
   public abrirModalFechamento(): void {
+    this.resumoFechamento = this.resumoCaixaDia();
     this.valorEsperadoFechamento = this.totalRecebidoCaixaDia();
     this.conferenciaPorTipo = this.normalizarConferencia(this.resumoCaixaDia());
     this.dataReferenciaFechamento = null;
     this.editandoFechamento = false;
     this.observacoesFechamento = '';
     this.modalFechamentoAberto.set(true);
+    this.dialogFechamento.nativeElement.showModal();
   }
 
   public editarFechamento(caixa: CaixaFechado): void {
+    this.resumoFechamento = caixa.itens || [];
     this.valorEsperadoFechamento = Number(caixa.valor_total || 0);
     this.conferenciaPorTipo = this.normalizarConferencia(caixa.itens?.length ? caixa.itens : this.resumoCaixaDia());
     this.dataReferenciaFechamento = caixa.data_referencia || null;
     this.editandoFechamento = true;
     this.observacoesFechamento = caixa.observacoes || '';
     this.modalFechamentoAberto.set(true);
+    this.dialogFechamento.nativeElement.showModal();
   }
 
-  public fecharModalFechamento(): void {
+  public fecharModalFechamento(event?: Event): void {
     if (this.fechandoCaixa()) {
+      event?.preventDefault();
       return;
     }
     this.modalFechamentoAberto.set(false);
+    this.dialogFechamento.nativeElement.close();
   }
 
   public confirmarFechamento(): void {
@@ -117,6 +167,7 @@ export class ListarComponent implements OnInit {
       next: () => {
         this.toastService.success(this.editandoFechamento ? 'Fechamento atualizado com sucesso.' : 'Caixa fechado com sucesso.');
         this.modalFechamentoAberto.set(false);
+    this.dialogFechamento.nativeElement.close();
         this.fechandoCaixa.set(false);
         this.carregarResumoCaixaDia();
       },
@@ -159,7 +210,7 @@ export class ListarComponent implements OnInit {
     const mapa = new Map<string, CaixaResumoPagamento>();
 
     for (const formaPagamento of this.formasPagamentoPadrao) {
-      mapa.set(formaPagamento, { forma_pagamento: formaPagamento, valor_total: 0, valor_recebido: 0 });
+      mapa.set(formaPagamento, { forma_pagamento: formaPagamento, valor_total: 0, valor_recebido: 0 , valor_entregue: 0, troco: 0 });
     }
 
     for (const item of resumo) {
@@ -170,7 +221,9 @@ export class ListarComponent implements OnInit {
       mapa.set(formaPagamento, {
         forma_pagamento: formaPagamento,
         valor_total: Number(atual.valor_total || 0) + Number(item.valor_total || 0),
-        valor_recebido: Number(atual.valor_recebido || 0) + Number(item.valor_recebido || 0)
+        valor_recebido: Number(atual.valor_recebido || 0) + Number(item.valor_recebido || 0),
+        valor_entregue: atual.valor_entregue == null || item.valor_entregue == null ? null : atual.valor_entregue + item.valor_entregue,
+        troco: atual.troco == null || item.troco == null ? null : atual.troco + item.troco
       });
     }
 

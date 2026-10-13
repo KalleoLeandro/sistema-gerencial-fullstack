@@ -96,8 +96,8 @@ public class EquipamentoRepository {
 		try {
 			List<EquipamentoResponse> lista = namedParameterJdbcTemplate.query(sqlList, params, equipamentoMapper);
 
-			String sqlCount = "SELECT COUNT(id) FROM equipamentos";
-			Integer total = namedParameterJdbcTemplate.queryForObject(sqlCount, new MapSqlParameterSource(),
+			String sqlCount = "SELECT COUNT(id) FROM equipamentos WHERE id_empresa = :id_empresa";
+			Integer total = namedParameterJdbcTemplate.queryForObject(sqlCount, new MapSqlParameterSource("id_empresa", id_empresa),
 					Integer.class);
 
 			Map<String, Object> resultado = new HashMap<>();

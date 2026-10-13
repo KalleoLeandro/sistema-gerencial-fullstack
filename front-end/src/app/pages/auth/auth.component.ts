@@ -1,3 +1,4 @@
+import { AeroNativeControlComponent, AeroFieldComponent } from '@components/aero';
 import { AeroNativeButtonComponent } from '@components/aero';
 import { CommonModule } from '@angular/common';
 import { AeroThemeToggleComponent } from '@components/aero/theme-toggle/aero-theme-toggle.component';
@@ -5,20 +6,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { ToastService } from '@services/toast.service';
 
 @Component({
   selector: 'app-auth',
-  imports: [AeroNativeButtonComponent,
+  imports: [AeroNativeControlComponent, AeroFieldComponent, AeroNativeButtonComponent,
     CommonModule,
     AeroThemeToggleComponent,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatCardModule
   ],
   templateUrl: './auth.component.html',

@@ -1,5 +1,6 @@
-import { ApplicationConfig, LOCALE_ID, provideEnvironmentInitializer, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { ApplicationConfig, LOCALE_ID, inject, provideEnvironmentInitializer, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter, withNavigationErrorHandler } from '@angular/router';
+import { ChunkLoadRecoveryService } from '@services/chunk-load-recovery.service';
 import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -42,6 +43,8 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideEnvironmentInitializer(disableAutocompleteGlobal()),
-    provideRouter(routes)
+    provideRouter(routes, withNavigationErrorHandler((event) => {
+      inject(ChunkLoadRecoveryService).recover(event);
+    }))
   ]
 };

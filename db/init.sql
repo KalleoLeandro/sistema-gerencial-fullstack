@@ -325,6 +325,8 @@ CREATE TABLE pagamentos (
     data_pagamento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     forma_pagamento VARCHAR(30) NOT NULL,
     valor_pago DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    valor_entregue DECIMAL(12,2) NULL,
+    troco DECIMAL(12,2) NULL,
     observacoes TEXT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_pagamentos_parcela FOREIGN KEY (id_parcela) REFERENCES parcelas(id),
@@ -353,6 +355,8 @@ CREATE TABLE caixa_fechamento_itens (
     id_caixa_fechamento INT NOT NULL,
     forma_pagamento VARCHAR(30) NOT NULL,
     valor_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    valor_entregue DECIMAL(12,2) NULL,
+    troco DECIMAL(12,2) NULL,
     quantidade_lancamentos INT NOT NULL DEFAULT 0,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -404,4 +408,34 @@ INSERT INTO login (nome, login, senha, perfil)
 SELECT 'Master User', 'admin', 'admin', 'ADMIN'
 WHERE NOT EXISTS (
     SELECT 1 FROM login WHERE login = 'admin'
+);
+
+CREATE TABLE IF NOT EXISTS financeiro_contas (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tipo VARCHAR(10) NOT NULL,
+    descricao VARCHAR(255) NOT NULL,
+    contraparte VARCHAR(255) NOT NULL,
+    categoria VARCHAR(100) NULL,
+    referencia VARCHAR(100) NULL,
+    entidade_tipo VARCHAR(50) NULL,
+    entidade_id BIGINT NULL,
+    vencimento DATE NOT NULL,
+    valor DECIMAL(12,2) NOT NULL,
+    valor_baixado DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    cancelada BOOLEAN NOT NULL DEFAULT FALSE,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_financeiro_tipo_vencimento (tipo, vencimento)
+);
+
+CREATE TABLE IF NOT EXISTS financeiro_baixas (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_conta BIGINT NOT NULL,
+    data_baixa DATE NOT NULL,
+    valor DECIMAL(12,2) NOT NULL,
+    forma_pagamento VARCHAR(30) NOT NULL,
+    observacoes VARCHAR(1000) NULL,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_financeiro_baixa_conta FOREIGN KEY (id_conta) REFERENCES financeiro_contas(id),
+    INDEX idx_financeiro_baixa_data (data_baixa)
 );

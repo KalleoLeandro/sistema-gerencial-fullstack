@@ -117,8 +117,8 @@ public class LoginRepository {
 	 */
 	public ExecutorResponse buscarPorLogin(String login) {
 
-		String sql = "SELECT id, nome FROM login WHERE login like :login";
-		MapSqlParameterSource params = new MapSqlParameterSource().addValue("login", "%" + login + "%");
+		String sql = "SELECT id, nome FROM login WHERE login = :login";
+		MapSqlParameterSource params = new MapSqlParameterSource().addValue("login", login);
 
 		try {
 			return namedParameterJdbcTemplate.<ExecutorResponse>queryForObject(sql, params, executorMapper);

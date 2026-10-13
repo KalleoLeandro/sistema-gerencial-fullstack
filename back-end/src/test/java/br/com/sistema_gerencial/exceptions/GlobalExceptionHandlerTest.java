@@ -18,9 +18,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import br.com.sistema_gerencial.exceptions.schemas.DefaultErrorResponse;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
 public class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler globalExceptionHandler;

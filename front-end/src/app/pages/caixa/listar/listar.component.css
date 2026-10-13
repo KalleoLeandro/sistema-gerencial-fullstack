@@ -286,11 +286,7 @@
   background: #f0fdf4;
 }
 
-.quebra-box.sobra {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-}
-
+.quebra-box.sobra,
 .quebra-box.falta {
   border-color: #fecaca;
   background: #fef2f2;
@@ -332,3 +328,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+.history-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem; margin-bottom: 1rem; }
+.history-filters app-aero-input { flex: 1 1 160px; min-width: 0; }
+
+.quebra-valor { display: inline-block; padding: .3rem .65rem; border: 1px solid #86efac; border-radius: .5rem; background: #dcfce7; color: #166534; font-weight: 700; white-space: nowrap; }
+.quebra-valor.com-quebra { border-color: #fca5a5; background: #fee2e2; color: #991b1b; }
+
+.cash-dialog { padding: 0; border: 0; background: transparent; max-width: calc(100vw - 2rem); max-height: calc(100dvh - 2rem); }
+.cash-dialog .modal-card { width: min(560px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; }

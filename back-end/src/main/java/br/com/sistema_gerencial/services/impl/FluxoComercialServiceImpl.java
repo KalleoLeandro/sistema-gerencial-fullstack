@@ -426,6 +426,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 			pagamentoNormalizado.setData_pagamento(pagamento.getData_pagamento());
 			pagamentoNormalizado.setForma_pagamento(pagamento.getForma_pagamento());
 			pagamentoNormalizado.setValor_pago(pagamento.getValor_pago());
+			pagamentoNormalizado.setValor_entregue(pagamento.getValor_entregue());
 			pagamentoNormalizado.setObservacoes(pagamento.getObservacoes());
 			registrarPagamento(venda.getId(), pagamentoNormalizado);
 		}
@@ -498,6 +499,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 					.forma_pagamento(formaPagamento)
 					.valor_total(monetary(item.getValor_total()))
 					.valor_recebido(monetary(item.getValor_recebido()))
+						.valor_entregue(item.getValor_entregue()).troco(item.getTroco())
 					.build());
 		}
 
@@ -519,6 +521,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 						.forma_pagamento(formaPagamento)
 						.valor_total(atual != null ? monetary(atual.getValor_total()) : ZERO)
 						.valor_recebido(valorInformado)
+						.valor_entregue(atual != null ? atual.getValor_entregue() : null).troco(atual != null ? atual.getTroco() : null)
 						.build());
 			}
 		}
@@ -543,9 +546,15 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 				: LocalDateTime.now();
 		String status = novoSaldo.compareTo(ZERO) == 0 ? "PAGA" : "PARCIAL";
 
-		String codigoPagamento = gerarCodigo("PAG", parcela.getId());
-		repository.inserirPagamento(parcela.getId(), codigoPagamento, dataPagamento,
+		BigDecimal valorEntregue = pagamentoRequest.getValor_entregue() == null ? valorPago : monetary(pagamentoRequest.getValor_entregue());
+        BigDecimal troco = valorEntregue.subtract(valorPago).setScale(2, RoundingMode.HALF_UP);
+        if (troco.signum() < 0) throw new DefaultErrorException("Valor entregue não pode ser menor que o pagamento.", HttpStatus.BAD_REQUEST);
+        if (troco.signum() > 0 && !"DINHEIRO".equalsIgnoreCase(pagamentoRequest.getForma_pagamento()))
+            throw new DefaultErrorException("Troco é permitido apenas para pagamento em dinheiro.", HttpStatus.BAD_REQUEST);
+        String codigoPagamento = gerarCodigo("PAG", parcela.getId());
+		int idPagamento = repository.inserirPagamento(parcela.getId(), codigoPagamento, dataPagamento,
 				blankToNull(pagamentoRequest.getForma_pagamento()), valorPago, blankToNull(pagamentoRequest.getObservacoes()));
+		repository.registrarTrocoPagamento(idPagamento, valorEntregue, troco);
 		repository.atualizarParcelaAposPagamento(parcela.getId(), novoValorPago, novoSaldo, status, dataPagamento);
 
 		Map<String, Object> payloadPagamento = new LinkedHashMap<>();
@@ -553,6 +562,8 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 		payloadPagamento.put("parcelaId", parcela.getId());
 		payloadPagamento.put("numeroParcela", parcela.getNumero_parcela());
 		payloadPagamento.put("valorPago", valorPago);
+		payloadPagamento.put("valorEntregue", valorEntregue);
+		payloadPagamento.put("troco", troco);
 		payloadPagamento.put("saldoAberto", novoSaldo);
 		payloadPagamento.put("statusParcela", status);
 		repository.registrarEventoOutbox("PAGAMENTO", parcela.getId(), "PAGAMENTO_REGISTRADO", payloadPagamento);

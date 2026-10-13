@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { DashboardService } from '@services/dashboard.service';
 import { LoginService } from '@services/login.service';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { DashboardComponent } from './dashboard.component';
 import Chart from 'chart.js/auto';
@@ -25,6 +25,8 @@ describe('DashboardComponent', () => {
       'retornarTotalChamadosMes',
       'retornarChamadosAtrasados',
       'retornarChamadosAtendidosPorMim',
+      'retornarProdutosEmFalta',
+      'retornarVendasPorMes',
       'retornarLucrosPorMes',
       'retornarQuantidadeAtendimentosPorTipo'
     ]);
@@ -40,6 +42,8 @@ describe('DashboardComponent', () => {
     dashboardServiceSpy.retornarTotalChamadosMes.and.returnValue(of({ total: 0 }));
     dashboardServiceSpy.retornarChamadosAtrasados.and.returnValue(of({ total: 0 }));
     dashboardServiceSpy.retornarChamadosAtendidosPorMim.and.returnValue(of({ total: 0 }));
+    dashboardServiceSpy.retornarProdutosEmFalta.and.returnValue(of({ total: 0 }));
+    dashboardServiceSpy.retornarVendasPorMes.and.returnValue(of([]));
     dashboardServiceSpy.retornarLucrosPorMes.and.returnValue(of([]));
     dashboardServiceSpy.retornarQuantidadeAtendimentosPorTipo.and.returnValue(of([]));
     loginServiceSpy.getPerfil.and.returnValue(of({ role: 'ADMIN' }));
@@ -61,6 +65,54 @@ describe('DashboardComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('cria os tres graficos mesmo quando os dados chegam antes da view', () => {
+    for (const selector of ['#area', '#tipo-atendimento', '#vendas-mes']) {
+      const canvas = fixture.nativeElement.querySelector(selector) as HTMLCanvasElement;
+      expect(canvas).not.toBeNull();
+      expect(Chart.getChart(canvas)?.canvas).toBe(canvas);
+    }
+  });
+
+  it('aguarda o canvas de vendas quando o perfil ADMIN chega depois', () => {
+    sessionStorage.setItem('perfil', 'USER');
+    const perfil$ = new Subject<{ role: string }>();
+    loginServiceSpy.getPerfil.and.returnValue(perfil$);
+    dashboardServiceSpy.retornarVendasPorMes.and.returnValue(of([{ mes: 'outubro', valor: 150 }]));
+    const localFixture = TestBed.createComponent(DashboardComponent);
+    localFixture.detectChanges();
+    expect(localFixture.nativeElement.querySelector('#vendas-mes')).toBeNull();
+    expect(() => perfil$.next({ role: 'ADMIN' })).not.toThrow();
+    localFixture.detectChanges();
+    const canvas = localFixture.nativeElement.querySelector('#vendas-mes') as HTMLCanvasElement;
+    const chart = Chart.getChart(canvas);
+    expect(chart).toBeDefined();
+    expect(chart?.data.datasets[0].data[9]).toBe(150);
+    localFixture.destroy();
+  });
+
+  it('cancela respostas de graficos pendentes quando a tela e destruida', () => {
+    const principal$ = new Subject<any[]>();
+    const tipo$ = new Subject<any[]>();
+    const vendas$ = new Subject<any[]>();
+    dashboardServiceSpy.retornarLucrosPorMes.and.returnValue(principal$);
+    dashboardServiceSpy.retornarQuantidadeAtendimentosPorTipo.and.returnValue(tipo$);
+    dashboardServiceSpy.retornarVendasPorMes.and.returnValue(vendas$);
+    const localFixture = TestBed.createComponent(DashboardComponent);
+    localFixture.detectChanges();
+    const area = spyOn<any>(localFixture.componentInstance, 'renderAreaChart').and.callThrough();
+    const tipo = spyOn<any>(localFixture.componentInstance, 'renderTipoChart').and.callThrough();
+    const vendas = spyOn<any>(localFixture.componentInstance, 'renderVendasChart').and.callThrough();
+    localFixture.destroy();
+    expect(() => {
+      principal$.next([{ mes: 'outubro', valor: 100 }]);
+      tipo$.next([{ tipo: 'REMOTO', quantidade: 1 }]);
+      vendas$.next([{ mes: 'outubro', valor: 100 }]);
+    }).not.toThrow();
+    expect(area).not.toHaveBeenCalled();
+    expect(tipo).not.toHaveBeenCalled();
+    expect(vendas).not.toHaveBeenCalled();
   });
 
   it('carrega o dashboard mesmo se a consulta de perfil falhar', () => {
@@ -127,6 +179,8 @@ describe('DashboardComponent', () => {
   });
 
   it('destroi os graficos ao encerrar o componente', () => {
+    (component as any).areaChart?.destroy();
+    (component as any).tipoChart?.destroy();
     const destroy = jasmine.createSpy('destroy');
     (component as any).areaChart = { destroy } as unknown as Chart;
     (component as any).tipoChart = { destroy } as unknown as Chart;

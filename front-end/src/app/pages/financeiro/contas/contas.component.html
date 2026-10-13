@@ -1,0 +1,439 @@
+<div class="list-page">
+  <section class="hero-card">
+    <div>
+      <small class="eyebrow">Financeiro</small>
+      <h2>{{ titulo }}</h2>
+      <p>
+        {{
+          tipo === "PAGAR"
+            ? "Organize os compromissos e acompanhe os pagamentos."
+            : "Acompanhe recebimentos manuais e parcelas de vendas."
+        }}
+      </p>
+    </div>
+    <div class="hero-actions">
+      <button aeroButton="primary" type="button" (click)="nova()">
+        Nova conta
+      </button>
+    </div>
+  </section>
+  <nav class="finance-tabs" aria-label="Financeiro">
+    <a
+      aeroButton="secondary"
+      routerLink="/financeiro/pagar"
+      routerLinkActive="finance-tab-active"
+      >Contas a pagar</a
+    >
+    <a
+      aeroButton="secondary"
+      routerLink="/financeiro/receber"
+      routerLinkActive="finance-tab-active"
+      >Contas a receber</a
+    >
+    <a aeroButton="secondary" routerLink="/financeiro/relatorios">Relatórios</a>
+  </nav>
+  <section class="content-card">
+    <form class="finance-filters" (ngSubmit)="pesquisar()">
+      <app-aero-input
+        class="search-field"
+        label="Pesquisar"
+        type="search"
+        [(ngModel)]="pesquisa"
+        name="pesquisa"
+        placeholder="Descrição, contraparte ou referência"
+      />
+      <app-aero-select
+        label="Status"
+        [(ngModel)]="status"
+        name="status"
+        [options]="statuses"
+        placeholder="Todos"
+      />
+      <app-aero-input
+        label="Vencimento de"
+        type="date"
+        [(ngModel)]="inicio"
+        name="inicio"
+      />
+      <app-aero-input label="Até" type="date" [(ngModel)]="fim" name="fim" />
+      <app-aero-input
+        label="Categoria"
+        [(ngModel)]="categoria"
+        name="categoria"
+        placeholder="Todas"
+      />
+      <button aeroButton="primary" type="submit" [disabled]="carregando()">
+        Pesquisar
+      </button>
+    </form>
+    <div class="table-meta">
+      <small aria-live="polite">{{
+        carregando()
+          ? "Carregando..."
+          : "Exibindo " + lista().length + " itens de " + total
+      }}</small>
+      <app-aero-select
+        label="Quantidade por página"
+        [options]="tamanhos"
+        [(ngModel)]="limit"
+        (ngModelChange)="pesquisar()"
+      />
+    </div>
+    <div class="table-shell">
+      <table class="table align-middle list-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Contraparte</th>
+            <th>Categoria</th>
+            <th>Vencimento</th>
+            <th>Valor</th>
+            <th>Baixado</th>
+            <th>Saldo</th>
+            <th>Status</th>
+            <th class="actions-col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (conta of lista(); track conta.origem + conta.id) {
+            <tr>
+              <td>
+                {{ conta.descricao
+                }}<small class="origin-label">{{
+                  conta.origem === "VENDA"
+                    ? "Parcela de venda"
+                    : "Lançamento manual"
+                }}</small>
+              </td>
+              <td>{{ conta.contraparte }}</td>
+              <td>{{ conta.categoria || "-" }}</td>
+              <td>{{ conta.vencimento | date: "dd/MM/yyyy" }}</td>
+              <td>{{ conta.valor | currency: "BRL" }}</td>
+              <td>{{ conta.valorBaixado | currency: "BRL" }}</td>
+              <td>{{ conta.saldo | currency: "BRL" }}</td>
+              <td>
+                <span
+                  class="status-pill"
+                  [class.status-overdue]="conta.status === 'VENCIDA'"
+                  >{{ conta.status }}</span
+                >
+              </td>
+              <td class="actions-col">
+                <button
+                  aeroButton="secondary"
+                  type="button"
+                  class="aero-button--sm"
+                  (click)="abrir(conta, 'detalhes')"
+                >
+                  Detalhes
+                </button>
+                @if (
+                  conta.origem === "MANUAL" && conta.status !== "CANCELADA"
+                ) {
+                  <button
+                    aeroButton="secondary"
+                    type="button"
+                    class="aero-button--sm"
+                    (click)="abrir(conta, 'editar')"
+                  >
+                    Editar
+                  </button>
+                }
+                @if (conta.saldo > 0 && conta.status !== "CANCELADA") {
+                  <button
+                    aeroButton="primary"
+                    type="button"
+                    class="aero-button--sm"
+                    (click)="abrir(conta, 'baixa')"
+                  >
+                    Baixar
+                  </button>
+                }
+                @if (
+                  conta.origem === "MANUAL" &&
+                  conta.valorBaixado === 0 &&
+                  conta.status !== "CANCELADA"
+                ) {
+                  <button
+                    aeroButton="danger"
+                    type="button"
+                    class="aero-button--sm"
+                    (click)="abrir(conta, 'cancelar')"
+                  >
+                    Cancelar
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="empty-state">
+                {{
+                  carregando()
+                    ? "Carregando contas..."
+                    : "Nenhuma conta encontrada."
+                }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <nav class="pagination-bar" aria-label="Paginação">
+      <button
+        aeroButton="secondary"
+        type="button"
+        [disabled]="page <= 1 || carregando()"
+        (click)="irParaPagina(page - 1)"
+      >
+        Anterior
+      </button>
+      <div class="page-list">
+        @for (pagina of paginasVisiveis; track pagina) {
+          <button
+            [aeroButton]="page === pagina ? 'primary' : 'secondary'"
+            type="button"
+            [attr.aria-current]="page === pagina ? 'page' : null"
+            [disabled]="carregando()"
+            (click)="irParaPagina(pagina)"
+          >
+            {{ pagina }}
+          </button>
+        }
+      </div>
+      <button
+        aeroButton="secondary"
+        type="button"
+        [disabled]="page >= totalPages || carregando()"
+        (click)="irParaPagina(page + 1)"
+      >
+        Próximo
+      </button>
+    </nav>
+  </section>
+</div>
+<dialog
+  #dialog
+  class="aero-dialog aero-card finance-dialog"
+  aria-labelledby="finance-modal-title"
+  (cancel)="fechar($event)"
+>
+  <div class="dialog-header">
+    <h2 id="finance-modal-title">{{ tituloModal }}</h2>
+    <button
+      aeroButton="quiet"
+      type="button"
+      [disabled]="salvando()"
+      (click)="fechar()"
+      aria-label="Fechar"
+    >
+      ×
+    </button>
+  </div>
+  @if (modo === "criar" || modo === "editar") {
+    <form [formGroup]="form" (ngSubmit)="salvar()">
+      <div class="finance-form-grid">
+        <app-aero-input
+          label="Descrição"
+          formControlName="descricao"
+          required
+        />
+        <app-aero-input
+          label="Contraparte"
+          formControlName="contraparte"
+          placeholder="Pessoa ou empresa"
+          required
+        />
+        <app-aero-input
+          label="Categoria"
+          formControlName="categoria"
+          placeholder="Opcional"
+        />
+        <app-aero-input
+          label="Referência"
+          formControlName="referencia"
+          placeholder="Documento, contrato ou identificação"
+        />
+        <app-aero-input
+          label="Vencimento"
+          type="date"
+          formControlName="vencimento"
+          required
+        />
+        <app-aero-field
+          ><span aeroLabel>Valor</span
+          ><input
+            aeroControl
+            type="text"
+            currencyMask
+            [options]="moneyOptions"
+            formControlName="valor"
+          /><span aeroError
+            >Informe um valor maior que zero.</span
+          ></app-aero-field
+        >
+      </div>
+      <div class="dialog-actions">
+        <button
+          aeroButton="secondary"
+          type="button"
+          [disabled]="salvando()"
+          (click)="fechar()"
+        >
+          Voltar</button
+        ><button
+          aeroButton="primary"
+          type="submit"
+          [disabled]="salvando() || form.invalid"
+        >
+          {{ salvando() ? "Salvando..." : "Salvar" }}
+        </button>
+      </div>
+    </form>
+  }
+  @if (modo === "baixa") {
+    <p>
+      {{ selecionada?.descricao }} · Saldo:
+      {{ selecionada?.saldo | currency: "BRL" }}
+    </p>
+    <form [formGroup]="baixaForm" (ngSubmit)="baixar()">
+      <div class="finance-form-grid">
+        <app-aero-input
+          label="Data da baixa"
+          type="date"
+          formControlName="data"
+          [max]="hoje"
+          required
+        />
+        <app-aero-field
+          ><span aeroLabel>Valor da baixa</span
+          ><input
+            aeroControl
+            type="text"
+            currencyMask
+            [options]="moneyOptions"
+            formControlName="valor"
+          /><span aeroError
+            >Informe um valor maior que zero.</span
+          ></app-aero-field
+        >
+        <app-aero-select
+          label="Forma de pagamento"
+          formControlName="formaPagamento"
+          [options]="formas"
+          required
+        />
+        <app-aero-textarea
+          label="Observações"
+          formControlName="observacoes"
+          [maxLength]="1000"
+        />
+      </div>
+      <div class="dialog-actions">
+        <button
+          aeroButton="secondary"
+          type="button"
+          [disabled]="salvando()"
+          (click)="fechar()"
+        >
+          Voltar</button
+        ><button
+          aeroButton="primary"
+          type="submit"
+          [disabled]="salvando() || baixaForm.invalid"
+        >
+          {{ salvando() ? "Registrando..." : "Registrar baixa" }}
+        </button>
+      </div>
+    </form>
+  }
+  @if (modo === "cancelar") {
+    <p>
+      Cancelar a conta “{{ selecionada?.descricao }}”? Ela continuará no
+      histórico e será desconsiderada nos saldos previstos.
+    </p>
+    <div class="dialog-actions">
+      <button
+        aeroButton="secondary"
+        type="button"
+        [disabled]="salvando()"
+        (click)="fechar()"
+      >
+        Voltar</button
+      ><button
+        aeroButton="danger"
+        type="button"
+        [disabled]="salvando()"
+        (click)="cancelar()"
+      >
+        Confirmar cancelamento
+      </button>
+    </div>
+  }
+  @if (modo === "detalhes") {
+    @if (detalhes(); as item) {
+      <dl class="details-grid">
+        <dt>Descrição</dt>
+        <dd>{{ item.conta.descricao }}</dd>
+        <dt>Contraparte</dt>
+        <dd>{{ item.conta.contraparte }}</dd>
+        <dt>Categoria</dt>
+        <dd>{{ item.conta.categoria || "-" }}</dd>
+        <dt>Referência</dt>
+        <dd>{{ item.conta.referencia || "-" }}</dd>
+        <dt>Vencimento</dt>
+        <dd>{{ item.conta.vencimento | date: "dd/MM/yyyy" }}</dd>
+        <dt>Status</dt>
+        <dd>{{ item.conta.status }}</dd>
+        <dt>Valor</dt>
+        <dd>{{ item.conta.valor | currency: "BRL" }}</dd>
+        <dt>Saldo</dt>
+        <dd>{{ item.conta.saldo | currency: "BRL" }}</dd>
+      </dl>
+      @if (item.conta.vendaId) {
+        <a
+          aeroButton="secondary"
+          [routerLink]="['/comercial/vendas/detalhes', item.conta.vendaId]"
+          (click)="fechar()"
+          >Abrir venda</a
+        >
+      }
+      <h3>Histórico de baixas</h3>
+      <div class="table-shell">
+        <table class="table list-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Valor</th>
+              <th>Forma</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (baixa of item.baixas; track baixa.id) {
+              <tr>
+                <td>{{ baixa.data | date: "dd/MM/yyyy" }}</td>
+                <td>{{ baixa.valor | currency: "BRL" }}</td>
+                <td>{{ baixa.formaPagamento }}</td>
+                <td>{{ baixa.observacoes || "-" }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty-state">
+                  Nenhuma baixa registrada.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p>Carregando detalhes...</p>
+    }
+    <div class="dialog-actions">
+      <button aeroButton="secondary" type="button" (click)="fechar()">
+        Fechar
+      </button>
+    </div>
+  }
+</dialog>

@@ -6,7 +6,7 @@ Aplicacao full stack com frontend Angular, BFF em NestJS e backend Spring Boot. 
 
 - Frontend: Angular com layout Frutiger Aero.
 - BFF: NestJS na porta `3000`, responsavel por receber chamadas do frontend, encaminhar cookies/autorizacao e repassar para o backend.
-- Backend: Spring Boot na porta `8080`, com contexto `/api`.
+- Backend: Java 27 e Spring Boot na porta `8080`, com contexto `/api`.
 - Banco: MySQL `sistema_gerencial_fullstack`.
 - Auditoria/documentos: MongoDB `sistema_gerencial_auditoria`.
 - Mensageria: RabbitMQ com painel de administracao.
@@ -25,7 +25,7 @@ Aplicacao full stack com frontend Angular, BFF em NestJS e backend Spring Boot. 
 
 ## Build validada
 
-- Backend: `.\mvnw.cmd "-Dmaven.repo.local=.m2/repository" -DskipTests compile`
+- Backend (JDK 27): `mvn "-Dmaven.repo.local=.m2/repository" clean install` (371 testes; cobertura de linhas: 96,06%, ramificacoes: 86%). Veja [a documentacao da suite](back-end/TESTING.md).
 - BFF: `npm run build`
 - Frontend: `npm run build`
 

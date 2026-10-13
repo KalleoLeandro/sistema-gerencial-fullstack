@@ -1,61 +1,59 @@
-<div class="container-fluid">
-  <div class="card mb-4">
-    <div class="card-header shortage-hero">
-      <div>
-        <p class="section-kicker">Estoque</p>
-        <h1 class="section-title">Produtos em falta</h1>
-        <p class="section-description">Lista dos produtos ativos que estao abaixo do estoque minimo configurado.</p>
-      </div>
-
-      <div class="shortage-actions">
-        <span class="shortage-badge">{{ totalProdutos }} produto(s) em alerta</span>
-        <button aeroButton="secondary" type="button"  (click)="voltarParaDashboard()">Voltar ao dashboard</button>
-      </div>
-    </div>
-
-    <div class="p-4">
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Codigo</th>
-              <th>Unidade</th>
-              <th>Estoque Atual</th>
-              <th>Estoque Minimo</th>
-              <th>Deficit</th>
-              <th>Venda</th>
-              <th class="actions-col">Acoes</th>
-            </tr>
-          </thead>
-          <tbody>
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Estoque</small>
+<h2>Produtos em falta</h2>
+<p>Produtos ativos abaixo do estoque mínimo configurado.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="secondary" type="button" (click)="voltarParaDashboard()">Voltar ao dashboard</button>
+</div>
+</section>
+<section class="content-card">
+<div class="table-meta">
+<small>{{ totalProdutos }} produto(s) em alerta</small>
+</div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Nome</th>
+<th>Codigo</th>
+<th>Unidade</th>
+<th>Estoque Atual</th>
+<th>Estoque Minimo</th>
+<th>Deficit</th>
+<th>Venda</th>
+<th class="actions-col">Acoes</th>
+</tr>
+</thead>
+<tbody>
             @for (item of produtos(); track item.id) {
               <tr>
-                <td>{{ item.id }}</td>
-                <td>{{ item.nome }}</td>
-                <td>{{ item.codigo || '-' }}</td>
-                <td>{{ item.unidade_medida }}</td>
-                <td>{{ item.estoque_atual }}</td>
-                <td>{{ item.estoque_minimo }}</td>
-                <td>
-                  <span class="deficit-chip">
+<td>{{ item.id }}</td>
+<td>{{ item.nome }}</td>
+<td>{{ item.codigo || '-' }}</td>
+<td>{{ item.unidade_medida }}</td>
+<td>{{ item.estoque_atual }}</td>
+<td>{{ item.estoque_minimo }}</td>
+<td>
+<span class="deficit-chip">
                     {{ item.estoque_minimo - item.estoque_atual }}
                   </span>
-                </td>
-                <td>{{ item.valor_venda | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td class="actions-col">
-                  <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="editar(item.id)">Editar</button>
-                </td>
-              </tr>
+</td>
+<td>{{ item.valor_venda | currency:'BRL':'symbol':'1.2-2' }}</td>
+<td class="actions-col">
+<button aeroButton="secondary" type="button" class="aero-button--sm" (click)="editar(item.id)">Editar</button>
+</td>
+</tr>
             } @empty {
               <tr>
-                <td colspan="9" class="empty-state">Nenhum produto esta abaixo do estoque minimo.</td>
-              </tr>
+<td colspan="9" class="empty-state">Nenhum produto esta abaixo do estoque minimo.</td>
+</tr>
             }
           </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+</table>
+</div>
+</section>
 </div>
