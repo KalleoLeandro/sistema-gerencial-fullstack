@@ -38,5 +38,26 @@ pipeline {
                 '''
             }
         }
+
+        stage('Build e Testes Backend') {
+            steps {
+                dir('back-end') {
+                    sh '''
+                        mvn clean verify
+                    '''
+                }
+            }
+        }
+
+        stage('Validar Coverage Backend') {
+            steps {
+                dir('back-end') {
+                    sh '''
+                        test -f target/site/jacoco/jacoco.xml
+                        echo "Relatório JaCoCo encontrado!"
+                    '''
+                }
+            }
+        }
     }
 }
