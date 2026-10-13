@@ -42,9 +42,21 @@ pipeline {
         stage('Build e Testes Backend') {
             steps {
                 dir('back-end') {
-                    sh '''
-                        mvn clean verify
-                    '''
+                    withEnv([
+                        'JAVA_HOME=/opt/jdks/jdk-27',
+                        'PATH+JDK27=/opt/jdks/jdk-27/bin'
+                    ]) {
+                        sh '''
+                            echo "Verificando Java:"
+                            java -version
+
+                            echo "Verificando Maven:"
+                            mvn -version
+
+                            echo "Compilando e executando testes:"
+                            mvn clean verify
+                        '''
+                    }
                 }
             }
         }
