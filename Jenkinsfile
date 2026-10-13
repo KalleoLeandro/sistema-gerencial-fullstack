@@ -100,40 +100,13 @@ pipeline {
                 }
             }
         }
-
-        stage('Diagnosticar Autenticacao Sonar') {
-            steps {
-                dir('back-end') {
-                    withCredentials([
-                        string(
-                            credentialsId: 'sonar-token-backend',
-                            variable: 'SONAR_TOKEN'
-                        )
-                    ]) {
-                        sh '''
-                            TASK_URL=$(sed -n 's/^ceTaskUrl=//p' .scannerwork/report-task.txt)
-
-                            test -n "$TASK_URL"
-
-                            STATUS=$(curl -sS -o /dev/null \
-                                -w "%{http_code}" \
-                                --user "$SONAR_TOKEN:" \
-                                "$TASK_URL")
-
-                            echo "Status da API SonarQube: $STATUS"
-
-                            test "$STATUS" = "200"
-                        '''
-                    }
-                }
-            }
-        }
-
+        
         stage('Quality Gate Backend') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate(
-                        abortPipeline: true
+                        abortPipeline: true,
+                        credentialsId: 'sonar-token-backend'
                     )
                 }
             }
