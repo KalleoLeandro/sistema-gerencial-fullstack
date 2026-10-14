@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { environments } from '@environments/environments';
 import { CustomError } from '@errors/custom-error/custom-error';
 import { Request, Response } from 'express';
+import { logger } from '@utils/utils';
 
 type UploadedImageFile = {
   buffer: Buffer;
@@ -20,8 +21,12 @@ export class ProxyService {
     path: string,
     body?: unknown,
   ) {
+    logger.info(`ProxyService.forward: ${method} ${path}`);
     try {
-      const targetUrl = this.buildUrl(path, req.query as Record<string, unknown>);
+      const targetUrl = this.buildUrl(
+        path,
+        req.query as Record<string, unknown>,
+      );
       const headers = this.buildHeaders(req, body);
       const init: RequestInit = { method, headers };
 
@@ -46,12 +51,17 @@ export class ProxyService {
 
       return res.status(backendResponse.status).send(payload);
     } catch (error: any) {
-      throw new CustomError(error.message ?? 'Erro ao comunicar com o backend', 500);
+      throw new CustomError(
+        error.message ?? 'Erro ao comunicar com o backend',
+        500,
+      );
     }
   }
 
   private buildUrl(path: string, query: Record<string, unknown>) {
-    const normalizedBase = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    const normalizedBase = this.baseUrl.endsWith('/')
+      ? this.baseUrl.slice(0, -1)
+      : this.baseUrl;
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     const url = new URL(`${normalizedBase}${normalizedPath}`);
 
@@ -73,7 +83,9 @@ export class ProxyService {
 
   private buildHeaders(req: Request, body?: unknown) {
     const headers: Record<string, string> = {
-      Accept: req.headers.accept ? String(req.headers.accept) : 'application/json',
+      Accept: req.headers.accept
+        ? String(req.headers.accept)
+        : 'application/json',
     };
 
     if (body !== undefined) {
@@ -98,8 +110,12 @@ export class ProxyService {
     fields: Record<string, string | undefined>,
     arquivo?: UploadedImageFile,
   ) {
+    logger.info(`ProxyService.forwardMultipart: POST ${path}`);
     try {
-      const targetUrl = this.buildUrl(path, req.query as Record<string, unknown>);
+      const targetUrl = this.buildUrl(
+        path,
+        req.query as Record<string, unknown>,
+      );
       const headers = this.buildHeaders(req);
       const formData = new FormData();
 
@@ -113,7 +129,11 @@ export class ProxyService {
 
       if (arquivo) {
         const arquivoBytes = Uint8Array.from(arquivo.buffer);
-        formData.append('arquivo', new Blob([arquivoBytes], { type: arquivo.mimetype }), arquivo.originalname);
+        formData.append(
+          'arquivo',
+          new Blob([arquivoBytes], { type: arquivo.mimetype }),
+          arquivo.originalname,
+        );
       }
 
       const backendResponse = await fetch(targetUrl, {
@@ -138,22 +158,38 @@ export class ProxyService {
 
       return res.status(backendResponse.status).send(payload);
     } catch (error: any) {
-      throw new CustomError(error.message ?? 'Erro ao comunicar com o backend', 500);
+      throw new CustomError(
+        error.message ?? 'Erro ao comunicar com o backend',
+        500,
+      );
     }
   }
 
-  private copySetCookieHeaders(backendResponse: globalThis.Response, res: Response) {
-    const getSetCookie = (backendResponse.headers as Headers & { getSetCookie?: () => string[] }).getSetCookie;
-    const cookies = typeof getSetCookie === 'function' ? getSetCookie.call(backendResponse.headers) : [];
+  private copySetCookieHeaders(
+    backendResponse: globalThis.Response,
+    res: Response,
+  ) {
+    const getSetCookie = (
+      backendResponse.headers as Headers & { getSetCookie?: () => string[] }
+    ).getSetCookie;
+    const cookies =
+      typeof getSetCookie === 'function'
+        ? getSetCookie.call(backendResponse.headers)
+        : [];
 
     if (cookies.length > 0) {
       res.setHeader('Set-Cookie', cookies);
     }
   }
 
-  private copyResponseHeaders(backendResponse: globalThis.Response, res: Response) {
+  private copyResponseHeaders(
+    backendResponse: globalThis.Response,
+    res: Response,
+  ) {
     const contentType = backendResponse.headers.get('content-type');
-    const contentDisposition = backendResponse.headers.get('content-disposition');
+    const contentDisposition = backendResponse.headers.get(
+      'content-disposition',
+    );
     const cacheControl = backendResponse.headers.get('cache-control');
 
     if (contentType) {
@@ -169,7 +205,10 @@ export class ProxyService {
     }
   }
 
-  private async parsePayload(backendResponse: globalThis.Response, contentType: string) {
+  private async parsePayload(
+    backendResponse: globalThis.Response,
+    contentType: string,
+  ) {
     if (backendResponse.status === 204) {
       return undefined;
     }

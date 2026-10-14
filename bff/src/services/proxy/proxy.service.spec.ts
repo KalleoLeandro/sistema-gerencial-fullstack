@@ -4,6 +4,10 @@ import {
 } from '../../testing/http.testing';
 import { ProxyService } from './proxy.service';
 import { CustomError } from '@errors/custom-error/custom-error';
+import { logger } from '@utils/utils';
+jest.mock('@utils/utils', () => ({
+  logger: { info: jest.fn(), error: jest.fn() },
+}));
 jest.mock('@environments/environments', () => ({
   environments: { BACK_END: 'http://backend/' },
 }));
@@ -13,6 +17,7 @@ describe('ProxyService', () => {
   let res: ReturnType<typeof createResponseMock>;
   const req = createRequestMock;
   beforeEach(() => {
+    jest.clearAllMocks();
     service = new ProxyService();
     res = createResponseMock();
     jest.spyOn(global, 'fetch');
@@ -61,6 +66,12 @@ describe('ProxyService', () => {
       },
     );
     expect(res.status).toHaveBeenCalledWith(201);
+    expect(logger.info).toHaveBeenCalledWith(
+      'ProxyService.forward: POST produtos',
+    );
+    expect(JSON.stringify(jest.mocked(logger.info).mock.calls)).not.toContain(
+      'Bearer a',
+    );
     expect(res.json).toHaveBeenCalledWith({ id: 42 });
     expect(res.setHeader).toHaveBeenCalledWith('Set-Cookie', ['session=abc']);
     expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
@@ -150,6 +161,9 @@ describe('ProxyService', () => {
     ).toEqual(Buffer.from([1, 2]));
     expect(init.headers).toEqual({ Accept: 'application/json' });
     expect(res.json).toHaveBeenCalledWith({ id: 'image' });
+    expect(logger.info).toHaveBeenCalledWith(
+      'ProxyService.forwardMultipart: POST /upload',
+    );
   });
   it.each([204, 200])(
     'handles multipart empty/binary response %i without a file',

@@ -6,13 +6,15 @@ import {
   HttpStatus,
   NotFoundException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { logger } from '@utils/utils';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Erro interno no servidor';
@@ -27,6 +29,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = HttpStatus.NOT_FOUND;
       message = 'Rota não encontrada';
     }
+
+    const detail =
+      exception instanceof Error
+        ? exception.stack || exception.message
+        : 'Excecao sem instancia de Error';
+    logger.error(
+      `GlobalExceptionFilter: ${request.method} ${request.path} status=${status}\n${detail}`,
+    );
 
     response.status(status).json({
       timestamp: new Date().toISOString(),

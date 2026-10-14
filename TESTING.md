@@ -52,7 +52,7 @@ As requisições usam mocks, `HttpTestingController` ou um servidor Nest em mem�
 
 | Projeto | Testes aprovados | Statements | Branches | Functions | Lines |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| BFF | 141 | 99,79% | 96,49% | 99,27% | 99,77% |
+| BFF | 144 | 99,80% | 96,72% | 99,27% | 99,78% |
 | Frontend | 521 | 96,87% | 92,43% | 95,77% | 97,08% |
 
 Ambas as suítes foram executadas com `npm run test:ci`, sem falhas, com a barreira de cobertura ativa.

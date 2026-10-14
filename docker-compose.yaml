@@ -112,6 +112,7 @@ services:
     image: prom/prometheus:latest
     depends_on:
       - back-end
+      - bff
     ports:
       - "9090:9090"
     networks:
