@@ -75,9 +75,3 @@ hs_err_pid*
 *.metadata.json
 
 # Angular testing
-
-# =====================================
-# LOCK FILES (opcional, se você quiser padronizar só um gerenciador)
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
