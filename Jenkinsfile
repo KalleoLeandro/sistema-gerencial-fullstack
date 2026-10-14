@@ -174,5 +174,72 @@ pipeline {
                 }
             }
         }
+
+        stage('Build e Testes Angular') {
+            steps {
+                dir('front-end') {
+                    withEnv(['CHROME_BIN=/usr/bin/chromium']) {
+                        sh '''
+                            echo "Verificando Chromium..."
+                            chromium --version
+
+                            echo "Instalando dependencias..."
+                            npm ci
+
+                            echo "Executando testes Angular com cobertura..."
+                            npm run test:ci
+
+                            echo "Localizando relatorio LCOV..."
+                            find coverage -name lcov.info -type f
+
+                            echo "Compilando Angular para producao..."
+                            npm run build
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Angular') {
+            steps {
+                dir('front-end') {
+                    script {
+                        def scannerHome = tool 'sonar-scanner'
+
+                        withSonarQubeEnv(
+                            installationName: 'sonarqube-local',
+                            credentialsId: 'sonar-token-frontend'
+                        ) {
+                            withCredentials([
+                                string(
+                                    credentialsId: 'sonar-token-frontend',
+                                    variable: 'SONAR_TOKEN'
+                                )
+                            ]) {
+                                withEnv(["SCANNER_HOME=${scannerHome}"]) {
+                                    sh '''
+                                        echo "Executando SonarQube Angular..."
+
+                                        "$SCANNER_HOME/bin/sonar-scanner" \
+                                            -Dsonar.token="$SONAR_TOKEN" \
+                                            -Dsonar.host.url="$SONAR_HOST_URL"
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate Angular') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate(
+                        abortPipeline: true
+                    )
+                }
+            }
+        }
     }
 }
