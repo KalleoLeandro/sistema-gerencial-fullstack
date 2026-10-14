@@ -35,16 +35,29 @@ import br.com.sistema_gerencial.models.response.ParcelaResponse;
 import br.com.sistema_gerencial.models.response.VendaResponse;
 import br.com.sistema_gerencial.repositories.FluxoComercialRepository;
 import br.com.sistema_gerencial.services.FluxoComercialService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.time.Clock;
+import java.time.ZoneId;
 
 @Service
-@RequiredArgsConstructor
 public class FluxoComercialServiceImpl implements FluxoComercialService {
 
 	private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 	private static final BigDecimal ZERO_QUANTIDADE = BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP);
 
 	private final FluxoComercialRepository repository;
+    private final Clock clock;
+
+    @Autowired
+    public FluxoComercialServiceImpl(FluxoComercialRepository repository, Clock clock) {
+        this.repository=repository;
+        this.clock=clock;
+    }
+
+    public FluxoComercialServiceImpl(FluxoComercialRepository repository) {
+        this(repository,Clock.system(ZoneId.of("America/Sao_Paulo")));
+    }
+
 
 	@Override
 	@Transactional
@@ -256,7 +269,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 
 		LocalDate primeiroVencimento = request.getData_primeiro_vencimento() != null
 				? request.getData_primeiro_vencimento()
-				: LocalDate.now();
+				: LocalDate.now(clock);
 		int intervaloDias = request.getIntervalo_dias() == null || request.getIntervalo_dias() < 1
 				? 30
 				: request.getIntervalo_dias();
@@ -266,7 +279,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 			repository.inserirParcela(idVenda, i + 1, primeiroVencimento.plusDays((long) i * intervaloDias), valoresParcelas.get(i));
 		}
 
-		repository.aprovarOrcamento(orcamento.getId(), LocalDateTime.now());
+		repository.aprovarOrcamento(orcamento.getId(), LocalDateTime.now(clock));
 
 		Map<String, Object> payloadOrcamento = new LinkedHashMap<>();
 		payloadOrcamento.put("orcamentoId", orcamento.getId());
@@ -419,7 +432,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 
 		repository.removerPagamentosVenda(venda.getId());
 		repository.removerParcelasVenda(venda.getId());
-		repository.inserirParcela(venda.getId(), 1, LocalDate.now(), totalGeral);
+		repository.inserirParcela(venda.getId(), 1, LocalDate.now(clock), totalGeral);
 		for (PagamentoVendaRequest pagamento : pagamentos) {
 			PagamentoVendaRequest pagamentoNormalizado = new PagamentoVendaRequest();
 			pagamentoNormalizado.setNumero_parcela(1);
@@ -443,7 +456,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 	@Override
 	@Transactional(readOnly = true)
 	public CaixaResumoDiaResponse buscarResumoCaixaDia() {
-		LocalDate hoje = LocalDate.now();
+		LocalDate hoje = LocalDate.now(clock);
 		return CaixaResumoDiaResponse.builder()
 				.data_referencia(hoje)
 				.resumo(repository.listarResumoCaixaDia(hoje))
@@ -456,7 +469,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 	public CaixaFechamentoResponse fecharCaixa(FecharCaixaRequest request) {
 		FecharCaixaRequest requestNormalizado = request == null ? new FecharCaixaRequest() : request;
 		LocalDate dataReferencia = requestNormalizado.getData_referencia() == null
-				? LocalDate.now()
+				? LocalDate.now(clock)
 				: requestNormalizado.getData_referencia();
 		List<CaixaResumoPagamentoResponse> resumoEsperado = repository.listarResumoCaixaDia(dataReferencia);
 		BigDecimal valorEsperado = resumoEsperado.stream()
@@ -543,7 +556,7 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 		}
 		LocalDateTime dataPagamento = pagamentoRequest.getData_pagamento() != null
 				? pagamentoRequest.getData_pagamento()
-				: LocalDateTime.now();
+				: LocalDateTime.now(clock);
 		String status = novoSaldo.compareTo(ZERO) == 0 ? "PAGA" : "PARCIAL";
 
 		BigDecimal valorEntregue = pagamentoRequest.getValor_entregue() == null ? valorPago : monetary(pagamentoRequest.getValor_entregue());

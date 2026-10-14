@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.repositories;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
@@ -21,7 +23,7 @@ class DashboardRepositoryIntegrationTest extends DatabaseTestSupport {
     }
     @Test void filtraChamadosPorExecutorEStatus() {
         String executors="[{\"id\":1,\"nome\":\"Tecnico\"}]";
-        jdbc.update("UPDATE atendimentos SET executores=?,data_inicio=CURRENT_TIMESTAMP,data_fim=?",executors,LocalDateTime.now().minusDays(1));
+        jdbc.update("UPDATE atendimentos SET executores=?,data_inicio=CURRENT_TIMESTAMP,data_fim=?",executors,TestTime.NOW.minusDays(1));
         jdbc.update("UPDATE manutencao SET executores=?,data_inicio=CURRENT_TIMESTAMP,status_atendimento=3",executors);
         jdbc.update("UPDATE avulsos SET executores=?,data_inicio=CURRENT_TIMESTAMP,status_atendimento=4",executors);
         assertThat(repository.retornarTotalChamadosMesPorExecutor("Tecnico")).isEqualTo(3);
@@ -41,7 +43,7 @@ class DashboardRepositoryIntegrationTest extends DatabaseTestSupport {
         assertThat(repository.retornarQuantidadeAtendimentoPorTipoPorExecutor("Tecnico")).extracting(TipoAtendimentoDTO::getTipo).containsExactly("REMOTO");
     }
     @Test void calendarioIncluiContratosEAgendaOrdenados() {
-        var future=LocalDateTime.now().plusDays(15);
+        var future=TestTime.NOW.plusDays(15);
         jdbc.update("UPDATE clientes SET data_fim=?",future); jdbc.update("UPDATE avulsos SET data_inicio=CURRENT_TIMESTAMP");
         jdbc.update("INSERT INTO agendamentos(titulo,tipo_tarefa,data_agendamento) VALUES('Visita','SUPORTE',CURRENT_TIMESTAMP)");
         assertThat(repository.retornarContratosAcabando()).isEqualTo(1);

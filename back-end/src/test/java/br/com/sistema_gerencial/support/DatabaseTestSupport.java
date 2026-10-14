@@ -21,7 +21,11 @@ public abstract class DatabaseTestSupport {
         var ds = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID()
                 + ";MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE", "sa", "");
         databaseConnection = ds.getConnection();
-        jdbc = new JdbcTemplate(ds);
+        jdbc = new JdbcTemplate(ds) {
+            @Override public void execute(String sql) { super.execute(H2MySqlTestTemplate.translate(sql)); }
+            @Override public int update(String sql) { return super.update(H2MySqlTestTemplate.translate(sql)); }
+            @Override public int update(String sql, Object... args) { return super.update(H2MySqlTestTemplate.translate(sql), args); }
+        };
         namedJdbc = new H2MySqlTestTemplate(ds);
         String schema = new ClassPathResource("init.sql").getContentAsString(StandardCharsets.UTF_8)
                 .replaceAll("(?m)^CREATE DATABASE.*;", "")

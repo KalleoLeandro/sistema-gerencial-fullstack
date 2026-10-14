@@ -10,12 +10,24 @@ import java.util.List;
 import org.springframework.jdbc.core.namedparam.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.time.Clock;
 
 @Repository
-@RequiredArgsConstructor
 public class FinanceiroRepository {
     private final NamedParameterJdbcTemplate jdbc;
+    private final Clock clock;
+
+    @Autowired
+    public FinanceiroRepository(NamedParameterJdbcTemplate jdbc, Clock clock) {
+        this.jdbc=jdbc;
+        this.clock=clock;
+    }
+
+    public FinanceiroRepository(NamedParameterJdbcTemplate jdbc) {
+        this(jdbc,Clock.system(ZoneId.of("America/Sao_Paulo")));
+    }
+
 
     private static final String CONTAS = """
         SELECT f.id, 'MANUAL' origem, f.tipo, f.descricao, f.contraparte, f.categoria, f.referencia,
@@ -38,7 +50,7 @@ public class FinanceiroRepository {
     private record Consulta(String where, MapSqlParameterSource params) {}
     private Consulta consulta(Filtro filtro) {
         StringBuilder where = new StringBuilder(" WHERE 1=1");
-        var params = new MapSqlParameterSource("hoje", LocalDate.now(ZoneId.of("America/Sao_Paulo")));
+        var params = new MapSqlParameterSource("hoje", LocalDate.now(clock));
         if (filtro.tipo() != null) { where.append(" AND tipo=:tipo"); params.addValue("tipo", filtro.tipo()); }
         if (filtro.status() != null) { where.append(" AND status=:status"); params.addValue("status", filtro.status()); }
         if (filtro.inicio() != null) { where.append(" AND vencimento>=:inicio"); params.addValue("inicio", filtro.inicio()); }
@@ -63,7 +75,7 @@ public class FinanceiroRepository {
     public Conta buscar(String origem, long id) {
         var result = jdbc.query("SELECT * FROM (" + CONTAS + ") contas WHERE origem=:origem AND id=:id",
             new MapSqlParameterSource("origem", origem).addValue("id", id)
-                .addValue("hoje", LocalDate.now(ZoneId.of("America/Sao_Paulo"))), this::mapConta);
+                .addValue("hoje", LocalDate.now(clock)), this::mapConta);
         return result.isEmpty() ? null : result.getFirst();
     }
 

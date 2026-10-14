@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
@@ -16,7 +18,7 @@ class FluxoComercialValidationTest {
     FluxoComercialRepository repository;
     FluxoComercialServiceImpl service;
     @BeforeEach void setup() {
-        repository=mock(FluxoComercialRepository.class); service=new FluxoComercialServiceImpl(repository);
+        repository=mock(FluxoComercialRepository.class); service=new FluxoComercialServiceImpl(repository,TestTime.CLOCK);
     }
     @ParameterizedTest @ValueSource(strings={"descricao","tipo","quantidadeNula","quantidadeZero","quantidadeNegativa","preco","percentualNegativo","percentualMaior","desconto"})
     void rejeitaItemInvalidoAntesDePersistir(String invalid) {

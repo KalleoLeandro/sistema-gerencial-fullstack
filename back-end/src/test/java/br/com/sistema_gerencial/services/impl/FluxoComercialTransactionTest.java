@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,7 +25,7 @@ class FluxoComercialTransactionTest extends DatabaseTestSupport {
         var manager=new DataSourceTransactionManager(jdbc.getDataSource());
         var interceptor=new TransactionInterceptor(); interceptor.setTransactionManager(manager);
         interceptor.setTransactionAttributeSource(new AnnotationTransactionAttributeSource());
-        var proxy=new ProxyFactory(new FluxoComercialServiceImpl(repository)); proxy.addAdvice(interceptor);
+        var proxy=new ProxyFactory(new FluxoComercialServiceImpl(repository,TestTime.CLOCK)); proxy.addAdvice(interceptor);
         service=(FluxoComercialService)proxy.getProxy();
     }
     OrcamentoResponse budget() {

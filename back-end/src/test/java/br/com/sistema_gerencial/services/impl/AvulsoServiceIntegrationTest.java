@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
@@ -21,7 +23,7 @@ class AvulsoServiceIntegrationTest extends DatabaseTestSupport {
     @BeforeEach void setup() {
         seedOrigins();
         repository=new AvulsoRepository(namedJdbc);
-        service=new AvulsoServiceImpl(repository,new FluxoComercialServiceImpl(new FluxoComercialRepository(namedJdbc,new ObjectMapper())));
+        service=new AvulsoServiceImpl(repository,new FluxoComercialServiceImpl(new FluxoComercialRepository(namedJdbc,new ObjectMapper()),TestTime.CLOCK));
         request=new CadastrarAvulsoRequest();
         request.setNome_cliente("Ana"); request.setTipo_pessoa("f"); request.setCpf_cnpj("123");
         request.setDescricao("Reparar equipamento"); request.setExecutores("[{\"id\":1,\"nome\":\"Tecnico\"}]");
@@ -80,4 +82,3 @@ class AvulsoServiceIntegrationTest extends DatabaseTestSupport {
         assertThatThrownBy(()->service.buscarPorId(id)).isInstanceOf(DefaultErrorException.class);
     }
 }
-

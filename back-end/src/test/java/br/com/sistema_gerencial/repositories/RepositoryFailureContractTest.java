@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.repositories;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
@@ -131,15 +133,15 @@ class RepositoryFailureContractTest {
             new FailureCase("FluxoComercial.listarItensOrcamento",()->fluxoComercial.listarItensOrcamento(1)),
             new FailureCase("FluxoComercial.removerItensOrcamento",()->fluxoComercial.removerItensOrcamento(1)),
             new FailureCase("FluxoComercial.inserirItemOrcamento",()->fluxoComercial.inserirItemOrcamento(1,item)),
-            new FailureCase("FluxoComercial.atualizarResumoOrcamento",()->fluxoComercial.atualizarResumoOrcamento(1,LocalDate.now(),zero,zero,"Ana","123",zero,zero,zero,zero,"ABERTO","nota")),
+            new FailureCase("FluxoComercial.atualizarResumoOrcamento",()->fluxoComercial.atualizarResumoOrcamento(1,TestTime.TODAY,zero,zero,"Ana","123",zero,zero,zero,zero,"ABERTO","nota")),
             new FailureCase("FluxoComercial.atualizarValorOrcamentoNaOrigem",()->fluxoComercial.atualizarValorOrcamentoNaOrigem("ATENDIMENTO",1,zero)),
             new FailureCase("FluxoComercial.inserirVenda",()->fluxoComercial.inserirVenda("VEN",budget,"PIX",1,"nota")),
             new FailureCase("FluxoComercial.inserirItemVenda",()->fluxoComercial.inserirItemVenda(1,item)),
-            new FailureCase("FluxoComercial.inserirParcela",()->fluxoComercial.inserirParcela(1,1,LocalDate.now(),zero)),
+            new FailureCase("FluxoComercial.inserirParcela",()->fluxoComercial.inserirParcela(1,1,TestTime.TODAY,zero)),
             new FailureCase("FluxoComercial.buscarParcelaPorNumero",()->fluxoComercial.buscarParcelaPorNumero(1,1)),
-            new FailureCase("FluxoComercial.inserirPagamento",()->fluxoComercial.inserirPagamento(1,"PAG",LocalDateTime.now(),"PIX",zero,"nota")),
-            new FailureCase("FluxoComercial.atualizarParcelaAposPagamento",()->fluxoComercial.atualizarParcelaAposPagamento(1,zero,zero,"PAGA",LocalDateTime.now())),
-            new FailureCase("FluxoComercial.aprovarOrcamento",()->fluxoComercial.aprovarOrcamento(1,LocalDateTime.now())),
+            new FailureCase("FluxoComercial.inserirPagamento",()->fluxoComercial.inserirPagamento(1,"PAG",TestTime.NOW,"PIX",zero,"nota")),
+            new FailureCase("FluxoComercial.atualizarParcelaAposPagamento",()->fluxoComercial.atualizarParcelaAposPagamento(1,zero,zero,"PAGA",TestTime.NOW)),
+            new FailureCase("FluxoComercial.aprovarOrcamento",()->fluxoComercial.aprovarOrcamento(1,TestTime.NOW)),
             new FailureCase("FluxoComercial.rejeitarOrcamento",()->fluxoComercial.rejeitarOrcamento(1,"nota")),
             new FailureCase("FluxoComercial.reabrirOrcamento",()->fluxoComercial.reabrirOrcamento(1,"ABERTO","nota")),
             new FailureCase("FluxoComercial.cancelarManutencao",()->fluxoComercial.cancelarManutencao(1,"motivo","nota")),
@@ -152,9 +154,9 @@ class RepositoryFailureContractTest {
             new FailureCase("FluxoComercial.removerParcelasVenda",()->fluxoComercial.removerParcelasVenda(1)),
             new FailureCase("FluxoComercial.atualizarResumoVenda",()->fluxoComercial.atualizarResumoVenda(1,"Ana","123",zero,zero,zero,zero,"nota")),
             new FailureCase("FluxoComercial.atualizarVenda",()->fluxoComercial.atualizarVenda(1,"Ana","123","PIX",1,zero,zero,zero,zero,"nota")),
-            new FailureCase("FluxoComercial.listarResumoCaixaDia",()->fluxoComercial.listarResumoCaixaDia(LocalDate.now())),
+            new FailureCase("FluxoComercial.listarResumoCaixaDia",()->fluxoComercial.listarResumoCaixaDia(TestTime.TODAY)),
             new FailureCase("FluxoComercial.listarFechamentosCaixa",()->fluxoComercial.listarFechamentosCaixa()),
-            new FailureCase("FluxoComercial.salvarFechamentoCaixa",()->fluxoComercial.salvarFechamentoCaixa(LocalDate.now(),zero,zero,zero,"nota")),
+            new FailureCase("FluxoComercial.salvarFechamentoCaixa",()->fluxoComercial.salvarFechamentoCaixa(TestTime.TODAY,zero,zero,zero,"nota")),
             new FailureCase("FluxoComercial.substituirItensFechamentoCaixa",()->fluxoComercial.substituirItensFechamentoCaixa(1,List.of())),
             new FailureCase("FluxoComercial.listarItensFechamentoCaixa",()->fluxoComercial.listarItensFechamentoCaixa(1)),
             new FailureCase("FluxoComercial.listarItensVenda",()->fluxoComercial.listarItensVenda(1)),
@@ -168,4 +170,3 @@ class RepositoryFailureContractTest {
         }));
     }
 }
-

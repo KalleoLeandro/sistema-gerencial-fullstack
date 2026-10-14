@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static br.com.sistema_gerencial.models.financeiro.FinanceiroModels.*;
@@ -20,16 +22,16 @@ class FinanceiroIntegrationTest extends DatabaseTestSupport {
     FinanceiroRepository repository;
     FluxoComercialRepository comercial;
     FinanceiroService service;
-    final LocalDate hoje=LocalDate.now();
+    final LocalDate hoje=TestTime.TODAY;
     final Filtro todos=new Filtro(null,null,null,null,null,null);
 
     @BeforeEach void setup() {
-        repository=new FinanceiroRepository(namedJdbc);
+        repository=new FinanceiroRepository(namedJdbc,TestTime.CLOCK);
         comercial=spy(new FluxoComercialRepository(namedJdbc,new ObjectMapper()));
         var interceptor=new TransactionInterceptor();
         interceptor.setTransactionManager(new DataSourceTransactionManager(jdbc.getDataSource()));
         interceptor.setTransactionAttributeSource(new AnnotationTransactionAttributeSource());
-        var proxy=new ProxyFactory(new FinanceiroService(repository,comercial));proxy.addAdvice(interceptor);
+        var proxy=new ProxyFactory(new FinanceiroService(repository,comercial,TestTime.CLOCK));proxy.addAdvice(interceptor);
         service=(FinanceiroService)proxy.getProxy();
     }
     ContaRequest request(String tipo,String descricao,String valor,LocalDate data) {
@@ -151,5 +153,18 @@ class FinanceiroIntegrationTest extends DatabaseTestSupport {
         var request=new ContaRequest("PAGAR","Contrato","Parceiro",null,null,hoje,new BigDecimal("100"),"CONTRATO",25L);
         var conta=service.criar(request);assertThat(conta.entidadeTipo()).isEqualTo("CONTRATO");assertThat(conta.entidadeId()).isEqualTo(25);
         assertThatThrownBy(()->service.criar(new ContaRequest("PAGAR","X","Y",null,null,hoje,BigDecimal.ONE,"CONTRATO",null))).hasMessageContaining("juntos");
+    }
+
+    @Test void viradaDoDiaUtcNaoAntecipaVencimentoOuPermiteBaixaFuturaEmSaoPaulo() {
+        var midnight=java.time.Clock.fixed(java.time.Instant.parse("2026-10-13T01:00:00Z"),java.time.ZoneId.of("America/Sao_Paulo"));
+        var ontem=LocalDate.of(2026,10,12);
+        var repo=new FinanceiroRepository(namedJdbc,midnight);
+        var serviceAtMidnight=new FinanceiroService(repo,comercial,midnight);
+        var conta=serviceAtMidnight.criar(request("PAGAR","Vence hoje","100",ontem));
+        assertThat(conta.status()).isEqualTo("ABERTA");
+        assertThatThrownBy(()->serviceAtMidnight.baixar("MANUAL",conta.id(),new BaixaRequest(ontem.plusDays(1),BigDecimal.ONE,"PIX",null)))
+                .hasMessageContaining("futuro");
+        var resultado=serviceAtMidnight.baixar("MANUAL",conta.id(),new BaixaRequest(ontem,BigDecimal.ONE,"PIX",null));
+        assertThat(resultado.conta().saldo()).isEqualByComparingTo("99");
     }
 }

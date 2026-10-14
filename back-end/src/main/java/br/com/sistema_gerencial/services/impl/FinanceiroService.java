@@ -13,13 +13,25 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.sistema_gerencial.exceptions.DefaultErrorException;
 import br.com.sistema_gerencial.repositories.FinanceiroRepository;
 import br.com.sistema_gerencial.repositories.FluxoComercialRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.time.Clock;
 
 @Service
-@RequiredArgsConstructor
 public class FinanceiroService {
     private final FinanceiroRepository repository;
     private final FluxoComercialRepository comercial;
+    private final Clock clock;
+
+    @Autowired
+    public FinanceiroService(FinanceiroRepository repository, FluxoComercialRepository comercial, Clock clock) {
+        this.repository=repository;this.comercial=comercial;
+        this.clock=clock;
+    }
+
+    public FinanceiroService(FinanceiroRepository repository, FluxoComercialRepository comercial) {
+        this(repository,comercial,Clock.system(ZoneId.of("America/Sao_Paulo")));
+    }
+
 
     public Filtro filtro(String tipo,String status,String pesquisa,LocalDate inicio,LocalDate fim,String categoria) {
         tipo=limpar(tipo);status=limpar(status);
@@ -71,7 +83,7 @@ public class FinanceiroService {
     public Detalhes baixar(String origem,long id,BaixaRequest request) {
         origem(origem);repository.bloquear(origem,id);var atual=conta(origem,id);
         if("CANCELADA".equals(atual.status())) throw erro("Contas canceladas não podem receber baixa.");
-        if(request.data().isAfter(LocalDate.now(ZoneId.of("America/Sao_Paulo")))) throw erro("A data da baixa não pode estar no futuro.");
+        if(request.data().isAfter(LocalDate.now(clock))) throw erro("A data da baixa não pode estar no futuro.");
         if(request.valor().compareTo(atual.saldo())>0) throw erro("O valor da baixa excede o saldo da conta.");
         if("MANUAL".equals(origem)) repository.baixarManual(id,request);
         else {

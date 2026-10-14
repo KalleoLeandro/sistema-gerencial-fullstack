@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
@@ -21,7 +23,7 @@ class AtendimentoServiceIntegrationTest extends DatabaseTestSupport {
     @BeforeEach void setup() {
         seedOrigins();
         repository=new AtendimentoRepository(namedJdbc);
-        service=new AtendimentoServiceImpl(repository,new FluxoComercialServiceImpl(new FluxoComercialRepository(namedJdbc,new ObjectMapper())));
+        service=new AtendimentoServiceImpl(repository,new FluxoComercialServiceImpl(new FluxoComercialRepository(namedJdbc,new ObjectMapper()),TestTime.CLOCK));
         request=new CadastrarAtendimentoRequest();
         request.setId_empresa(1); request.setSolicitante("Ana");
         request.setDescricao("Reparar equipamento"); request.setExecutores("[{\"id\":1,\"nome\":\"Tecnico\"}]");
@@ -80,4 +82,3 @@ class AtendimentoServiceIntegrationTest extends DatabaseTestSupport {
         assertThatThrownBy(()->service.buscarPorId(id)).isInstanceOf(DefaultErrorException.class);
     }
 }
-

@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +24,7 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
 
     @BeforeEach void setup() {
         repository = new FluxoComercialRepository(namedJdbc, new ObjectMapper());
-        service = new FluxoComercialServiceImpl(repository);
+        service = new FluxoComercialServiceImpl(repository,TestTime.CLOCK);
         seedOrigins();
     }
 
@@ -209,7 +211,7 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
         var venda=service.aprovarOrcamento(request);
         var persistido=venda.getParcelas().getFirst().getPagamentos().getFirst();
         assertThat(persistido.getValor_entregue()).isEqualByComparingTo("100");assertThat(persistido.getTroco()).isEqualByComparingTo("20");
-        var resumo=repository.listarResumoCaixaDia(LocalDate.now()).getFirst();
+        var resumo=repository.listarResumoCaixaDia(TestTime.TODAY).getFirst();
         assertThat(resumo.getValor_entregue()).isEqualByComparingTo("100");assertThat(resumo.getTroco()).isEqualByComparingTo("20");
         assertThat(resumo.getValor_recebido()).isEqualByComparingTo("80");
         var fechar=new FecharCaixaRequest();fechar.setValor_informado(money("80"));
@@ -222,7 +224,7 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
         var request=approval(budget("100").getId());
         var pix=payment("30");var dinheiro=payment("70");dinheiro.setForma_pagamento("DINHEIRO");dinheiro.setValor_entregue(money("100"));
         request.setPagamentos(List.of(pix,dinheiro));service.aprovarOrcamento(request);
-        var resumo=repository.listarResumoCaixaDia(LocalDate.now());
+        var resumo=repository.listarResumoCaixaDia(TestTime.TODAY);
         assertThat(resumo.stream().map(CaixaResumoPagamentoResponse::getValor_recebido).reduce(BigDecimal.ZERO,BigDecimal::add)).isEqualByComparingTo("100");
         assertThat(resumo.stream().map(CaixaResumoPagamentoResponse::getTroco).reduce(BigDecimal.ZERO,BigDecimal::add)).isEqualByComparingTo("30");
     }
@@ -235,7 +237,7 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
     @Test void trocoHistoricoDesconhecidoNaoEhApresentadoComoZero() {
         var request=approval(budget("80").getId());request.setPagamentos(List.of(payment("80")));service.aprovarOrcamento(request);
         jdbc.update("UPDATE pagamentos SET valor_entregue=NULL,troco=NULL");
-        var resumo=repository.listarResumoCaixaDia(LocalDate.now()).getFirst();
+        var resumo=repository.listarResumoCaixaDia(TestTime.TODAY).getFirst();
         assertThat(resumo.getTroco()).isNull();assertThat(resumo.getValor_entregue()).isNull();assertThat(resumo.getValor_recebido()).isEqualByComparingTo("80");
     }
 }

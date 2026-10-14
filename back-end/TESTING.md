@@ -10,15 +10,15 @@ mvn "-Dmaven.repo.local=.m2/repository" clean verify
 
 ## Resultado validado
 
-Em 13/10/2026, o build limpo executou **371 testes**, com zero falhas, erros ou testes ignorados.
+Em 13/10/2026, o build limpo executou **397 testes**, com zero falhas, erros ou testes ignorados.
 
 | Medida JaCoCo | Cobertura |
 | --- | ---: |
-| Linhas | 96,06% (2.971 de 3.093) |
-| Ramificacoes | 86,00% (602 de 700) |
-| Instrucoes | 96,59% |
-| Metodos | 98,05% |
-| Classes | 100,00% (56 de 56 classes contabilizadas) |
+| Linhas | 96,08% (3134 de 3262) |
+| Ramificacoes | 86,84% (693 de 798) |
+| Instrucoes | 96,75% (15111 de 15619) |
+| Metodos | 97,73% (559 de 572) |
+| Classes | 100,00% (71 de 71) |
 
 A cobertura anterior de linhas era 3,39%. Classes visitadas nao significam que todos os seus caminhos foram testados; os relatorios mostram as linhas e ramificacoes restantes.
 
@@ -59,3 +59,24 @@ MongoDB e RabbitMQ sao substituidos por mocks nos testes, com verificacao dos do
 Esta suite valida comportamento e transacoes locais. Ela nao certifica particularidades do servidor MySQL, transporte real do RabbitMQ ou persistencia real do MongoDB; esses cenarios exigem testes adicionais com os respectivos servidores.
 
 O teste de paginacao tambem detectou e protege a correcao do total de equipamentos, que agora respeita a empresa selecionada.
+## Datas e fusos nos testes
+
+Os testes de regras financeiras e comerciais usam `TestTime.CLOCK`, um `Clock.fixed` com data de negócio em São Paulo. Os fixtures usam `TestTime.TODAY` e `TestTime.NOW`, em vez de `LocalDate.now()` ou `LocalDateTime.now()` sem relógio controlado.
+
+No H2 de testes, `NOW()`, `CURRENT_TIMESTAMP`, `CURDATE()` e `CURRENT_DATE` usam a mesma referência fixa. Isso inclui defaults das tabelas, consultas, fixtures e inserts com chaves geradas. A tradução fica somente em `src/test`; as consultas MySQL de produção continuam intactas.
+
+Os serviços comercial e financeiro e o repositório financeiro recebem `Clock` por injeção. Em produção, `app.time-zone` define o fuso de negócio (padrão `America/Sao_Paulo`). Em testes, passe explicitamente `TestTime.CLOCK`.
+
+Há um teste de regressão para o instante em que UTC já está no dia seguinte, mas São Paulo ainda está no dia anterior: o vencimento não pode ser antecipado e uma baixa futura em São Paulo deve continuar sendo rejeitada.
+
+Para reproduzir o ambiente UTC do Jenkins e conferir outro fuso:
+
+```powershell
+$env:JAVA_TOOL_OPTIONS = '-Duser.timezone=UTC'
+mvn "-Dmaven.repo.local=.m2/repository" clean verify
+$env:JAVA_TOOL_OPTIONS = '-Duser.timezone=America/Sao_Paulo'
+mvn "-Dmaven.repo.local=.m2/repository" clean verify
+Remove-Item Env:JAVA_TOOL_OPTIONS
+```
+
+A execução normal do pipeline pode continuar usando `mvn clean verify`; os testes não precisam do horário corrente da máquina.

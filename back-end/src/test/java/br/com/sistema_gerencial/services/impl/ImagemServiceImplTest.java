@@ -1,5 +1,7 @@
 package br.com.sistema_gerencial.services.impl;
 
+import br.com.sistema_gerencial.support.TestTime;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.awt.image.BufferedImage;
@@ -71,7 +73,7 @@ class ImagemServiceImplTest {
     }
     @Test void listaFiltraCategoriaEMapeiaMetadados() {
         var doc=ImagemDocumento.builder().id("id").entityType("PRODUTO").entityId(1).categoria("EVIDENCIA")
-                .nomeArquivo("foto.png").contentType("image/png").tamanhoBytes(15L).principal(false).criadoEm(LocalDateTime.now()).build();
+                .nomeArquivo("foto.png").contentType("image/png").tamanhoBytes(15L).principal(false).criadoEm(TestTime.NOW).build();
         when(mongo.find(any(Query.class),eq(ImagemDocumento.class))).thenReturn(List.of(doc));
         assertThat(service.listar("PRODUTO",1," evidencia ")).extracting("id").containsExactly("id");
         var captor=org.mockito.ArgumentCaptor.forClass(Query.class); verify(mongo).find(captor.capture(),eq(ImagemDocumento.class));
