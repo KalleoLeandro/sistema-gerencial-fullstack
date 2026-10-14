@@ -9,6 +9,8 @@ RUN apt-get update && \
         maven \
         curl \
         ca-certificates \
+        chromium \
+        fonts-liberation \
         git \
         unzip \
         xz-utils \
@@ -33,5 +35,6 @@ RUN mkdir -p /opt/jdks/jdk-27 && \
 
 # Configuração do JDK para os builds
 ENV JDK27_HOME=/opt/jdks/jdk-27
+ENV CHROME_BIN=/usr/bin/chromium
 
 USER jenkins

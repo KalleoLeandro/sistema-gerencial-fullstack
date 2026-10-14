@@ -1,37 +1,60 @@
 import { UnauthorizedException } from '@nestjs/common';
+import type { Request } from 'express';
+import { LoginService } from '@services/login/login.service';
+import { createResponseMock } from '../../testing/http.testing';
 import { TokenMiddleware } from './token.middleware';
 
+const requestWithCookies = (cookies?: Record<string, string>): Request =>
+  ({ cookies }) as unknown as Request;
+function setup() {
+  const validarToken = jest.fn<
+    ReturnType<LoginService['validarToken']>,
+    Parameters<LoginService['validarToken']>
+  >();
+  const service = { validarToken } as unknown as LoginService;
+  return {
+    validarToken,
+    middleware: new TokenMiddleware(service),
+    next: jest.fn(),
+    response: createResponseMock().response,
+  };
+}
+
 describe('TokenMiddleware', () => {
-  it('bloqueia tokens expirados e não chama next', async () => {
-    const next = jest.fn();
-    const service = { validarToken: jest.fn().mockResolvedValue({ valid: false, status: 401 }) };
-    await expect(new TokenMiddleware(service as any).use({ cookies: { access_token: 'expired' } } as any, {} as any, next)).rejects.toThrow(UnauthorizedException);
-    expect(service.validarToken).toHaveBeenCalledWith('expired');
+  it('bloqueia tokens expirados e n?o chama next', async () => {
+    const { validarToken, middleware, next, response } = setup();
+    validarToken.mockResolvedValue({ valid: false, status: 401 });
+    await expect(
+      middleware.use(
+        requestWithCookies({ access_token: 'expired' }),
+        response,
+        next,
+      ),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(validarToken).toHaveBeenCalledWith('expired');
     expect(next).not.toHaveBeenCalled();
   });
-  it('bloqueia requisições sem cookies', async () => {
-    const service = { validarToken: jest.fn() };
-    await expect(new TokenMiddleware(service as any).use({} as any, {} as any, jest.fn())).rejects.toThrow(UnauthorizedException);
-    expect(service.validarToken).not.toHaveBeenCalled();
+  it('bloqueia requisi??es sem cookies', async () => {
+    const { validarToken, middleware, next, response } = setup();
+    await expect(
+      middleware.use(requestWithCookies(), response, next),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(validarToken).not.toHaveBeenCalled();
   });
-  it('deve permitir a requisiÃ§Ã£o quando o token for vÃ¡lido', async () => {
-    const loginService = {
-      validarToken: jest.fn().mockResolvedValue({ valid: true, status: 200 })
-    } as any;
-    const middleware = new TokenMiddleware(loginService);
-    const next = jest.fn();
-
-    await middleware.use({ cookies: { access_token: 'token' } } as any, {} as any, next);
-
-    expect(next).toHaveBeenCalled();
+  it('permite a requisi??o quando o token ? v?lido', async () => {
+    const { validarToken, middleware, next, response } = setup();
+    validarToken.mockResolvedValue({ valid: true, status: 200 });
+    await middleware.use(
+      requestWithCookies({ access_token: 'token' }),
+      response,
+      next,
+    );
+    expect(next).toHaveBeenCalledTimes(1);
   });
-
-  it('deve bloquear a requisiÃ§Ã£o sem token', async () => {
-    const loginService = { validarToken: jest.fn() } as any;
-    const middleware = new TokenMiddleware(loginService);
-
-    await expect(middleware.use({ cookies: {} } as any, {} as any, jest.fn()))
-      .rejects
-      .toThrow(UnauthorizedException);
+  it('bloqueia a requisi??o sem token', async () => {
+    const { middleware, next, response } = setup();
+    await expect(
+      middleware.use(requestWithCookies({}), response, next),
+    ).rejects.toThrow(UnauthorizedException);
   });
 });

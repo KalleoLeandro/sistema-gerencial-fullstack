@@ -19,7 +19,7 @@ const customFormat = format.printf(({ level, message, timestamp }) => {
     return `${timestamp} [${level}]: ${message}`;
 });
 
-export const logger: any = createLogger({
+export const logger = createLogger({
     level: 'info',
     format: format.combine(
         format.timestamp({ format: 'DD/MM/YYYY HH:mm:ss' }),

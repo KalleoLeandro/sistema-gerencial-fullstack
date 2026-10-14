@@ -101,7 +101,8 @@
               "src/app/app.routes.ts",
               "src/app/app.config.ts",
               "src/app/environments/**",
-              "**/*.stories.ts"
+              "**/*.stories.ts",
+              "**/*.testing.ts"
             ],
             "polyfills": [
               "zone.js",

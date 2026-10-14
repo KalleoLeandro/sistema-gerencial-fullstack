@@ -5,6 +5,9 @@ import { ContasComponent } from './contas.component';
 import { FinanceiroService } from '@services/financeiro.service';
 import { ToastService } from '@services/toast.service';
 import { ContaFinanceira } from '@models/financeiro';
+import { ElementRef } from '@angular/core';
+import { throwError } from 'rxjs';
+import { pageSetup } from '../../../testing/page.testing';
 
 const conta: ContaFinanceira = {
   id: 1,
@@ -144,5 +147,120 @@ describe('Financeiro: contas', () => {
     component.page = 3;
     component.pesquisar();
     expect(component.page).toBe(1);
+  });
+});
+
+describe('Financial account actions', () => {
+  const conta = {
+    id: 42,
+    origem: 'MANUAL',
+    tipo: 'PAGAR',
+    descricao: 'Aluguel',
+    contraparte: 'Parceiro',
+    vencimento: '2026-10-13',
+    valor: 100,
+    saldo: 100,
+    categoria: 'Serviços',
+    referencia: 'R42',
+    entidadeTipo: 'FORNECEDOR',
+    entidadeId: 3,
+  } as any;
+  for (const tipo of ['PAGAR', 'RECEBER'])
+    for (const failure of [false, true])
+      it(`edits, settles and cancels ${tipo}; failure=${failure}`, () => {
+        const setup = pageSetup({}, {}, { tipo });
+        const api = setup.mock(FinanceiroService);
+        api.listar.and.returnValue(of({ lista: [conta], total: 1 }));
+        const c = setup.create(ContasComponent);
+        const dialog = {
+          showModal: jasmine.createSpy(),
+          close: jasmine.createSpy(),
+        };
+        c.dialog = new ElementRef(dialog as any);
+        for (const name of ['atualizar', 'baixar', 'cancelar', 'detalhes'])
+          api[name].and.returnValue(
+            failure
+              ? throwError(() => ({ error: { message: 'Falha' } }))
+              : of({ conta, baixas: [] }),
+          );
+        c.abrir(conta, 'editar');
+        expect(c.tituloModal).toBe('Editar conta');
+        c.salvar();
+        expect(api.atualizar).toHaveBeenCalledWith(
+          42,
+          jasmine.objectContaining({
+            entidadeTipo: 'FORNECEDOR',
+            entidadeId: 3,
+          }),
+        );
+        c.abrir(conta, 'baixa');
+        expect(c.tituloModal).toContain(
+          tipo === 'PAGAR' ? 'pagamento' : 'recebimento',
+        );
+        c.baixaForm.patchValue({ observacoes: 'Nota' });
+        c.baixar();
+        expect(api.baixar).toHaveBeenCalledWith(
+          'MANUAL',
+          42,
+          jasmine.objectContaining({ valor: 100, observacoes: 'Nota' }),
+        );
+        c.abrir(conta, 'cancelar');
+        expect(c.tituloModal).toBe('Cancelar conta');
+        c.cancelar();
+        expect(api.cancelar).toHaveBeenCalledWith(42);
+        c.abrir(conta, 'detalhes');
+        expect(c.tituloModal).toBe('Detalhes da conta');
+        expect(api.detalhes).toHaveBeenCalledWith('MANUAL', 42);
+        if (failure)
+          expect(setup.mock(ToastService).error).toHaveBeenCalledWith('Falha');
+        else expect(c.detalhes()!.conta.id).toBe(42);
+        expect(c.salvando()).toBeFalse();
+        c.fechar();
+        expect(dialog.close).toHaveBeenCalled();
+      });
+  it('bounds pagination, recovers empty pages and reports list/save failures', () => {
+    const setup = pageSetup({}, {}, { tipo: 'PAGAR' });
+    const api = setup.mock(FinanceiroService);
+    api.listar.and.returnValue(of({ lista: [], total: 0 }));
+    const c = setup.create(ContasComponent);
+    c.dialog = new ElementRef({
+      showModal: jasmine.createSpy(),
+      close: jasmine.createSpy(),
+    } as any);
+    c.page = 4;
+    c.ngOnInit();
+    expect(c.page).toBe(1);
+    expect(api.listar).toHaveBeenCalledTimes(2);
+    expect(c.paginasVisiveis).toEqual([1]);
+    c.total = 40;
+    c.irParaPagina(3);
+    c.irParaPagina(0);
+    c.irParaPagina(5);
+    expect(c.page).toBe(1);
+    c.selecionada = null;
+    c.cancelar();
+    c.baixar();
+    expect(api.cancelar).not.toHaveBeenCalled();
+    c.nova();
+    c.form.patchValue({ descricao: ' ', contraparte: 'Pessoa', valor: 10 });
+    c.salvar();
+    expect(api.criar).not.toHaveBeenCalled();
+    c.form.patchValue({ descricao: 'Conta', contraparte: ' ' });
+    c.salvar();
+    expect(api.criar).not.toHaveBeenCalled();
+    c.form.patchValue({ contraparte: 'Pessoa' });
+    api.criar.and.returnValue(
+      throwError(() => ({ error: { message: 'Falha' } })),
+    );
+    c.salvar();
+    expect(c.salvando()).toBeFalse();
+    api.listar.and.returnValue(throwError(() => new Error('offline')));
+    c.carregar();
+    expect(c.lista()).toEqual([]);
+    expect(c.total).toBe(0);
+    c.salvando.set(true);
+    const event = { preventDefault: jasmine.createSpy() };
+    c.fechar(event as any);
+    expect(event.preventDefault).toHaveBeenCalled();
   });
 });

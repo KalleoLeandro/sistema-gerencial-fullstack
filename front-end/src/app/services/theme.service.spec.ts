@@ -13,7 +13,7 @@ describe('ThemeService', () => {
     root = document.createElement('html');
     media = { matches: true, addEventListener: jasmine.createSpy(), removeEventListener: jasmine.createSpy() };
     browser = {
-      localStorage: { getItem: jasmine.createSpy().and.callFake(() => stored), setItem: jasmine.createSpy().and.callFake((key, value) => stored = value) },
+      localStorage: { getItem: jasmine.createSpy().and.callFake(() => stored), setItem: jasmine.createSpy().and.callFake((_key: string, value: string) => stored = value) },
       matchMedia: jasmine.createSpy().and.returnValue(media), addEventListener: jasmine.createSpy(), removeEventListener: jasmine.createSpy(),
     };
     TestBed.configureTestingModule({ providers: [{ provide: DOCUMENT, useValue: { documentElement: root, defaultView: browser } }] });
