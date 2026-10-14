@@ -132,5 +132,47 @@ pipeline {
                 }
             }
         }
+
+        stage('SonarQube BFF') {
+            steps {
+                dir('bff') {
+                    script {
+                        def scannerHome = tool 'sonar-scanner'
+
+                        withSonarQubeEnv(
+                            installationName: 'sonarqube-local',
+                            credentialsId: 'sonar-token-bff'
+                        ) {
+                            withCredentials([
+                                string(
+                                    credentialsId: 'sonar-token-bff',
+                                    variable: 'SONAR_TOKEN'
+                                )
+                            ]) {
+                                withEnv(["SCANNER_HOME=${scannerHome}"]) {
+                                    sh '''
+                                        echo "Executando analise SonarQube BFF..."
+
+                                        "$SCANNER_HOME/bin/sonar-scanner" \
+                                            -Dsonar.token="$SONAR_TOKEN" \
+                                            -Dsonar.host.url="$SONAR_HOST_URL"
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate BFF') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate(
+                        abortPipeline: true
+                    )
+                }
+            }
+        }
     }
 }
