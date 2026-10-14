@@ -121,7 +121,10 @@ pipeline {
                         npm ci
 
                         echo "Executando testes com coverage..."
-                        npm test -- --coverage --watch=false
+                        npm run test:cov -- --runInBand --ci
+
+                        echo "Validando relatorio LCOV..."
+                        test -f coverage/lcov.info
 
                         echo "Compilando TypeScript..."
                         npm run build

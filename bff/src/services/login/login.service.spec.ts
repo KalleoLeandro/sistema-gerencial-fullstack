@@ -26,6 +26,25 @@ describe('LoginService', () => {
 
   const mockLoginBody = { login: 'teste', senha: '123' };
 
+  it('preserva os dados do usuário autenticado na validação do token', async () => {
+    const response = { valid: true, userName: 'Admin', perfil: 'ADMIN', login: 'admin', expiration: '2026-10-13T15:00:00Z' };
+    (fetch as jest.Mock).mockResolvedValue({ status: 200, json: async () => response });
+    expect(await service.validarToken('token')).toEqual({ ...response, status: 200 });
+    expect(fetch).toHaveBeenCalledWith('http://mocked-api/login/validar-token', expect.objectContaining({ headers: { 'Content-Type': 'application/json', Authorization: 'token' } }));
+  });
+
+  it('rejeita refresh expirado sem tentar ler JSON', async () => {
+    const json = jest.fn();
+    (fetch as jest.Mock).mockResolvedValue({ status: 401, json });
+    expect(await service.refreshToken('expired')).toEqual({ status: 401, message: expect.any(String) });
+    expect(json).not.toHaveBeenCalled();
+  });
+
+  it.each(['validarLogin', 'validarToken'] as const)('%s converte falha de rede em CustomError', async method => {
+    (fetch as jest.Mock).mockRejectedValue(new Error('offline'));
+    await expect((service[method] as any)(method === 'validarLogin' ? mockLoginBody : 'token')).rejects.toThrow(CustomError);
+  });
+
   it('validarLogin() deve retornar LoginResponse com status 200', async () => {
     const mockResponse = {
       token: 'abc123',

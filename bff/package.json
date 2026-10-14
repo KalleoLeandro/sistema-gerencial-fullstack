@@ -89,13 +89,10 @@
       "**/*.(t|j)s",
       "!**/main.ts",
       "!**/app.module.ts",
-      "!**/global-exception-filter.ts",
       "!**/*.module.ts",
       "!**/*.config.ts",
-      "!**/token.middleware.ts",
       "!**/metrics.*.ts",
       "!**/environments.ts",
-      "!**/custom-error.ts",
       "!**/models/**",
       "!**/*.dto.ts",
       "!**/*.entity.ts",
@@ -103,6 +100,14 @@
       "!**/*.spec.ts"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "statements": 90,
+        "branches": 90,
+        "functions": 90,
+        "lines": 90
+      }
+    }
   }
 }

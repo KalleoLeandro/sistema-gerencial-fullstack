@@ -99,8 +99,9 @@
             "codeCoverageExclude": [
               "src/main.ts",
               "src/app/app.routes.ts",
-              "src/app/pages/**/*.ts",
-              "src/app/services/pdf-export.service.ts"
+              "src/app/app.config.ts",
+              "src/app/environments/**",
+              "**/*.stories.ts"
             ],
             "polyfills": [
               "zone.js",
@@ -123,7 +124,8 @@
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.min.js"
-            ]
+            ],
+            "karmaConfig": "karma.conf.js"
           }
         },
         "storybook": {
