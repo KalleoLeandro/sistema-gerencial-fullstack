@@ -15,7 +15,7 @@
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Mensageria-FF6600?logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
 [![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?logo=jenkins&logoColor=white)](https://www.jenkins.io/)
 
-**Um projeto de engenharia de software que reúne front-end, BFF, APIs de negócio, persistência, mensageria, testes e observabilidade.**
+**Um projeto funcional, construído como laboratório prático para estudar front-end, BFF, APIs de negócio, persistência, mensageria, testes, observabilidade e CI/CD em uma solução integrada.**
 
 [Funcionalidades](#-funcionalidades) · [Arquitetura](#-arquitetura) · [Execução](#-execução-local-com-docker) · [Qualidade](#-testes-e-qualidade) · [Documentação](#-documentação-adicional)
 
@@ -29,7 +29,9 @@ O **Sistema Gerencial Full Stack** é uma aplicação para organizar diferentes 
 
 A solução foi construída com **Angular** na experiência web, **NestJS como Backend for Frontend (BFF)** e **Spring Boot** como camada central de regras de negócio. A persistência utiliza **MySQL** e **MongoDB**, com **RabbitMQ** para mensageria. A interface incorpora uma identidade visual inspirada no estilo **Frutiger Aero**.
 
-> 📌 **Escopo:** repositório de estudo e evolução de uma aplicação gerencial integrada. A presença de um componente na infraestrutura não significa que exista implantação pública em produção.
+Mais do que um protótipo isolado, este é um **projeto funcional**, com módulos reais, fluxos implementados, testes automatizados e infraestrutura de apoio. Ao mesmo tempo, ele foi concebido como um **ambiente de estudo prático**, com o objetivo de explorar de ponta a ponta as tecnologias envolvidas na construção de uma aplicação Full Stack moderna.
+
+> 📌 **Escopo:** projeto funcional usado como laboratório de estudos e evolução contínua. A proposta é aprender e validar, em um único sistema, temas como arquitetura em camadas, BFF, APIs REST, autenticação, bancos de dados, mensageria, testes, observabilidade e CI/CD. A presença de um componente na infraestrutura não significa que exista implantação pública em produção.
 
 ## 🚀 Funcionalidades
 
@@ -64,15 +66,25 @@ flowchart TB
     U[👤 Usuário / Navegador] --> FE[Angular + Nginx]
     FE --> BFF[NestJS - BFF]
     BFF --> API[Spring Boot - API de negócio]
+
     API --> SQL[(MySQL)]
     API --> MONGO[(MongoDB)]
     API <--> MQ[RabbitMQ]
+
     API --> MET[Actuator / Micrometer]
     BFF --> PROM[Prometheus]
     MET --> PROM
     PROM --> GRAF[Grafana]
-    CI[Jenkins Pipeline] --> TEST[Testes, build e análise]
-    TEST --> SONAR[SonarQube]
+    API -. métricas .-> GRAF
+    BFF -. métricas .-> GRAF
+
+    JENKINS[Jenkins] --> FE
+    JENKINS --> BFF
+    JENKINS --> API
+    FE --> SONAR[SonarQube]
+    BFF --> SONAR
+    API --> SONAR
+    JENKINS --> SONAR
 ```
 
 ### Responsabilidades por camada
@@ -83,8 +95,8 @@ flowchart TB
 - **MySQL:** dados relacionais de operações gerenciais e comerciais.
 - **MongoDB:** armazenamento associado à auditoria e documentos.
 - **RabbitMQ:** infraestrutura de eventos e processamento assíncrono.
-- **Prometheus + Grafana:** coleta e visualização de métricas.
-- **Jenkins + SonarQube:** pipeline e análise de qualidade.
+- **Prometheus + Grafana:** coleta e visualização de métricas, especialmente para back-end e BFF.
+- **Jenkins + SonarQube:** pipeline, execução de build/testes e análise de qualidade de front-end, BFF e back-end.
 
 ## 🧰 Stack tecnológica
 
@@ -200,7 +212,7 @@ Os testes automatizados utilizam mecanismos de isolamento e mocks; a suíte, iso
 
 O repositório contém um [`Jenkinsfile`](Jenkinsfile) e configuração de agente em `infraestrutura/jenkins-agent`, além de integração com **SonarQube** e coleta de métricas por **Prometheus** para visualização no **Grafana**.
 
-Esse conjunto demonstra práticas de **build automatizado, verificação de testes e cobertura, análise estática e acompanhamento operacional**. A execução da pipeline depende da configuração local do Jenkins, credenciais e serviços externos definidos para o ambiente.
+Esse conjunto demonstra práticas de **build automatizado, verificação de testes e cobertura, análise estática e acompanhamento operacional**. No contexto do projeto, o **Jenkins** representa a orquestração das etapas de integração contínua dos três blocos principais (**front-end, BFF e back-end**), enquanto o **SonarQube** centraliza a análise de qualidade desses componentes. Na observabilidade, **back-end** e **BFF** expõem métricas que podem ser acompanhadas via **Prometheus** e visualizadas no **Grafana**. A execução da pipeline depende da configuração local do Jenkins, credenciais e serviços externos definidos para o ambiente.
 
 ## 🖼️ Interface
 
@@ -217,11 +229,12 @@ O front-end explora uma identidade visual **Frutiger Aero**, com foco em uma exp
 
 ## 👨‍💻 Autor
 
-Desenvolvido por **[Kalleo Leandro](https://github.com/KalleoLeandro)** como parte de estudos e evolução de soluções Full Stack, arquitetura de software, testes automatizados e DevOps.
+Desenvolvido por **[Kalleo Leandro](https://github.com/KalleoLeandro)** como um projeto funcional voltado ao estudo e à evolução prática de soluções Full Stack, arquitetura de software, testes automatizados, observabilidade e DevOps.
 
 <div align="center">
 
 ---
+
 
 [⬆ Voltar ao topo](#-sistema-gerencial-full-stack)
 
