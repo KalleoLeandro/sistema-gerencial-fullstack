@@ -74,9 +74,7 @@ flowchart TB
     API --> MET[Actuator / Micrometer]
     BFF --> PROM[Prometheus]
     MET --> PROM
-    PROM --> GRAF[Grafana]
-    API -. métricas .-> GRAF
-    BFF -. métricas .-> GRAF
+    PROM -->|fonte de dados / consultas PromQL| GRAF[Grafana]
 
     JENKINS[Jenkins] --> FE
     JENKINS --> BFF
@@ -95,7 +93,7 @@ flowchart TB
 - **MySQL:** dados relacionais de operações gerenciais e comerciais.
 - **MongoDB:** armazenamento associado à auditoria e documentos.
 - **RabbitMQ:** infraestrutura de eventos e processamento assíncrono.
-- **Prometheus + Grafana:** coleta e visualização de métricas, especialmente para back-end e BFF.
+- **Prometheus + Grafana:** o Prometheus coleta as métricas do back-end e do BFF; o Grafana consulta o Prometheus como fonte de dados para visualizar dashboards.
 - **Jenkins + SonarQube:** pipeline, execução de build/testes e análise de qualidade de front-end, BFF e back-end.
 
 ## 🧰 Stack tecnológica
@@ -212,7 +210,7 @@ Os testes automatizados utilizam mecanismos de isolamento e mocks; a suíte, iso
 
 O repositório contém um [`Jenkinsfile`](Jenkinsfile) e configuração de agente em `infraestrutura/jenkins-agent`, além de integração com **SonarQube** e coleta de métricas por **Prometheus** para visualização no **Grafana**.
 
-Esse conjunto demonstra práticas de **build automatizado, verificação de testes e cobertura, análise estática e acompanhamento operacional**. No contexto do projeto, o **Jenkins** representa a orquestração das etapas de integração contínua dos três blocos principais (**front-end, BFF e back-end**), enquanto o **SonarQube** centraliza a análise de qualidade desses componentes. Na observabilidade, **back-end** e **BFF** expõem métricas que podem ser acompanhadas via **Prometheus** e visualizadas no **Grafana**. A execução da pipeline depende da configuração local do Jenkins, credenciais e serviços externos definidos para o ambiente.
+Esse conjunto demonstra práticas de **build automatizado, verificação de testes e cobertura, análise estática e acompanhamento operacional**. No contexto do projeto, o **Jenkins** representa a orquestração das etapas de integração contínua dos três blocos principais (**front-end, BFF e back-end**), enquanto o **SonarQube** centraliza a análise de qualidade desses componentes. Na observabilidade, **back-end** e **BFF** disponibilizam métricas para o **Prometheus**, que faz a coleta e o armazenamento das séries temporais. O **Grafana** consulta essas métricas no Prometheus, configurado como sua fonte de dados — sem conexão direta de métricas das aplicações ao Grafana. A execução da pipeline depende da configuração local do Jenkins, credenciais e serviços externos definidos para o ambiente.
 
 ## 🖼️ Interface
 
