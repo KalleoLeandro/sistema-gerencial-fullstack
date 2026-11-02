@@ -105,7 +105,7 @@ export interface CaixaResumoDia {
 
 export interface FecharCaixaPayload {
   data_referencia?: string | null;
-  valor_informado: number;
+  valor_informado?: number;
   observacoes?: string | null;
   itens?: FecharCaixaItemPayload[];
 }

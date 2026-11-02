@@ -493,6 +493,9 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 		if (valorInformado.compareTo(ZERO) < 0) {
 			throw new DefaultErrorException("Valor conferido nao pode ser negativo.", HttpStatus.BAD_REQUEST);
 		}
+		if (valorInformado.compareTo(valorEsperado) != 0) {
+			throw new DefaultErrorException("Os valores do fechamento devem corresponder aos pagamentos registrados no banco.", HttpStatus.BAD_REQUEST);
+		}
 		BigDecimal valorQuebra = valorInformado.subtract(valorEsperado).setScale(2, RoundingMode.HALF_UP);
 
 		CaixaFechamentoResponse fechamento = repository.salvarFechamentoCaixa(dataReferencia, valorEsperado,
@@ -533,6 +536,9 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
 							HttpStatus.BAD_REQUEST);
 				}
 				CaixaResumoPagamentoResponse atual = itensNormalizados.get(formaPagamento);
+				if (valorInformado.compareTo(atual != null ? monetary(atual.getValor_recebido()) : ZERO) != 0) {
+					throw new DefaultErrorException("Os valores do fechamento devem corresponder aos pagamentos registrados no banco.", HttpStatus.BAD_REQUEST);
+				}
 				itensNormalizados.put(formaPagamento, CaixaResumoPagamentoResponse.builder()
 						.forma_pagamento(formaPagamento)
 						.valor_total(atual != null ? monetary(atual.getValor_total()) : ZERO)

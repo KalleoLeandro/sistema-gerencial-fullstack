@@ -88,7 +88,7 @@
           <strong>{{ valorEsperadoFechamento | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
         <div>
-          <span>Total conferido</span>
+          <span>Total registrado</span>
           <strong>{{ valorConferido() | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
       </div>
@@ -97,7 +97,7 @@
         <div><span>Valor entregue</span><strong>{{ somarConferencia(resumoFechamento, 'valor_entregue') === null ? 'Não registrado' : (somarConferencia(resumoFechamento, 'valor_entregue') | currency:'BRL') }}</strong></div>
         <div><span>Troco devolvido</span><strong>{{ somarConferencia(resumoFechamento, 'troco') === null ? 'Não registrado' : (somarConferencia(resumoFechamento, 'troco') | currency:'BRL') }}</strong></div>
       </div>
-      <p class="helper-text">Informe o valor líquido conferido, após devolver o troco. O troco já foi descontado do valor esperado.</p>
+      <p class="helper-text">Valores registrados no banco, somente para consulta. O total líquido já desconta o troco devolvido.</p>
       <div class="conferencia-por-tipo">
         <div class="conferencia-item" *ngFor="let item of conferenciaPorTipo; let i = index; trackBy: trackByFormaPagamento">
           <div>
@@ -110,8 +110,7 @@
             currencyMask
             [options]="moneyMaskOptions"
             [ngModel]="item.valor_informado"
-            (ngModelChange)="atualizarValorConferido(i, $event)"
-            [disabled]="fechandoCaixa()"
+            readonly
           />
         </div>
       </div>

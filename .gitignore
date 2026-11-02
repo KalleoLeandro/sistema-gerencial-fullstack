@@ -51,6 +51,7 @@ hs_err_pid*
 # =====================================
 # ANGULAR FRONT-END (pasta: /front-end)
 # =====================================
+/front-end/.angular/
 /front-end-angular/node_modules/
 /front-end-angular/dist/
 /front-end-angular/.angular/

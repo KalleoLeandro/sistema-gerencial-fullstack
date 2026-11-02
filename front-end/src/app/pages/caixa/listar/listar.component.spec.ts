@@ -102,9 +102,7 @@ describe('Cash reconciliation', () => {
     expect(dialog.showModal).toHaveBeenCalled();
     expect(c.valorEsperadoFechamento).toBe(110);
     expect(c.valorConferido()).toBe(110);
-    c.atualizarValorConferido(0, 'not-a-number');
-    c.atualizarValorConferido(99, 1);
-    expect(c.conferenciaPorTipo[0].valor_informado).toBe(0);
+    expect(c.conferenciaPorTipo.find(item => item.forma_pagamento === 'DINHEIRO')?.valor_informado).toBe(80);
     c.editarFechamento({
       data_referencia: '2026-10-12',
       valor_total: 20,
@@ -139,10 +137,11 @@ describe('Cash reconciliation', () => {
         c.confirmarFechamento();
         expect(service.fecharCaixa).toHaveBeenCalledWith(
           jasmine.objectContaining({
-            valor_informado: 110,
             observacoes: 'Nota',
           }),
         );
+        expect(service.fecharCaixa.calls.mostRecent().args[0].valor_informado).toBeUndefined();
+        expect(service.fecharCaixa.calls.mostRecent().args[0].itens).toBeUndefined();
         expect(c.fechandoCaixa()).toBeFalse();
         expect(
           setup.mock(ToastService)[error ? 'error' : 'success'],
@@ -202,8 +201,6 @@ describe('Cash change', () => {
       { forma_pagamento: 'DINHEIRO', valor_informado: 0.2 },
     ];
     expect(component.quebraCaixa()).toBe(0);
-    component.atualizarValorConferido(0, 0.2);
-    expect(component.valorConferido()).toBe(0.4);
-    expect(component.quebraCaixa()).toBe(0.1);
+    expect(component.valorConferido()).toBe(0.3);
   });
 });

@@ -174,9 +174,11 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
         var request=approval(budget("100").getId()); request.setPagamentos(List.of(payment("100"))); service.aprovarOrcamento(request);
         assertThat(service.buscarResumoCaixaDia().getResumo()).hasSize(1);
         var close=new FecharCaixaRequest(); close.setValor_informado(money("95"));
+        assertThatThrownBy(()->service.fecharCaixa(close)).hasMessageContaining("registrados no banco");
+        close.setValor_informado(money("100"));
         var result=service.fecharCaixa(close);
         assertThat(result.getValor_total()).isEqualByComparingTo("100");
-        assertThat(result.getValor_quebra()).isEqualByComparingTo("-5");
+        assertThat(result.getValor_quebra()).isEqualByComparingTo("0");
         var counted=new FecharCaixaItemRequest(); counted.setForma_pagamento(" pix "); counted.setValor_informado(money("100"));
         close.setItens(Arrays.asList(null,counted)); result=service.fecharCaixa(close);
         assertThat(result.getValor_quebra()).isEqualByComparingTo("0");
@@ -190,6 +192,26 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
         assertThatThrownBy(()->service.fecharCaixa(request)).hasMessageContaining("negativo");
         var counted=new FecharCaixaItemRequest(); counted.setValor_informado(money("-1")); request.setItens(List.of(counted));
         assertThatThrownBy(()->service.fecharCaixa(request)).hasMessageContaining("negativo");
+    }
+
+    @Test void fechamentoNaoAceitaRedistribuirPagamentosMesmoMantendoTotal() {
+        var aprovar=approval(budget("100").getId());
+        var pix=payment("30");var dinheiro=payment("70");
+        dinheiro.setForma_pagamento("DINHEIRO");dinheiro.setValor_entregue(money("100"));
+        aprovar.setPagamentos(List.of(pix,dinheiro));service.aprovarOrcamento(aprovar);
+        var fechar=new FecharCaixaRequest();
+        var itemPix=new FecharCaixaItemRequest();itemPix.setForma_pagamento("PIX");itemPix.setValor_informado(money("40"));
+        var itemDinheiro=new FecharCaixaItemRequest();itemDinheiro.setForma_pagamento("DINHEIRO");itemDinheiro.setValor_informado(money("60"));
+        fechar.setItens(List.of(itemPix,itemDinheiro));
+        assertThatThrownBy(()->service.fecharCaixa(fechar)).hasMessageContaining("registrados no banco");
+        assertThat(repository.listarFechamentosCaixa()).isEmpty();
+        fechar.setItens(null);
+        var salvo=service.fecharCaixa(fechar);
+        fechar.setValor_informado(money("90"));fechar.setObservacoes("Tentativa de alterar fechamento");
+        assertThatThrownBy(()->service.fecharCaixa(fechar)).hasMessageContaining("registrados no banco");
+        assertThat(repository.listarFechamentosCaixa().getFirst().getValor_total()).isEqualByComparingTo("100");
+        assertThat(salvo.getItens().stream().map(CaixaResumoPagamentoResponse::getTroco).reduce(BigDecimal.ZERO,BigDecimal::add))
+                .isEqualByComparingTo("30");
     }
 
     @Test void paginacaoPesquisaENaoEncontrados() {

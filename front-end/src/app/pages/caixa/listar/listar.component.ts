@@ -131,7 +131,7 @@ export class ListarComponent implements OnInit {
   public editarFechamento(caixa: CaixaFechado): void {
     this.resumoFechamento = caixa.itens || [];
     this.valorEsperadoFechamento = Number(caixa.valor_total || 0);
-    this.conferenciaPorTipo = this.normalizarConferencia(caixa.itens?.length ? caixa.itens : this.resumoCaixaDia());
+    this.conferenciaPorTipo = this.normalizarConferencia(caixa.itens || []);
     this.dataReferenciaFechamento = caixa.data_referencia || null;
     this.editandoFechamento = true;
     this.observacoesFechamento = caixa.observacoes || '';
@@ -157,12 +157,7 @@ export class ListarComponent implements OnInit {
     this.fechandoCaixa.set(true);
     this.comercialService.fecharCaixa({
       data_referencia: this.dataReferenciaFechamento,
-      valor_informado: Number(this.valorConferido() || 0),
-      observacoes: this.observacoesFechamento?.trim() || null,
-      itens: this.conferenciaPorTipo.map((item) => ({
-        forma_pagamento: item.forma_pagamento,
-        valor_informado: Number(item.valor_informado || 0)
-      }))
+      observacoes: this.observacoesFechamento?.trim() || null
     }).subscribe({
       next: () => {
         this.toastService.success(this.editandoFechamento ? 'Fechamento atualizado com sucesso.' : 'Caixa fechado com sucesso.');
@@ -176,16 +171,6 @@ export class ListarComponent implements OnInit {
         this.toastService.error('Nao foi possivel fechar o caixa.');
       }
     });
-  }
-
-  public atualizarValorConferido(index: number, valor: number | string): void {
-    const item = this.conferenciaPorTipo[index];
-    if (!item) {
-      return;
-    }
-
-    const valorNormalizado = Number(valor || 0);
-    item.valor_informado = Number.isFinite(valorNormalizado) ? valorNormalizado : 0;
   }
 
   public trackByFormaPagamento(_index: number, item: FecharCaixaItemPayload): string {
