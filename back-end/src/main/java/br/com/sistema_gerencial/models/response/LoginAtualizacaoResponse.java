@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de login atualização retornados pela API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

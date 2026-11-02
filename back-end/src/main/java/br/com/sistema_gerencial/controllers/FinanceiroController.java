@@ -10,6 +10,9 @@ import br.com.sistema_gerencial.services.impl.FinanceiroService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expõe os endpoints HTTP de contas a pagar e a receber e delega as operações à camada de serviço.
+ */
 @RestController
 @RequestMapping("/financeiro")
 @PreAuthorize("hasAnyRole('ADMIN','DEV')")

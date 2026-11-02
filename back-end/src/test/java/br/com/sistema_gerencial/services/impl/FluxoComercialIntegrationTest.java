@@ -228,6 +228,42 @@ class FluxoComercialIntegrationTest extends DatabaseTestSupport {
         assertThat(resumo.stream().map(CaixaResumoPagamentoResponse::getValor_recebido).reduce(BigDecimal.ZERO,BigDecimal::add)).isEqualByComparingTo("100");
         assertThat(resumo.stream().map(CaixaResumoPagamentoResponse::getTroco).reduce(BigDecimal.ZERO,BigDecimal::add)).isEqualByComparingTo("30");
     }
+
+    @ParameterizedTest @ValueSource(strings={"PDV","ATENDIMENTO","MANUTENCAO","AVULSO"})
+    void gravaTrocoEmVendasEOrdensDeServico(String origem) {
+        OrcamentoResponse orcamento;
+        if ("PDV".equals(origem)) {
+            orcamento=service.criarOrcamentoPdv(null);
+        } else {
+            service.gerarOrcamentoParaOrigem(origem,1);
+            orcamento=service.buscarOrcamentoPorOrigem(origem,1);
+        }
+        var editar=new AtualizarItensOrcamentoRequest();
+        editar.setId_orcamento(orcamento.getId());editar.setCliente_nome(orcamento.getCliente_nome());
+        editar.setItens(List.of(item("80")));
+        service.atualizarItens(editar);
+        var aprovar=approval(orcamento.getId());
+        var dinheiro=payment("80");dinheiro.setForma_pagamento("DINHEIRO");dinheiro.setValor_entregue(money("100"));
+        aprovar.setPagamentos(List.of(dinheiro));
+        var venda=service.aprovarOrcamento(aprovar);
+        var gravado=service.buscarVendaPorId(venda.getId()).getParcelas().getFirst().getPagamentos().getFirst();
+        assertThat(gravado.getValor_pago()).isEqualByComparingTo("80");
+        assertThat(gravado.getValor_entregue()).isEqualByComparingTo("100");
+        assertThat(gravado.getTroco()).isEqualByComparingTo("20");
+        assertThat(jdbc.queryForObject("SELECT valor_entregue-valor_pago-troco FROM pagamentos WHERE id=?",
+                BigDecimal.class,gravado.getId())).isEqualByComparingTo("0");
+    }
+
+    @Test void bancoRejeitaTrocoInconsistenteMesmoForaDoServico() {
+        var aprovar=approval(budget("80").getId());
+        aprovar.setPagamentos(List.of(payment("80")));service.aprovarOrcamento(aprovar);
+        assertThatThrownBy(()->jdbc.update("UPDATE pagamentos SET valor_entregue=100,troco=10"))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThatThrownBy(()->jdbc.update("UPDATE pagamentos SET valor_entregue=100,troco=20"))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThatThrownBy(()->jdbc.update("UPDATE pagamentos SET troco=NULL"))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+    }
     @Test void rejeitaTrocoForaDeDinheiroEEntregaMenorQuePagamento() {
         var request=approval(budget("80").getId());var payment=payment("80");payment.setValor_entregue(money("100"));request.setPagamentos(List.of(payment));
         assertThatThrownBy(()->service.aprovarOrcamento(request)).hasMessageContaining("dinheiro");

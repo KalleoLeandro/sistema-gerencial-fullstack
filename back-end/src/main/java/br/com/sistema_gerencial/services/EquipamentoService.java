@@ -6,6 +6,9 @@ import br.com.sistema_gerencial.models.requests.AtualizarEquipamentoRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarEquipamentoRequest;
 import br.com.sistema_gerencial.models.response.EquipamentoResponse;
 
+/**
+ * Define o contrato das operações de negócio de equipamentos.
+ */
 public interface EquipamentoService {
 	
 	/**

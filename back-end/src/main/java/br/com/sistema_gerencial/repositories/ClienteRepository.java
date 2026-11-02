@@ -14,6 +14,9 @@ import br.com.sistema_gerencial.exceptions.DefaultErrorException;
 import br.com.sistema_gerencial.models.response.ClienteResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de clientes por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class ClienteRepository {

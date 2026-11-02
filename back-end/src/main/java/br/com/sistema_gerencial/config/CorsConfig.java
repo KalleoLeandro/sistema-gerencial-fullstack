@@ -18,6 +18,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import br.com.sistema_gerencial.exceptions.CustomAccessDeniedHandler;
 import br.com.sistema_gerencial.exceptions.CustomAuthenticationEntryPoint;
 
+/**
+ * Configura o acesso HTTP entre origens e as regras de segurança da aplicação.
+ */
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity

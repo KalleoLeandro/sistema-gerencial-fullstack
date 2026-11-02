@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import br.com.sistema_gerencial.models.dto.OutboxEventoDTO;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Persiste histórico, notificações, resumos de eventos e documentos gerados no MongoDB.
+ */
 @Service
 @RequiredArgsConstructor
 public class MongoAuditoriaService {

@@ -25,6 +25,9 @@ import br.com.sistema_gerencial.utils.GeralUtils;
 import br.com.sistema_gerencial.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de usuários e autenticação.
+ */
 @Service
 @RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService {

@@ -13,6 +13,9 @@ import br.com.sistema_gerencial.models.response.ClienteResponse;
 import br.com.sistema_gerencial.services.ClienteService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expõe os endpoints HTTP de clientes e delega as operações à camada de serviço.
+ */
 @RestController
 @RequestMapping("/clientes")
 @RequiredArgsConstructor

@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de entrada para rejeição de orçamento na API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

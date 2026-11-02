@@ -15,6 +15,9 @@ import br.com.sistema_gerencial.repositories.EmpresaRepository;
 import br.com.sistema_gerencial.services.EmpresaService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de empresas.
+ */
 @Service
 @RequiredArgsConstructor
 public class EmpresaServiceImpl implements EmpresaService {

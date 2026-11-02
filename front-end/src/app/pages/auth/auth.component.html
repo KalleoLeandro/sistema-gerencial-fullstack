@@ -38,8 +38,19 @@
               formControlName="senha"
               placeholder="Digite sua senha"
               autocomplete="current-password">
-            <button aeroButton="quiet" type="button" (click)="togglePasswordVisibility()">
-              {{ hidePassword ? 'Mostrar' : 'Ocultar' }}
+            <button aeroButton="quiet" type="button" class="password-toggle"
+              [attr.aria-label]="hidePassword ? 'Mostrar senha' : 'Ocultar senha'"
+              [attr.title]="hidePassword ? 'Mostrar senha' : 'Ocultar senha'"
+              [attr.aria-pressed]="!hidePassword"
+              aria-controls="senha"
+              (click)="togglePasswordVisibility()">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                <circle cx="12" cy="12" r="3" />
+                <path *ngIf="!hidePassword" d="m3 3 18 18" />
+              </svg>
             </button>
             </div>
             <span aeroError *ngIf="AuthForm.controls['senha'].touched && AuthForm.controls['senha'].invalid">Informe sua senha</span>

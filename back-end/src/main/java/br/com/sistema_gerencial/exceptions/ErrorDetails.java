@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os detalhes de uma falha retornada pelos endpoints.
+ */
 @Data
 @Getter
 @Setter

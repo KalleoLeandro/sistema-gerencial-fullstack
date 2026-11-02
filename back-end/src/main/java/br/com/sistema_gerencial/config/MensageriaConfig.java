@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configura exchange, fila, roteamento e conversão JSON dos eventos comerciais no RabbitMQ.
+ */
 @Configuration
 public class MensageriaConfig {
 

@@ -13,6 +13,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Clock;
 
+/**
+ * Consulta e persiste os dados de contas a pagar e a receber por meio de SQL e JDBC.
+ */
 @Repository
 public class FinanceiroRepository {
     private final NamedParameterJdbcTemplate jdbc;

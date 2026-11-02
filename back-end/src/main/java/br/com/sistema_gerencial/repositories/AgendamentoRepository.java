@@ -20,6 +20,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarAgendamentoRequest;
 import br.com.sistema_gerencial.models.response.AgendamentoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de agendamentos por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class AgendamentoRepository {

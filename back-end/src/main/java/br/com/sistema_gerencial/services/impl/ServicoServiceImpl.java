@@ -13,6 +13,9 @@ import br.com.sistema_gerencial.repositories.ServicoRepository;
 import br.com.sistema_gerencial.services.ServicoService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de serviços do catálogo.
+ */
 @Service
 @RequiredArgsConstructor
 public class ServicoServiceImpl implements ServicoService {

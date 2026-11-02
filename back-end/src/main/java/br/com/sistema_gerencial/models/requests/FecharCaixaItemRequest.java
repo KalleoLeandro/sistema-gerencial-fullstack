@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de entrada para fechar caixa item na API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

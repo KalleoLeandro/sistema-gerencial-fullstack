@@ -31,6 +31,8 @@ Aplicacao full stack com frontend Angular, BFF em NestJS e backend Spring Boot. 
 
 ## Endpoints do Backend
 
+A documentação das classes Java pode ser gerada com `mvn -f back-end/pom.xml javadoc:javadoc`. Veja as instruções em [JAVADOC.md](back-end/JAVADOC.md).
+
 Base URL: `http://localhost:8080/api`
 
 ## Endpoints do BFF

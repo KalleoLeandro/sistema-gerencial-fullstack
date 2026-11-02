@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta um evento exibido na agenda, com origem, período e dados de apresentação.
+ */
 @Data
 @Builder
 @NoArgsConstructor

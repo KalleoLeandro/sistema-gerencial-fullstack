@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados de entrada para reabertura de orçamento na API.
+ */
 @Data
 @Builder
 @NoArgsConstructor

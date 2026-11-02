@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de equipamento retornados pela API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

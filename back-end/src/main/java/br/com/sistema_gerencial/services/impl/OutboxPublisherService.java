@@ -12,6 +12,9 @@ import br.com.sistema_gerencial.repositories.FluxoComercialRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Publica eventos pendentes da outbox no RabbitMQ e registra o resultado de cada tentativa.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -22,6 +22,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarProdutoRequest;
 import br.com.sistema_gerencial.models.response.ProdutoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de produtos e estoque por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class ProdutoRepository {

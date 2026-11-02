@@ -6,6 +6,9 @@ import br.com.sistema_gerencial.models.requests.AtualizarManutencaoRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarManutencaoRequest;
 import br.com.sistema_gerencial.models.response.ManutencaoResponse;
 
+/**
+ * Define o contrato das operações de negócio de ordens de manutenção.
+ */
 public interface ManutencaoService {
 	
 	/**
@@ -23,6 +26,14 @@ public interface ManutencaoService {
 	 */
 	public Map<String, Object> listarPorPagina(int limit, int page, int id);
 
+	/**
+	 * Consulta as ordens de manutenção de uma empresa com paginação.
+	 *
+	 * @param limit quantidade máxima de registros por página
+	 * @param page número da página solicitada
+	 * @param idEmpresa identificador da empresa
+	 * @return ordens da página e metadados da consulta
+	 */
 	public Map<String, Object> listarPorEmpresa(int limit, int page, int idEmpresa);
 	
 	/**

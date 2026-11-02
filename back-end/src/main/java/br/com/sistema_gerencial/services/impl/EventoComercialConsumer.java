@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import br.com.sistema_gerencial.models.dto.OutboxEventoDTO;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consome eventos comerciais do RabbitMQ e encaminha seu processamento para a auditoria MongoDB.
+ */
 @Service
 @RequiredArgsConstructor
 public class EventoComercialConsumer {

@@ -11,6 +11,9 @@ import br.com.sistema_gerencial.repositories.ClienteRepository;
 import br.com.sistema_gerencial.services.ClienteService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de clientes.
+ */
 @Service
 @RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {

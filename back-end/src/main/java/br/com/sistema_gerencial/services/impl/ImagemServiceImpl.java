@@ -37,6 +37,9 @@ import br.com.sistema_gerencial.repositories.ProdutoRepository;
 import br.com.sistema_gerencial.services.ImagemService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de imagens vinculadas às entidades.
+ */
 @Service
 @RequiredArgsConstructor
 public class ImagemServiceImpl implements ImagemService {

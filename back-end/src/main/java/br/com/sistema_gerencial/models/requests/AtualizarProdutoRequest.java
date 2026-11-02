@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados de entrada para atualizar produto na API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

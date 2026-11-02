@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta a identificação, o conteúdo e o estado de processamento de um evento da outbox.
+ */
 @Data
 @Builder
 @NoArgsConstructor

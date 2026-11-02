@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.caelum.stella.validation.CPFValidator;
 
+/**
+ * Reúne validações e conversões compartilhadas pelos serviços do sistema.
+ */
 @Component
 public class GeralUtils {
 

@@ -22,6 +22,9 @@ import br.com.sistema_gerencial.models.response.EmpresaResponse;
 import br.com.sistema_gerencial.models.response.RenovacaoContratoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de empresas por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class EmpresaRepository {

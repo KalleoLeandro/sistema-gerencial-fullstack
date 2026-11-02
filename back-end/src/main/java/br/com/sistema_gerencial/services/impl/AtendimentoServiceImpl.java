@@ -17,6 +17,9 @@ import br.com.sistema_gerencial.services.AtendimentoService;
 import br.com.sistema_gerencial.services.FluxoComercialService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de atendimentos.
+ */
 @Service
 @RequiredArgsConstructor
 public class AtendimentoServiceImpl implements AtendimentoService {

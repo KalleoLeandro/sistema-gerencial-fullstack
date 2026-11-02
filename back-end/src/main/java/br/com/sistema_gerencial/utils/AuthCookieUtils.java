@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Cria, consulta e remove os cookies utilizados na autenticação e renovação de sessão.
+ */
 @Component
 public class AuthCookieUtils {
 

@@ -28,6 +28,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expõe os endpoints HTTP de agendamentos e delega as operações à camada de serviço.
+ */
 @RestController
 @RequestMapping("/agendamento")
 @RequiredArgsConstructor

@@ -20,6 +20,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarAvulsoRequest;
 import br.com.sistema_gerencial.models.response.AvulsoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de serviços avulsos por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class AvulsoRepository {

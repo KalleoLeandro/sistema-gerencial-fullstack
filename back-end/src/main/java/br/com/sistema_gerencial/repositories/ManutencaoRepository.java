@@ -20,6 +20,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarManutencaoRequest;
 import br.com.sistema_gerencial.models.response.ManutencaoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de ordens de manutenção por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class ManutencaoRepository {

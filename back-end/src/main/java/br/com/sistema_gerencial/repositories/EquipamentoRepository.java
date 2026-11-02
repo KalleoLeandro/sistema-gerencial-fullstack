@@ -20,6 +20,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarEquipamentoRequest;
 import br.com.sistema_gerencial.models.response.EquipamentoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de equipamentos por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class EquipamentoRepository {

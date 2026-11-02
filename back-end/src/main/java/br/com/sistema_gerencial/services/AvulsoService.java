@@ -6,6 +6,9 @@ import br.com.sistema_gerencial.models.requests.AtualizarAvulsoRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarAvulsoRequest;
 import br.com.sistema_gerencial.models.response.AvulsoResponse;
 
+/**
+ * Define o contrato das operações de negócio de serviços avulsos.
+ */
 public interface AvulsoService {
 	
 	/**

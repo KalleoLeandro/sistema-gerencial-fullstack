@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta dados de autenticação consultados pela camada de persistência.
+ */
 @Data
 @Builder
 @NoArgsConstructor

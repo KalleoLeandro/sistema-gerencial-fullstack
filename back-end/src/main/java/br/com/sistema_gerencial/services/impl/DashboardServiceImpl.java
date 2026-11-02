@@ -17,6 +17,9 @@ import br.com.sistema_gerencial.repositories.LoginRepository;
 import br.com.sistema_gerencial.services.DashboardService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de indicadores do dashboard.
+ */
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService{

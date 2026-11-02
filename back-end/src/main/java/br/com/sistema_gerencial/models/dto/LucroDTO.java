@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os valores de lucro utilizados nos indicadores do dashboard.
+ */
 @Data
 @Builder
 @NoArgsConstructor

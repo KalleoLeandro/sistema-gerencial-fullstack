@@ -17,6 +17,9 @@ import br.com.sistema_gerencial.services.AvulsoService;
 import br.com.sistema_gerencial.services.FluxoComercialService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de serviços avulsos.
+ */
 @Service
 @RequiredArgsConstructor
 public class AvulsoServiceImpl implements AvulsoService {

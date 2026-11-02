@@ -22,6 +22,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarServicoRequest;
 import br.com.sistema_gerencial.models.response.ServicoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de serviços do catálogo por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class ServicoRepository {

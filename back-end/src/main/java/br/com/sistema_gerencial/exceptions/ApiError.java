@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta timestamp, status, classificação e mensagem de um erro da API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

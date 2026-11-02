@@ -38,6 +38,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expõe os endpoints HTTP de usuários e autenticação e delega as operações à camada de serviço.
+ */
 @RestController
 @RequestMapping("/login")
 @RequiredArgsConstructor

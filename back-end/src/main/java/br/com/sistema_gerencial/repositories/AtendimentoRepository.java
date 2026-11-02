@@ -20,6 +20,9 @@ import br.com.sistema_gerencial.models.requests.CadastrarAtendimentoRequest;
 import br.com.sistema_gerencial.models.response.AtendimentoResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de atendimentos por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class AtendimentoRepository {

@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Define o contrato de resposta utilizado para erros da API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

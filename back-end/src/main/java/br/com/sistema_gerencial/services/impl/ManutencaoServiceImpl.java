@@ -17,6 +17,9 @@ import br.com.sistema_gerencial.services.FluxoComercialService;
 import br.com.sistema_gerencial.services.ManutencaoService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de ordens de manutenção.
+ */
 @Service
 @RequiredArgsConstructor
 public class ManutencaoServiceImpl implements ManutencaoService {

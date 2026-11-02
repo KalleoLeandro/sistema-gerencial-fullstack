@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de usuários utilizados nas consultas de listagem.
+ */
 @Data
 @Builder
 @NoArgsConstructor

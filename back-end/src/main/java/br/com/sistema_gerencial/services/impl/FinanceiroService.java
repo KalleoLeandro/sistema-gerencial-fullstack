@@ -16,6 +16,9 @@ import br.com.sistema_gerencial.repositories.FluxoComercialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Clock;
 
+/**
+ * Valida e executa operações de contas a pagar e a receber, incluindo baixas e relatórios financeiros.
+ */
 @Service
 public class FinanceiroService {
     private final FinanceiroRepository repository;

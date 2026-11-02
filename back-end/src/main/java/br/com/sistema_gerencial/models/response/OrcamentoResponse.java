@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados de orçamento retornados pela API.
+ */
 @Data
 @Builder
 @NoArgsConstructor

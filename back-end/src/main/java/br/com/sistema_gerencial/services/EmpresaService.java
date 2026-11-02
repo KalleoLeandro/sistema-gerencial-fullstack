@@ -9,6 +9,9 @@ import br.com.sistema_gerencial.models.requests.RenovarContratoRequest;
 import br.com.sistema_gerencial.models.response.EmpresaResponse;
 import br.com.sistema_gerencial.models.response.RenovacaoContratoResponse;
 
+/**
+ * Define o contrato das operações de negócio de empresas.
+ */
 public interface EmpresaService {
 	
 	/**
@@ -59,8 +62,20 @@ public interface EmpresaService {
 	 */
 	public void salvarInfraestrutura(String texto, int id);
 
+	/**
+	 * Registra a renovação do período contratual da empresa.
+	 *
+	 * @param id identificador do registro
+	 * @param request dados da operação
+	 */
 	public void renovarContrato(int id, RenovarContratoRequest request);
 
+	/**
+	 * Consulta o histórico de renovações contratuais da empresa.
+	 *
+	 * @param id identificador do registro
+	 * @return renovações registradas para a empresa
+	 */
 	public List<RenovacaoContratoResponse> listarRenovacoes(int id);
 
 }

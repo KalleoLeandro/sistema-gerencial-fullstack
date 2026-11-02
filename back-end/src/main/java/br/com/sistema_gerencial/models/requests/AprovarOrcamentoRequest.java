@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de entrada para aprovar orçamento na API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

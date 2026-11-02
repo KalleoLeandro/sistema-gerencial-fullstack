@@ -11,6 +11,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Armazena no MongoDB o conteúdo binário e os metadados de uma imagem vinculada a uma entidade.
+ */
 @Data
 @Builder
 @NoArgsConstructor

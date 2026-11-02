@@ -37,6 +37,9 @@ import br.com.sistema_gerencial.models.response.ParcelaResponse;
 import br.com.sistema_gerencial.models.response.VendaResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de orçamentos, vendas, parcelas e caixa por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class FluxoComercialRepository {
@@ -526,12 +529,17 @@ public class FluxoComercialRepository {
 
 	public int inserirPagamento(int idParcela, String codigo, LocalDateTime dataPagamento, String formaPagamento,
 			BigDecimal valorPago, String observacoes) {
+		return inserirPagamento(idParcela, codigo, dataPagamento, formaPagamento, valorPago, observacoes, valorPago, BigDecimal.ZERO);
+	}
+
+	public int inserirPagamento(int idParcela, String codigo, LocalDateTime dataPagamento, String formaPagamento,
+			BigDecimal valorPago, String observacoes, BigDecimal valorEntregue, BigDecimal troco) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		String sql = """
 				INSERT INTO pagamentos (
 					codigo, id_parcela, data_pagamento, forma_pagamento, valor_pago, observacoes, valor_entregue, troco
 				) VALUES (
-					:codigo, :idParcela, :dataPagamento, :formaPagamento, :valorPago, :observacoes, :valorPago, 0
+					:codigo, :idParcela, :dataPagamento, :formaPagamento, :valorPago, :observacoes, :valorEntregue, :troco
 				)
 				""";
 		MapSqlParameterSource params = new MapSqlParameterSource()
@@ -540,6 +548,8 @@ public class FluxoComercialRepository {
 				.addValue("dataPagamento", dataPagamento)
 				.addValue("formaPagamento", formaPagamento)
 				.addValue("valorPago", valorPago)
+				.addValue("valorEntregue", valorEntregue)
+				.addValue("troco", troco)
 				.addValue("observacoes", observacoes);
 		try {
 			namedParameterJdbcTemplate.update(sql, params, keyHolder, new String[] { "id" });
@@ -548,11 +558,6 @@ public class FluxoComercialRepository {
 			throw new DefaultErrorException("Erro ao registrar pagamento.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
-	public void registrarTrocoPagamento(int idPagamento, BigDecimal valorEntregue, BigDecimal troco) {
-        namedParameterJdbcTemplate.update("UPDATE pagamentos SET valor_entregue=:entregue,troco=:troco WHERE id=:id",
-            new MapSqlParameterSource("id",idPagamento).addValue("entregue",valorEntregue).addValue("troco",troco));
-    }
 
 	public void atualizarParcelaAposPagamento(int idParcela, BigDecimal valorPago, BigDecimal saldoAberto,
 			String status, LocalDateTime dataPagamento) {

@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta a classificação e a quantidade de atendimentos para o dashboard.
+ */
 @Data
 @Builder
 @NoArgsConstructor

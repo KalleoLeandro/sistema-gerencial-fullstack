@@ -10,6 +10,9 @@ import br.com.sistema_gerencial.models.response.ExecutorResponse;
 import br.com.sistema_gerencial.models.response.LoginAtualizacaoResponse;
 import br.com.sistema_gerencial.models.response.LoginResponse;
 
+/**
+ * Define o contrato das operações de negócio de usuários e autenticação.
+ */
 public interface LoginService {
 	
 	/**

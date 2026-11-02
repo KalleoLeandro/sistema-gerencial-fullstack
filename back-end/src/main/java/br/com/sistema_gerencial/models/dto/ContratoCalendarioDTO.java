@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados de um contrato utilizados na exibição do calendário.
+ */
 @Data
 @Builder
 @NoArgsConstructor

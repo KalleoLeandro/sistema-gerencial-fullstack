@@ -2,6 +2,9 @@ package br.com.sistema_gerencial.exceptions;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * Representa uma falha de negócio com mensagem e status HTTP definido pelo serviço.
+ */
 public class DefaultErrorException extends RuntimeException {
 	
 	private static final long serialVersionUID = 1L;

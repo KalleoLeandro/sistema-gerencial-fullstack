@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import br.com.sistema_gerencial.exceptions.schemas.DefaultErrorResponse;
 
+/**
+ * Converte exceções dos endpoints em respostas HTTP com o formato de erro da API.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

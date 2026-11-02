@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de entrada para cadastro login na API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

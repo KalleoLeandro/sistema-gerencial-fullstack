@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados da origem que será associada a um orçamento comercial.
+ */
 @Data
 @Builder
 @NoArgsConstructor

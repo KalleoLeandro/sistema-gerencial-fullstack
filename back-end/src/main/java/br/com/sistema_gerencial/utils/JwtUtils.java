@@ -23,6 +23,9 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * Gera e valida tokens JWT e consulta os dados de autenticação contidos nos tokens.
+ */
 @Component
 public class JwtUtils implements Serializable {
 

@@ -6,6 +6,9 @@ import br.com.sistema_gerencial.models.requests.AtualizarAtendimentoRequest;
 import br.com.sistema_gerencial.models.requests.CadastrarAtendimentoRequest;
 import br.com.sistema_gerencial.models.response.AtendimentoResponse;
 
+/**
+ * Define o contrato das operações de negócio de atendimentos.
+ */
 public interface AtendimentoService {
 
 	/**

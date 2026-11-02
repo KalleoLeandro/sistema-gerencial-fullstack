@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados de produto retornados pela API.
+ */
 @Data
 @Builder
 @NoArgsConstructor

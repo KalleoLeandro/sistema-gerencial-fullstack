@@ -8,6 +8,9 @@ import br.com.sistema_gerencial.models.dto.ContratoCalendarioDTO;
 import br.com.sistema_gerencial.models.dto.LucroDTO;
 import br.com.sistema_gerencial.models.dto.TipoAtendimentoDTO;
 
+/**
+ * Define o contrato das operações de negócio de indicadores do dashboard.
+ */
 public interface DashboardService {
 
 	/**

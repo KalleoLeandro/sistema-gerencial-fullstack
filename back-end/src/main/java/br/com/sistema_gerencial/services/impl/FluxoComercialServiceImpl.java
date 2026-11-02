@@ -39,6 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Clock;
 import java.time.ZoneId;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de orçamentos, vendas, parcelas e caixa.
+ */
 @Service
 public class FluxoComercialServiceImpl implements FluxoComercialService {
 
@@ -565,9 +568,9 @@ public class FluxoComercialServiceImpl implements FluxoComercialService {
         if (troco.signum() > 0 && !"DINHEIRO".equalsIgnoreCase(pagamentoRequest.getForma_pagamento()))
             throw new DefaultErrorException("Troco é permitido apenas para pagamento em dinheiro.", HttpStatus.BAD_REQUEST);
         String codigoPagamento = gerarCodigo("PAG", parcela.getId());
-		int idPagamento = repository.inserirPagamento(parcela.getId(), codigoPagamento, dataPagamento,
-				blankToNull(pagamentoRequest.getForma_pagamento()), valorPago, blankToNull(pagamentoRequest.getObservacoes()));
-		repository.registrarTrocoPagamento(idPagamento, valorEntregue, troco);
+		repository.inserirPagamento(parcela.getId(), codigoPagamento, dataPagamento,
+				blankToNull(pagamentoRequest.getForma_pagamento()), valorPago, blankToNull(pagamentoRequest.getObservacoes()),
+				valorEntregue, troco);
 		repository.atualizarParcelaAposPagamento(parcela.getId(), novoValorPago, novoSaldo, status, dataPagamento);
 
 		Map<String, Object> payloadPagamento = new LinkedHashMap<>();

@@ -329,6 +329,12 @@ CREATE TABLE pagamentos (
     troco DECIMAL(12,2) NULL,
     observacoes TEXT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT ck_pagamentos_troco CHECK (
+        (valor_entregue IS NULL AND troco IS NULL) OR
+        (valor_entregue IS NOT NULL AND troco IS NOT NULL AND valor_pago >= 0
+         AND troco >= 0 AND valor_entregue = valor_pago + troco
+         AND (troco = 0 OR UPPER(TRIM(forma_pagamento)) = 'DINHEIRO'))
+    ),
     CONSTRAINT fk_pagamentos_parcela FOREIGN KEY (id_parcela) REFERENCES parcelas(id),
     CONSTRAINT fk_pagamentos_venda FOREIGN KEY (id_venda) REFERENCES vendas(id) ON DELETE CASCADE
 );
@@ -360,6 +366,12 @@ CREATE TABLE caixa_fechamento_itens (
     quantidade_lancamentos INT NOT NULL DEFAULT 0,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT ck_caixa_itens_troco CHECK (
+        (valor_entregue IS NULL AND troco IS NULL) OR
+        (valor_entregue IS NOT NULL AND troco IS NOT NULL AND valor_total >= 0
+         AND troco >= 0 AND valor_entregue = valor_total + troco
+         AND (troco = 0 OR UPPER(TRIM(forma_pagamento)) = 'DINHEIRO'))
+    ),
     CONSTRAINT fk_caixa_fechamento_itens_fechamento FOREIGN KEY (id_caixa_fechamento) REFERENCES caixa_fechamentos(id) ON DELETE CASCADE
 );
 

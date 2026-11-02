@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Transporta os dados de caixa resumo pagamento retornados pela API.
+ */
 @Data
 @Builder
 @NoArgsConstructor

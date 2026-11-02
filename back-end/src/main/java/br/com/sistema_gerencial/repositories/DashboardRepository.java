@@ -17,6 +17,9 @@ import br.com.sistema_gerencial.models.dto.LucroDTO;
 import br.com.sistema_gerencial.models.dto.TipoAtendimentoDTO;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Consulta e persiste os dados de indicadores do dashboard por meio de SQL e JDBC.
+ */
 @Repository
 @RequiredArgsConstructor
 public class DashboardRepository {

@@ -14,6 +14,9 @@ import br.com.sistema_gerencial.services.ImagemService;
 import br.com.sistema_gerencial.services.ProdutoService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de produtos e estoque.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProdutoServiceImpl implements ProdutoService {

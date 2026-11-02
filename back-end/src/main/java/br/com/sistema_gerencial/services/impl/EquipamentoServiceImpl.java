@@ -12,6 +12,9 @@ import br.com.sistema_gerencial.repositories.EquipamentoRepository;
 import br.com.sistema_gerencial.services.EquipamentoService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementa as regras de negócio e a coordenação da persistência de equipamentos.
+ */
 @Service
 @RequiredArgsConstructor
 public class EquipamentoServiceImpl implements EquipamentoService {

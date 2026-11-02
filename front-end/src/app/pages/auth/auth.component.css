@@ -142,6 +142,7 @@
 
 
 .password-input-group {
+  position: relative;
   display: flex;
   align-items: center;
   gap: .5rem;
@@ -150,6 +151,33 @@
 .password-input-group input {
   flex: 1;
   min-width: 0;
+  padding-right: 3.25rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: .25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.password-toggle:hover:not(:disabled) {
+  box-shadow: none;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--aero-focus);
+  outline-offset: -4px;
 }
 
 @media (min-width: 960px) {

@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * Inicializa a aplicação Spring Boot e habilita as tarefas agendadas do sistema.
+ */
 @SpringBootApplication
 @EnableScheduling
 @EnableRabbit

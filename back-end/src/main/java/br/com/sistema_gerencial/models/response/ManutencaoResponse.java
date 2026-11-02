@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Transporta os dados de manutenção retornados pela API.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
