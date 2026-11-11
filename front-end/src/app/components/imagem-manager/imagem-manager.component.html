@@ -1,0 +1,61 @@
+<section class="image-panel">
+  <div class="image-panel__header">
+    <div>
+      <h3>{{ titulo }}</h3>
+      <p *ngIf="descricao">{{ descricao }}</p>
+    </div>
+
+    <div *ngIf="!leitura" class="pdf-hide image-panel__upload">
+      <input #imageInput type="file" accept="image/*" [multiple]="multiple" [disabled]="enviando || !entityId" (change)="aoSelecionarArquivos($event)" />
+      <button aeroButton="primary" type="button" [disabled]="enviando || !entityId" (click)="imageInput.click()">
+        {{ enviando ? 'Enviando...' : (multiple ? 'Adicionar imagens' : 'Adicionar imagem') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="image-panel__hint pdf-hide" *ngIf="!entityId && !leitura">
+    Salve o cadastro para liberar o envio das imagens.
+  </div>
+
+  <div class="image-panel__state" *ngIf="carregando">Carregando imagens...</div>
+  <div class="image-panel__state" *ngIf="!carregando && !imagens.length">{{ textoVazio }}</div>
+
+  <div class="image-grid" *ngIf="!carregando && imagens.length">
+    <figure
+      class="image-card"
+      *ngFor="let imagem of imagens"
+      [class.image-card--principal]="imagem.principal"
+      [style.max-width.px]="tamanhoMaximoPx">
+      <img
+        [src]="urlConteudo(imagem)"
+        [alt]="imagem.nomeArquivo"
+        loading="lazy"
+        [style.max-width.px]="tamanhoMaximoPx"
+        [style.max-height.px]="tamanhoMaximoPx" />
+
+      <figcaption>
+        <div class="image-card__meta" *ngIf="imagem.principal">
+          <span class="image-card__badge">Principal</span>
+        </div>
+        <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="abrirImagem(imagem)">
+          Abrir
+        </button>
+        <button aeroButton="danger" *ngIf="!leitura" type="button" class="aero-button--sm pdf-hide" (click)="excluir(imagem)">
+          Excluir
+        </button>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<div class="image-modal" *ngIf="imagemAberta" (click)="fecharImagem()">
+  <div class="image-modal__dialog" (click)="$event.stopPropagation()">
+    <div class="image-modal__header">
+      <strong>{{ imagemAberta.nomeArquivo }}</strong>
+      <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="fecharImagem()">Fechar</button>
+    </div>
+    <div class="image-modal__body">
+      <img [src]="urlConteudo(imagemAberta)" [alt]="imagemAberta.nomeArquivo" />
+    </div>
+  </div>
+</div>
