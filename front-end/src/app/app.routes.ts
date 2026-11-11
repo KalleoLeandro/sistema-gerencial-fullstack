@@ -71,6 +71,32 @@ export const routes: Routes = [
 ]
       },
 {
+        path: 'atendimentos',
+        children: [
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/empresas/atendimentos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/atendimentos/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
+        path: 'ordens-servico',
+        children: [
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/empresas/atendimentos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/atendimentos/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
         path: 'clientes',
         children: [
 {
