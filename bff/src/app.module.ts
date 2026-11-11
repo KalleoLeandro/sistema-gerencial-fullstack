@@ -1,4 +1,5 @@
 import { AtendimentoController } from '@controllers/atendimento/atendimento.controller';
+import { AgendamentoController } from '@controllers/agendamento/agendamento.controller';
 import { AvulsoController } from '@controllers/avulso/avulso.controller';
 import { ClienteController } from '@controllers/cliente/cliente.controller';
 import { EmpresaController } from '@controllers/empresa/empresa.controller';
@@ -19,6 +20,7 @@ import { ProxyService } from '@services/proxy/proxy.service';
     EquipamentoController,
     ImagemController,
     AtendimentoController,
+    AgendamentoController,
     AvulsoController,
     ClienteController,
     ManutencaoController,

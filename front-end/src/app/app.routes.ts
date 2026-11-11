@@ -20,6 +20,27 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
 {
+        path: 'agenda',
+        children: [
+{
+            path: '',
+            loadComponent: () => import('@pages/agenda/agenda.component').then((c) => c.AgendaComponent),
+          },
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/agenda/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent),
+          },
+{
+            path: 'cadastrar/:id',
+            loadComponent: () => import('@pages/agenda/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent),
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/agenda/detalhes/detalhes.component').then((c) => c.DetalhesComponent),
+          }
+]
+      },
+{
         path: 'empresas',
         children: [
 {

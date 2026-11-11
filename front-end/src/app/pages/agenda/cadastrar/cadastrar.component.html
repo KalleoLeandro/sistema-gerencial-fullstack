@@ -1,0 +1,72 @@
+<app-form-submit-loader [loading]="salvando" [message]="agendamentoId ? 'Atualizando agendamento...' : 'Cadastrando agendamento...'">
+  <div class="container-fluid">
+    <div class="card mb-4">
+      <div class="card-header py-3 mb-2">
+        <div class="page-header">
+          <div>
+            <p class="page-kicker">Agenda</p>
+            <h1 class="page-title">{{ tituloPagina }}</h1>
+            <p class="page-description">{{ subtituloPagina }}</p>
+          </div>
+
+          <a aeroButton="secondary"  routerLink="/agenda">
+            Voltar para agenda
+          </a>
+        </div>
+      </div>
+
+      <app-aero-card class="form-card">
+        <form [formGroup]="cadastroForm" class="agenda-form">
+        <app-aero-field>
+          <span aeroLabel>Título da tarefa</span>
+          <input aeroControl formControlName="titulo" placeholder="Ex.: Visita ao cliente XPTO">
+          <span aeroError *ngIf="cadastroForm.controls['titulo'].touched && cadastroForm.controls['titulo'].invalid">
+            Campo obrigatório
+          </span>
+        </app-aero-field>
+
+        <app-aero-field>
+          <span aeroLabel>Tipo de tarefa</span>
+          <select aeroControl formControlName="tipoTarefa">
+            <option value="">--Selecione uma opção--</option>
+            <option *ngFor="let tipo of tiposTarefa" [ngValue]="tipo">{{ tipo }}</option>
+          </select>
+          <span aeroError *ngIf="cadastroForm.controls['tipoTarefa'].touched && cadastroForm.controls['tipoTarefa'].invalid">
+            Campo obrigatório
+          </span>
+        </app-aero-field>
+
+        <app-aero-field>
+          <span aeroLabel>Data</span>
+          <input aeroControl aeroDate="date" formControlName="data">
+
+          <span aeroError *ngIf="cadastroForm.controls['data'].touched && cadastroForm.controls['data'].invalid">
+            Campo obrigatório
+          </span>
+        </app-aero-field>
+
+        <app-aero-field class="span-full">
+          <span aeroLabel>Detalhes</span>
+          <textarea aeroControl formControlName="detalhes" rows="6" placeholder="Descreva os detalhes da tarefa"></textarea>
+          <span aeroError *ngIf="cadastroForm.controls['detalhes'].touched && cadastroForm.controls['detalhes'].invalid">
+            Campo obrigatório
+          </span>
+        </app-aero-field>
+
+        <div class="form-note span-full">
+          Este cadastro é salvo localmente no navegador enquanto o fluxo backend de agendamentos não estiver disponível.
+        </div>
+
+        <div class="form-actions span-full">
+          <button aeroButton="primary" type="button"  (click)="salvar()">
+            {{ agendamentoId ? 'Salvar alterações' : 'Cadastrar agendamento' }}
+          </button>
+          <button aeroButton="secondary" type="button"  (click)="limpar()">
+            {{ agendamentoId ? 'Restaurar dados' : 'Limpar formulário' }}
+          </button>
+        </div>
+        </form>
+      </app-aero-card>
+    </div>
+  </div>
+</app-form-submit-loader>

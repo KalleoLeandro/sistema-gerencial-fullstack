@@ -1,0 +1,85 @@
+<div class="container-fluid">
+  <div class="card mb-4">
+    <div class="card-header py-3 mb-2">
+      <div class="header-shell">
+        <div>
+          <p class="section-kicker">Agenda</p>
+          <h1 class="section-title">Agenda de Operações</h1>
+          <p class="section-description">
+            Acompanhe vencimentos, navegue pelos detalhes da empresa e deixe preparado o fluxo de novos agendamentos.
+          </p>
+        </div>
+
+        <button aeroButton="primary" type="button" class="create-button" (click)="abrirCadastroAgendamento()">
+          <i class="fa-solid fa-plus"></i>
+          <span>Cadastrar agendamento</span>
+        </button>
+      </div>
+
+      <div class="filter-shell">
+        <mat-chip-listbox aria-label="Filtros da agenda" multiple>
+          <mat-chip-option
+            *ngFor="let filtro of filtros"
+            [selected]="filtro.ativo"
+            (selectionChange)="atualizarFiltro(filtro.key, $event.selected)">
+            {{ filtro.label }}
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <mat-card class="panel-card">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Calendário</p>
+            <h2 class="panel-title">Agenda geral</h2>
+          </div>
+          <div class="panel-caption">
+            Agendamentos locais abrem em detalhes próprios; os demais itens seguem para suas telas já existentes.
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <full-calendar [options]="calendarioOptions"></full-calendar>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card side-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Próximos eventos</p>
+            <h2 class="panel-title">Itens filtrados</h2>
+            <p class="event-legend">
+              <span class="event-legend__dot"></span>
+              Atrasado ou vencido
+            </p>
+          </div>
+        </div>
+
+        <div class="contract-list">
+          <button aeroButton="secondary"
+            *ngFor="let evento of eventosFiltrados | slice:0:12"
+            type="button"
+            class="contract-item"
+            [ngClass]="classesStatusEvento(evento)"
+            (click)="navegarParaDetalhe(evento)">
+            <div>
+              <p class="contract-name">{{ tituloEvento(evento) }}</p>
+              <p class="contract-company">{{ evento.subtitulo }}</p>
+            </div>
+
+            <div class="contract-meta">
+              <strong>{{ formatarDataEvento(evento.dataEvento) }}</strong>
+              <span>{{ descricaoTipo(evento.tipo) }} • {{ descricaoStatus(evento.concluido) }}</span>
+            </div>
+          </button>
+
+          <div *ngIf="!eventosFiltrados.length" class="contract-empty">
+            Nenhum item encontrado para os filtros selecionados.
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>
