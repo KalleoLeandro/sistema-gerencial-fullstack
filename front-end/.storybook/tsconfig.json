@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["./*.ts", "../stories/**/*.ts", "../src/app/components/aero/**/*.stories.ts", "../src/**/*.d.ts"],
+  "exclude": ["../src/**/*.spec.ts"]
+}

@@ -1,0 +1,22 @@
+:host { display: block; min-width: 0; }
+.css-guide { display: grid; gap: 1.5rem; max-width: 80rem; margin: auto; }
+.eyebrow { color: var(--aero-muted); font-weight: 700; font-size: .85rem; }
+h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin: .4rem 0; }
+h2 { font-size: 1.3rem; font-weight: 700; }
+h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+p { line-height: 1.65; }
+.recipe { min-width: 0; scroll-margin-top: 1rem; }
+.recipe-nav, .code-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.code-heading { justify-content: space-between; margin: 1rem 0 .75rem; }
+.preview { padding: 1rem; margin-top: .75rem; border: 1px dashed var(--aero-border); border-radius: 1rem; background: #fff; }
+code { color: #214c68; font-family: Consolas, 'Courier New', monospace; font-size: .85rem; }
+.class-list { overflow-wrap: anywhere; }
+pre { background: #f7fbfd; border: 1px solid var(--aero-border); border-radius: 1rem; padding: 1rem; margin: 0; max-height: 32rem; overflow: auto; }
+pre code { white-space: pre; line-height: 1.65; }
+pre:focus-visible, .aero-table-wrap:focus-visible { outline: 3px solid var(--aero-focus); outline-offset: -3px; }
+.copy-status { color: var(--aero-leaf-deep); min-height: 1.5rem; margin: 0; }
+.guide-panels { display: flex; flex-wrap: wrap; gap: 1rem; }
+.guide-panel { padding: 1.25rem; border-radius: 1rem; }
+.guide-stack { display: grid; gap: 1rem; }
+.guide-custom-card { --aero-border: #88bda8; color: var(--aero-text); max-width: 36rem; }
+@media (max-width: 700px) { .recipe, .preview { padding: .75rem; } }

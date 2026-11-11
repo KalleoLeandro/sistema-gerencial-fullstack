@@ -1,0 +1,139 @@
+<article class="css-guide">
+  <header>
+    <span class="eyebrow">Design system Aero</span>
+    <h1>Classes CSS</h1>
+    <p>Estilize divs e elementos HTML nativos usando a mesma base visual dos componentes Aero.</p>
+  </header>
+  <section class="aero-card">
+    <h2>Como aplicar</h2>
+    <p>Os estilos já são carregados globalmente por <code>src/styles.css</code>, que importa <code>src/aero.css</code>. Dentro deste frontend, basta adicionar as classes ao HTML; não é necessário importar um componente Angular.</p>
+    <p>Use sempre a classe base junto de suas variações: <code>aero-button aero-button--primary</code>, por exemplo. Quando houver CSS complementar, copie-o para o arquivo de estilos da sua página.</p>
+    <p>As classes cuidam da aparência. Validação, envio de formulários, eventos e chamadas à API continuam sob responsabilidade da página. Em formulários Angular, mantenha os imports de FormsModule ou ReactiveFormsModule quando usados.</p>
+  </section>
+  <nav class="recipe-nav" aria-label="Exemplos de classes CSS">
+    @for (recipe of recipes; track recipe.id) {
+      <button type="button" class="aero-button" (click)="goTo(recipe.id)">{{ recipe.title }}</button>
+    }
+  </nav>
+  <p class="copy-status" role="status">{{ copyStatus() }}</p>
+  @for (recipe of recipes; track recipe.id) {
+    <section class="aero-card recipe" [id]="'css-' + recipe.id" [attr.aria-labelledby]="'css-title-' + recipe.id">
+      <h2 [id]="'css-title-' + recipe.id">{{ recipe.title }}</h2>
+      <p>{{ recipe.description }}</p>
+      <p class="class-list"><code>{{ recipe.classes }}</code></p>
+      <h3>Exemplo</h3>
+      <div class="preview">
+        @switch (recipe.id) {
+          @case ('surfaces') {
+            <div class="aero-card aero-glass">
+              <h3>Resumo do atendimento</h3>
+              <p>Uma div com superfície glass e conteúdo nativo.</p>
+            </div>
+          }
+          @case ('panels') {
+            <div class="guide-panels">
+              <div class="aero-panel aero-panel-green guide-panel">Painel verde</div>
+              <div class="aero-panel aero-panel-blue guide-panel">Painel azul</div>
+            </div>
+          }
+          @case ('buttons') {
+            <div class="app-form-actions">
+              <button type="button" class="aero-button aero-button--primary">Principal</button>
+              <button type="button" class="aero-button">Secundário</button>
+              <button type="button" class="aero-button aero-button--success">Confirmar</button>
+              <button type="button" class="aero-button aero-button--danger">Excluir</button>
+              <button type="button" class="aero-button aero-button--quiet">Discreto</button>
+              <button type="button" class="aero-button" disabled>Indisponível</button>
+            </div>
+          }
+          @case ('fields') {
+            <div class="app-form-grid">
+              <div class="aero-field span-6">
+                <label for="css-name">Nome</label>
+                <input id="css-name" class="aero-input" placeholder="Nome do cliente">
+              </div>
+              <div class="aero-field span-6">
+                <label for="css-category">Categoria</label>
+                <select id="css-category" class="aero-select">
+                  <option>Equipamentos</option>
+                  <option>Serviços</option>
+                </select>
+              </div>
+              <div class="aero-field span-6">
+                <label for="css-email">E-mail com erro</label>
+                <input id="css-email" type="email" class="aero-input"
+                  aria-invalid="true" aria-describedby="css-email-error">
+                <small id="css-email-error" class="aero-error">Informe um e-mail válido.</small>
+              </div>
+              <div class="aero-field span-6">
+                <label for="css-disabled">Campo desabilitado</label>
+                <input id="css-disabled" class="aero-input" value="Indisponível" disabled>
+              </div>
+              <div class="aero-field span-12">
+                <label for="css-notes">Observações</label>
+                <textarea id="css-notes" class="aero-textarea" placeholder="Descreva os detalhes"></textarea>
+              </div>
+            </div>
+          }
+          @case ('choices') {
+            <fieldset class="aero-choice">
+              <legend>Preferências</legend>
+              <label><input type="checkbox" checked>Receber notificações</label>
+              <label><input type="radio" name="css-service" value="local" checked>Presencial</label>
+              <label><input type="radio" name="css-service" value="remote">Remoto</label>
+            </fieldset>
+          }
+          @case ('feedback') {
+            <div class="guide-stack">
+              <div>
+                <span class="aero-badge">Em andamento</span>
+                <span class="aero-badge aero-badge--success">Concluído</span>
+                <span class="aero-badge aero-badge--warning">Pendente</span>
+              </div>
+              <div class="aero-alert">Informação sobre o atendimento.</div>
+              <div class="aero-alert aero-alert--error">Exemplo de mensagem de erro.</div>
+              <label for="css-progress">Carregamento · 65%</label>
+              <progress id="css-progress" class="aero-progress" max="100" value="65">65%</progress>
+            </div>
+          }
+          @case ('table') {
+            <div class="aero-table-wrap" tabindex="0" role="region" aria-label="Clientes">
+              <table class="aero-table">
+                <caption>Clientes de exemplo</caption>
+                <thead><tr><th scope="col">Nome</th><th scope="col">Situação</th></tr></thead>
+                <tbody>
+                  <tr><td>Cliente exemplo</td><td><span class="aero-badge aero-badge--success">Ativo</span></td></tr>
+                  <tr><td>Empresa demonstração</td><td><span class="aero-badge aero-badge--warning">Pendente</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          }
+          @case ('details') {
+            <details class="aero-details">
+              <summary>Informações adicionais</summary>
+              <p>Este conteúdo pode ser expandido sem JavaScript.</p>
+            </details>
+          }
+          @case ('tokens') {
+            <div class="aero-card guide-custom-card">
+              <h3 class="aero-highlight-text">Card personalizado</h3>
+              <p>Mesma base Aero, com borda ajustada apenas neste card.</p>
+            </div>
+          }
+        }
+      </div>
+      <div class="code-heading">
+        <h3>HTML</h3>
+        <app-aero-button label="Copiar HTML" [accessibleLabel]="'Copiar HTML: ' + recipe.title" (pressed)="copyCode(recipe.html, recipe.title + ' · HTML')" />
+      </div>
+      <pre tabindex="0" [attr.aria-label]="'Código HTML: ' + recipe.title"><code>{{ recipe.html }}</code></pre>
+      @if (recipe.css) {
+        <div class="code-heading">
+          <h3>CSS complementar</h3>
+          <app-aero-button label="Copiar CSS" [accessibleLabel]="'Copiar CSS: ' + recipe.title" (pressed)="copyCode(recipe.css, recipe.title + ' · CSS')" />
+        </div>
+        <pre tabindex="0" [attr.aria-label]="'Código CSS: ' + recipe.title"><code>{{ recipe.css }}</code></pre>
+      }
+    </section>
+  }
+</article>

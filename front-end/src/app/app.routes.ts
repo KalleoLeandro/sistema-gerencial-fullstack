@@ -5,6 +5,14 @@ import { roleGuard } from './guard/role.guard';
 
 export const routes: Routes = [
 {
+    path: 'design-system',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['DEV'] },
+    runGuardsAndResolvers: 'always',
+    loadComponent: () => import('@components/design-system-layout/design-system-layout.component').then((c) => c.DesignSystemLayoutComponent),
+    loadChildren: () => import('@pages/design-system/design-system.routes').then((r) => r.DESIGN_SYSTEM_ROUTES),
+  },
+{
     path: 'login',
     canActivate: [loginGuard],
     loadComponent: () => import('@pages/auth/auth.component').then((c) => c.AuthComponent)

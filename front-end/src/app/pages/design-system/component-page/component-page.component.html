@@ -1,0 +1,131 @@
+<article class="component-page">
+  <header>
+    <span class="eyebrow">Design system Aero</span>
+    <h1>{{ doc.name }}</h1>
+    <code>{{ doc.selector }}</code>
+    <p class="description">{{ doc.notes }}</p>
+    <nav class="demo-actions" aria-label="Seções do componente">
+      <button class="aero-button" type="button" (click)="example.scrollIntoView()">Exemplo</button>
+      <button class="aero-button" type="button" (click)="usage.scrollIntoView()">Como importar e propriedades</button>
+    </nav>
+  </header>
+
+  <section #example id="exemplo" class="aero-card demo" aria-labelledby="example-title">
+    <h2 id="example-title">Exemplo interativo</h2>
+    <p class="demo-hint">Experimente o componente. Os dados são demonstrativos e não são enviados ao sistema.</p>
+    <div class="demo-content">
+      @switch (doc.id) {
+        @case ('theme') {
+          <app-aero-theme-toggle />
+          <p>Alterne o tema para conferir todos os componentes e esta documentação.</p>
+          <app-aero-card glass>
+            <h3>Superfície glass</h3>
+            <p>Os textos, bordas, campos e estados usam as cores do tema ativo.</p>
+            <app-aero-input label="Campo de exemplo" placeholder="Digite para experimentar" />
+          </app-aero-card>
+        }
+        @case ('native-field') {
+          <div class="demo-grid">
+            <app-aero-field>
+              <span aeroLabel>Nome</span>
+              <input aeroControl [formControl]="name" placeholder="Digite seu nome">
+              <span aeroError>Informe o nome.</span>
+            </app-aero-field>
+            <app-aero-field>
+              <span aeroLabel>Data</span>
+              <input aeroControl aeroDate="date" [formControl]="nativeDate">
+              <span aeroHint>O formulário recebe um objeto Date no horário local.</span>
+            </app-aero-field>
+          </div>
+          <button aeroButton="primary" type="button" (click)="name.markAsTouched()">Validar nome</button>
+        }
+        @case ('button') {
+          <div class="demo-actions">
+            <app-aero-button label="Principal" variant="primary" (pressed)="message.set('Ação principal acionada.')" />
+            <app-aero-button label="Secundário" (pressed)="message.set('Ação secundária acionada.')" />
+            <app-aero-button label="Confirmar" variant="success" (pressed)="message.set('Confirmação recebida.')" />
+            <app-aero-button label="Excluir" variant="danger" (pressed)="message.set('Exemplo de exclusão acionado. Nenhum dado foi alterado.')" />
+            <app-aero-button label="Discreto" variant="quiet" (pressed)="message.set('Ação discreta acionada.')" />
+            <app-aero-button label="Indisponível" disabled /><app-aero-button label="Salvando…" loading />
+          </div>
+        }
+        @case ('input') {
+          <div class="demo-grid">
+            <app-aero-input label="Nome" [formControl]="name" required placeholder="Digite seu nome" error="Informe o nome." hint="Digite um nome ou saia do campo vazio para validar." />
+            <app-aero-input label="Data" type="date" />
+            <app-aero-input label="Somente leitura" value="OS-0001" readonly />
+            <app-aero-input label="Desabilitado" value="Indisponível" disabled />
+          </div>
+          <p>Valor: {{ name.value || 'Não informado' }}</p>
+        }
+        @case ('select') {
+          <app-aero-select class="field-example" label="Categoria" [options]="categories" [formControl]="category" />
+          <p>Valor selecionado: {{ category.value || 'Nenhum' }}</p>
+        }
+        @case ('textarea') {
+          <app-aero-textarea label="Observações" [formControl]="notes" [maxLength]="500" placeholder="Descreva os detalhes" />
+          <p>{{ notes.value.length }} de 500 caracteres</p>
+        }
+        @case ('checkbox') {
+          <app-aero-checkbox label="Receber notificações" [formControl]="notify" />
+          <app-aero-checkbox label="Ativo" kind="switch" [formControl]="active" />
+          <p>Notificações: {{ notify.value ? 'Sim' : 'Não' }} · Ativo: {{ active.value ? 'Sim' : 'Não' }}</p>
+        }
+        @case ('radio') {
+          <app-aero-radio-group label="Atendimento" [formControl]="service" [options]="services" />
+          <p>Valor selecionado: {{ service.value }}</p>
+        }
+        @case ('file') {
+          <app-aero-file label="Anexos" multiple hint="Selecione arquivos locais. Nenhum upload será realizado."
+            (filesSelected)="message.set($event.length + ' arquivo(s) selecionado(s).')" />
+        }
+        @case ('card') {
+          <div class="demo-grid">
+            <app-aero-card><h3>Card padrão</h3><p>Uma superfície clara para organizar informações.</p></app-aero-card>
+            <div class="glass-stage"><app-aero-card glass><h3>Card glass</h3><p>Reflexo e transparência sobre a base azul e verde.</p></app-aero-card></div>
+          </div>
+        }
+        @case ('badge') {
+          <div class="demo-actions"><app-aero-badge label="Em andamento" /><app-aero-badge label="Concluído" tone="success" /><app-aero-badge label="Pendente" tone="warning" /></div>
+        }
+        @case ('alert') {
+          <app-aero-alert message="Informação: este é um exemplo de aviso." />
+          <app-aero-alert message="Não foi possível concluir a operação. Tente novamente." tone="error" />
+          <app-aero-button label="Mostrar notificação" (pressed)="message.set('Alterações salvas com sucesso.')" />
+        }
+        @case ('progress') {
+          <app-aero-progress [value]="progress.value" />
+          <app-aero-input class="field-example" label="Ajustar percentual" type="range" [min]="0" [max]="100" [formControl]="progress" />
+          <app-aero-progress label="Aguardando resposta" indeterminate />
+        }
+        @case ('details') {
+          <app-aero-details label="Informações adicionais" [(expanded)]="expanded"><p>Detalhes complementares do atendimento.</p></app-aero-details>
+          <p>Seção {{ expanded ? 'aberta' : 'fechada' }}.</p>
+        }
+        @case ('dialog') {
+          <app-aero-button label="Abrir diálogo" variant="primary" (pressed)="dialog.open()" />
+          <app-aero-dialog #dialog title="Confirmar ação" description="Este exemplo não altera dados do sistema."
+            (confirmed)="message.set('Ação confirmada.')" (cancelled)="message.set('Ação cancelada.')" />
+        }
+        @case ('pagination') {
+          <app-aero-pagination [(page)]="page" [totalPages]="5" />
+          <p>Conteúdo demonstrativo da página {{ page }}.</p>
+        }
+        @case ('segmented') {
+          <app-aero-segmented [(value)]="view" [options]="views" />
+          <p>{{ view === 'overview' ? 'Resumo do atendimento.' : 'Nenhuma alteração registrada.' }}</p>
+        }
+        @case ('table') {
+          <app-aero-table caption="Ordens de serviço" [columns]="columns" [rows]="rows" [cellTemplate]="cell" />
+          <ng-template #cell let-value let-column="column">
+            @if (column.key === 'status') { <app-aero-badge [label]="value" [tone]="value === 'Concluído' ? 'success' : 'warning'" /> }
+            @else { {{ value }} }
+          </ng-template>
+        }
+      }
+    </div>
+    <p class="demo-status" role="status">{{ message() }}</p>
+  </section>
+
+  <div #usage id="como-importar"><app-aero-usage [documentation]="doc" /></div>
+</article>
