@@ -1,0 +1,141 @@
+<div class="list-page caixa-page">
+  <div class="hero-card">
+    <div>
+      <small class="eyebrow">Financeiro</small>
+      <h2>Caixa</h2>
+      <p>Caixa do dia para fechamento e historico de caixas fechados.</p>
+    </div>
+  </div>
+
+  <section class="caixa-grid">
+    <article class="caixa-card destaque">
+      <div class="card-top">
+        <div>
+          <span class="card-label">Caixa do dia</span>
+          <h3>{{ hoje | date:'dd/MM/yyyy' }}</h3>
+        </div>
+        <button aeroButton="primary" type="button"  [disabled]="fechandoCaixa()" (click)="abrirModalFechamento()">Fechar caixa</button>
+      </div>
+
+      <div class="caixa-total">
+        <span>Total do dia</span>
+        <strong>{{ totalCaixaDia() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <div class="totais-secundarios">
+        <div>
+          <span>Líquido esperado (entregue − troco)</span>
+          <strong>{{ totalRecebidoCaixaDia() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="totais-secundarios">
+        <div><span>Valor entregue</span><strong>{{ somarConferencia(resumoCaixaDia(), 'valor_entregue') === null ? 'Não registrado' : (somarConferencia(resumoCaixaDia(), 'valor_entregue') | currency:'BRL') }}</strong></div>
+        <div><span>Troco devolvido</span><strong>{{ somarConferencia(resumoCaixaDia(), 'troco') === null ? 'Não registrado' : (somarConferencia(resumoCaixaDia(), 'troco') | currency:'BRL') }}</strong></div>
+      </div>
+      <div class="resumo-list">
+        <div class="resumo-item" *ngFor="let item of resumoCaixaDia()">
+          <div>
+            <span>{{ formaPagamentoLabel(item.forma_pagamento) }}</span>
+            <small>Entregue: {{ item.valor_entregue == null ? 'Não registrado' : (item.valor_entregue | currency:'BRL') }} · Troco: {{ item.troco == null ? 'Não registrado' : (item.troco | currency:'BRL') }}</small>
+            <small>Total: {{ item.valor_total | currency:'BRL':'symbol':'1.2-2' }}</small>
+          </div>
+          <div class="resumo-item-values">
+            <small>Pago: {{ item.valor_recebido | currency:'BRL':'symbol':'1.2-2' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <p class="helper-text">Essa tela consolida os recebimentos do dia por forma de pagamento. Troco devolvido no dia: <strong>{{ somarConferencia(resumoCaixaDia(), 'troco') === null ? 'Não registrado' : (somarConferencia(resumoCaixaDia(), 'troco') | currency:'BRL') }}</strong>. O líquido esperado já desconta esse troco.</p>
+    </article>
+
+    <article class="content-card">
+      <div class="card-top">
+        <div>
+          <span class="card-label">Caixas fechados</span>
+          <h3>Historico</h3>
+        </div>
+      </div>
+
+      <form class="history-filters" (ngSubmit)="filtrarHistorico()">
+        <app-aero-input label="Data inicial" type="date" name="dataInicio" [(ngModel)]="dataInicioFiltro" />
+        <app-aero-input label="Data final" type="date" name="dataFim" [(ngModel)]="dataFimFiltro" />
+        <button aeroButton="primary" type="submit">Filtrar</button>
+        <button aeroButton="secondary" type="button" (click)="limparFiltroHistorico()">Limpar</button>
+      </form>
+      <p aria-live="polite">Exibindo {{ caixasFiltrados().length }} de {{ caixasFechados().length }} caixas fechados.</p>
+      <div class="table-shell"><table class="table align-middle list-table"><thead><tr><th>Data</th><th>Fechado em</th><th>Total</th><th>Troco</th><th>Quebra</th><th class="actions-col">Ações</th></tr></thead><tbody>@for (caixa of caixasFiltrados(); track caixa.id) {<tr><td>{{ caixa.data_referencia | date:'dd/MM/yyyy' }}</td><td>{{ caixa.fechado_em | date:'HH:mm' }}</td><td>{{ caixa.valor_total | currency:'BRL':'symbol':'1.2-2' }}</td><td>{{ somarConferencia(caixa.itens || [], 'troco') === null ? 'Não registrado' : (somarConferencia(caixa.itens || [], 'troco') | currency:'BRL') }}</td><td><div class="quebra-valor" [class.com-quebra]="caixa.valor_quebra !== 0">{{ caixa.valor_quebra | currency:'BRL':'symbol':'1.2-2' }}</div></td><td class="actions-col"><button aeroButton="primary" type="button" class="aero-button--sm" [disabled]="fechandoCaixa()" (click)="editarFechamento(caixa)">Editar</button></td></tr>} @empty {<tr><td colspan="6" class="empty-state">Nenhum caixa fechado encontrado no período.</td></tr>}</tbody></table></div>
+    </article>
+  </section>
+
+
+  <dialog #dialogFechamento class="aero-dialog cash-dialog" aria-labelledby="titulo-fechamento" (cancel)="fecharModalFechamento($event)">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="card-label">Fechamento</span>
+          <h3 id="titulo-fechamento">{{ editandoFechamento ? 'Editar fechamento' : 'Conferir caixa' }}</h3>
+          <small *ngIf="editandoFechamento && dataReferenciaFechamento">
+            {{ dataReferenciaFechamento | date:'dd/MM/yyyy' }}
+          </small>
+        </div>
+        <button aeroButton="quiet" type="button"  aria-label="Fechar" (click)="fecharModalFechamento()"><span aria-hidden="true">×</span></button>
+      </div>
+
+      <div class="conferencia-grid">
+        <div>
+          <span>Líquido esperado após o troco</span>
+          <strong>{{ valorEsperadoFechamento | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Total registrado</span>
+          <strong>{{ valorConferido() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="totais-secundarios">
+        <div><span>Valor entregue</span><strong>{{ somarConferencia(resumoFechamento, 'valor_entregue') === null ? 'Não registrado' : (somarConferencia(resumoFechamento, 'valor_entregue') | currency:'BRL') }}</strong></div>
+        <div><span>Troco devolvido</span><strong>{{ somarConferencia(resumoFechamento, 'troco') === null ? 'Não registrado' : (somarConferencia(resumoFechamento, 'troco') | currency:'BRL') }}</strong></div>
+      </div>
+      <p class="helper-text">Valores registrados no banco, somente para consulta. O total líquido já desconta o troco devolvido.</p>
+      <div class="conferencia-por-tipo">
+        <div class="conferencia-item" *ngFor="let item of conferenciaPorTipo; let i = index; trackBy: trackByFormaPagamento">
+          <div>
+            <span>{{ formaPagamentoLabel(item.forma_pagamento) }}</span>
+          </div>
+          <input aeroControl
+            type="text"
+
+            [attr.aria-label]="'Valor conferido em ' + formaPagamentoLabel(item.forma_pagamento)"
+            currencyMask
+            [options]="moneyMaskOptions"
+            [ngModel]="item.valor_informado"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="quebra-box" [class.sem-quebra]="quebraCaixa() === 0" [class.sobra]="quebraCaixa() > 0" [class.falta]="quebraCaixa() < 0">
+        <span>{{ quebraCaixa() === 0 ? 'Sem quebra registrada' : 'Quebra registrada' }}</span>
+        <strong>{{ quebraCaixa() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <label class="observacoes-label" for="observacoes-fechamento">Observacoes</label>
+      <textarea aeroControl
+        id="observacoes-fechamento"
+
+        rows="3"
+        placeholder="Opcional. Ex.: diferenca por troco, recebimento pendente, ajuste manual..."
+        [(ngModel)]="observacoesFechamento"
+        [disabled]="fechandoCaixa()"
+      ></textarea>
+
+      <div class="modal-actions">
+        <button aeroButton="secondary" type="button"  [disabled]="fechandoCaixa()" (click)="fecharModalFechamento()">Cancelar</button>
+        <button aeroButton="primary" type="button"  [disabled]="fechandoCaixa()" (click)="confirmarFechamento()">
+          {{ fechandoCaixa() ? 'Salvando...' : (editandoFechamento ? 'Atualizar fechamento' : 'Confirmar fechamento') }}
+        </button>
+      </div>
+    </div>
+  </dialog>
+</div>

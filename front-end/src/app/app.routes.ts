@@ -179,6 +179,10 @@ export const routes: Routes = [
             path: '',
             redirectTo: 'listar',
             pathMatch: 'full'
+          },
+{
+            path: 'listar',
+            loadComponent: () => import('@pages/caixa/listar/listar.component').then((c) => c.ListarComponent)
           }
 ]
       },

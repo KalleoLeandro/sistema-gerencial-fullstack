@@ -2,6 +2,7 @@ import { FinanceiroController } from '@controllers/financeiro/financeiro.control
 import { AtendimentoController } from '@controllers/atendimento/atendimento.controller';
 import { AgendamentoController } from '@controllers/agendamento/agendamento.controller';
 import { AvulsoController } from '@controllers/avulso/avulso.controller';
+import { CaixaController } from '@controllers/caixa/caixa.controller';
 import { ClienteController } from '@controllers/cliente/cliente.controller';
 import { EmpresaController } from '@controllers/empresa/empresa.controller';
 import { EquipamentoController } from '@controllers/equipamento/equipamento.controller';
@@ -26,6 +27,7 @@ import { ProxyService } from '@services/proxy/proxy.service';
     AtendimentoController,
     AgendamentoController,
     AvulsoController,
+    CaixaController,
     ClienteController,
     ManutencaoController,
     ProdutoController,
