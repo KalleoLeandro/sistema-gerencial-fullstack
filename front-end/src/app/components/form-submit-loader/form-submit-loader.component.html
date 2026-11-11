@@ -1,0 +1,10 @@
+<ng-container *ngIf="!loading(); else loadingState">
+  <ng-content></ng-content>
+</ng-container>
+
+<ng-template #loadingState>
+  <div class="form-submit-loader">
+    <mat-spinner diameter="56"></mat-spinner>
+    <p>{{ message() }}</p>
+  </div>
+</ng-template>

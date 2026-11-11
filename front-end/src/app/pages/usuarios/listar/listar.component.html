@@ -1,0 +1,93 @@
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Cadastros</small>
+<h2>Usuários</h2>
+<p>Gerencie os usuários e seus acessos ao sistema.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="primary" type="button" (click)="cadastrarNovo()">Cadastrar</button>
+</div>
+</section>
+<section class="content-card">
+<div class="search-row">
+<app-aero-input class="search-field" label="Pesquisa"  type="search"  placeholder="Digite parte do nome do usuário" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()" />
+<div class="search-action">
+<button aeroButton="primary" type="button"  (click)="carregarLogins()">
+            Pesquisar
+          </button>
+</div>
+</div>
+<div class="table-meta">
+<small>Exibindo {{ listaLogins().lista.length }} itens de {{ listaLogins().total }}</small>
+<app-aero-select class="limit-field" label="Quantidade por página"
+          [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
+          (ngModelChange)="limit = $event; mudarTamanho()" />
+</div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead class="thead-dark">
+<tr>
+<th scope="col">Nome</th>
+<th scope="col">Login</th>
+<th scope="col">Alterar</th>
+<th scope="col">Excluir</th>
+</tr>
+</thead>
+<tbody>
+          @for(item of listaLogins().lista; track item){
+          <tr>
+<td>{{item.nome}}</td>
+<td>{{item.login}}</td>
+<td>
+<button aeroButton="primary" type="button" class="aero-button--icon" (click)="alterarLogin(item.id)" aria-label="Editar usuário">
+<i class="fa-solid fa-pen">
+</i>
+</button>
+</td>
+<td>
+<button aeroButton="danger" type="button" class="aero-button--icon" (click)="modalExcluirLogin(item.id)" aria-label="Excluir usuário">
+<i class="fa-solid fa-trash">
+</i>
+</button>
+</td>
+</tr>
+          }
+        <tr *ngIf="!listaLogins().lista.length">
+<td colspan="4" class="empty-state">Nenhum registro encontrado.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<nav aria-label="Paginacao" class="pagination-bar">
+<button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+<div class="page-list">
+<button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+</div>
+<button type="button" aeroButton="secondary"  [disabled]="page >= totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+</nav>
+</section>
+</div>
+<button type="button" id="botaoModal" hidden data-bs-toggle="modal" data-bs-target="#modalConfirmacao">
+</button>
+<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacao" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="modalConfirmacao">Cadastro de Atendimentos Avulsos</h5>
+<button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">×</span>
+</button>
+</div>
+<div class="modal-body">
+<span>{{resposta}}</span>
+</div>
+<div class="modal-footer">
+<button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirLogin()">Excluir</button>
+<button aeroButton="secondary" type="button"  data-bs-dismiss="modal">Fechar</button>
+</div>
+</div>
+</div>
+</div>

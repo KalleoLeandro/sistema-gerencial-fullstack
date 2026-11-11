@@ -1,0 +1,69 @@
+<div class="login-shell" id="container">
+  <div class="login-card">
+    <section class="login-brand-panel">
+      <div class="login-brand-stage">
+        <h1 class="login-brand-title">Sistema de Gestao da Informacao</h1>
+        <img src="/leal-informatica-stacked.svg" alt="Logo Leal Informatica com textos abaixo" class="login-brand-logo">
+      </div>
+    </section>
+
+    <section class="login-form-panel">
+      <div class="d-flex justify-content-end mb-3"><app-aero-theme-toggle /></div>
+      <div class="login-form-header">
+        <p class="login-form-kicker">Acesso seguro</p>
+        <h2>Entrar na plataforma</h2>
+      </div>
+
+      <form [formGroup]="AuthForm" (ngSubmit)="entrar()" class="login-form">
+        <div>
+          <app-aero-field class="login-field w-full">
+            <span aeroLabel>Login</span>
+            <input aeroControl
+              type="text"
+              id="login"
+              formControlName="login"
+              placeholder="Digite seu login"
+              autocomplete="username">
+            <span aeroError *ngIf="AuthForm.controls['login'].touched && AuthForm.controls['login'].invalid">Informe seu login</span>
+          </app-aero-field>
+        </div>
+
+        <div>
+          <app-aero-field class="login-field w-full">
+            <span aeroLabel>Senha</span>
+            <div class="password-input-group">
+            <input aeroControl
+              [type]="hidePassword ? 'password' : 'text'"
+              id="senha"
+              formControlName="senha"
+              placeholder="Digite sua senha"
+              autocomplete="current-password">
+            <button aeroButton="quiet" type="button" class="password-toggle"
+              [attr.aria-label]="hidePassword ? 'Mostrar senha' : 'Ocultar senha'"
+              [attr.title]="hidePassword ? 'Mostrar senha' : 'Ocultar senha'"
+              [attr.aria-pressed]="!hidePassword"
+              aria-controls="senha"
+              (click)="togglePasswordVisibility()">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                <circle cx="12" cy="12" r="3" />
+                <path *ngIf="!hidePassword" d="m3 3 18 18" />
+              </svg>
+            </button>
+            </div>
+            <span aeroError *ngIf="AuthForm.controls['senha'].touched && AuthForm.controls['senha'].invalid">Informe sua senha</span>
+          </app-aero-field>
+        </div>
+
+        <button aeroButton="primary"
+          type="submit"
+          class="login-button"
+          [disabled]="this.AuthForm.invalid">
+          Entrar
+        </button>
+      </form>
+    </section>
+  </div>
+</div>
