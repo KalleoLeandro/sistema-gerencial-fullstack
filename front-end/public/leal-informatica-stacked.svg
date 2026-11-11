@@ -1,0 +1,79 @@
+<svg width="420" height="520" viewBox="0 0 420 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Leal Informatica stacked logo</title>
+  <desc>Versao vertical do logo da Leal Informatica com simbolo centralizado e textos abaixo.</desc>
+  <defs>
+    <linearGradient id="bgGlassStacked" x1="18" y1="20" x2="402" y2="318" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.34" stop-color="#D9F8FF" stop-opacity="0.94"/>
+      <stop offset="0.72" stop-color="#BEF2E2" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#74C8D9" stop-opacity="0.96"/>
+    </linearGradient>
+    <linearGradient id="glassStrokeStacked" x1="32" y1="32" x2="388" y2="310" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#8CDDC6"/>
+    </linearGradient>
+    <linearGradient id="monitorFillStacked" x1="84" y1="86" x2="252" y2="214" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFFFFF"/>
+      <stop offset="0.55" stop-color="#BEEBFF"/>
+      <stop offset="1" stop-color="#63C3E8"/>
+    </linearGradient>
+    <linearGradient id="coreFillStacked" x1="118" y1="114" x2="214" y2="194" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B9FE8"/>
+      <stop offset="1" stop-color="#0E6EBF"/>
+    </linearGradient>
+    <linearGradient id="accentLeafStacked" x1="238" y1="96" x2="312" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A4F0CB"/>
+      <stop offset="1" stop-color="#2FAF86"/>
+    </linearGradient>
+    <linearGradient id="textFillStacked" x1="76" y1="354" x2="344" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B4B80"/>
+      <stop offset="0.48" stop-color="#1288D7"/>
+      <stop offset="1" stop-color="#1E8A72"/>
+    </linearGradient>
+    <filter id="softShadowStacked" x="0" y="0" width="420" height="364" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.051 0 0 0 0 0.373 0 0 0 0 0.529 0 0 0 0.18 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadowStacked)">
+    <rect x="22" y="24" width="376" height="236" rx="54" fill="url(#bgGlassStacked)"/>
+    <rect x="23.5" y="25.5" width="373" height="233" rx="52.5" stroke="url(#glassStrokeStacked)" stroke-width="3"/>
+    <ellipse cx="120" cy="80" rx="74" ry="34" fill="#FFFFFF" fill-opacity="0.54"/>
+    <ellipse cx="312" cy="220" rx="66" ry="26" fill="#FFED92" fill-opacity="0.28"/>
+    <rect x="76" y="66" width="194" height="126" rx="24" fill="url(#monitorFillStacked)" stroke="#E9FFFF" stroke-width="3"/>
+    <rect x="96" y="84" width="154" height="90" rx="18" fill="#F5FFFF" fill-opacity="0.68"/>
+    <rect x="145" y="202" width="56" height="14" rx="7" fill="#74C8D9"/>
+    <rect x="123" y="216" width="100" height="14" rx="7" fill="#C7F6EF"/>
+    <rect x="122" y="100" width="100" height="82" rx="20" fill="url(#coreFillStacked)"/>
+    <path d="M158 119V163H202" stroke="#E9FBFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="233" cy="104" r="12" fill="#D8FFF2"/>
+    <circle cx="262" cy="122" r="9" fill="#EAFBFF"/>
+    <circle cx="284" cy="151" r="11" fill="#A5F0CB"/>
+    <path d="M225 112L253 125" stroke="#73D9BE" stroke-width="6" stroke-linecap="round"/>
+    <path d="M269 129L278 143" stroke="#73D9BE" stroke-width="6" stroke-linecap="round"/>
+    <path d="M226 146C246 143 261 144 276 148" stroke="#0F7BC9" stroke-width="6" stroke-linecap="round"/>
+    <path d="M281 91C299 98 315 114 320 137C325 160 318 183 300 200" stroke="url(#accentLeafStacked)" stroke-width="14" stroke-linecap="round"/>
+  </g>
+
+  <g text-anchor="middle">
+    <text x="210" y="350" fill="url(#textFillStacked)" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="44" font-weight="800" letter-spacing="0.8">
+      Leal Informatica
+    </text>
+    <text x="210" y="396" fill="#2F6D96" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="17" font-weight="700" letter-spacing="2.4">
+      TECNOLOGIA
+    </text>
+    <text x="210" y="424" fill="#2F6D96" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="17" font-weight="700" letter-spacing="2.4">
+      SUPORTE
+    </text>
+    <text x="210" y="452" fill="#2F6D96" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="17" font-weight="700" letter-spacing="2.4">
+      INFRAESTRUTURA
+    </text>
+  </g>
+</svg>

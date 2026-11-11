@@ -1,0 +1,84 @@
+/* Aero: primitives shared by native HTML controls and Angular forms. */
+:root {
+  color-scheme: light;
+  --aero-surface: #fff;
+  --aero-border: #b7d6df;
+  --aero-radius: 1rem;
+  --aero-focus: #0875b9;
+  --aero-danger: #a32240;
+  --aero-control-bg: linear-gradient(180deg, #fff, #f0f9fc);
+  --aero-control-shadow: inset 0 1px 0 #fff, 0 4px 12px #12585f0d;
+}
+
+.aero-button, .fc .fc-button.fc-button-primary, .aero-input, .aero-select, .aero-textarea {
+  font: inherit;
+  color: var(--aero-text);
+  border: 1px solid var(--aero-border);
+  border-radius: var(--aero-radius);
+  background: var(--aero-control-bg);
+  box-shadow: var(--aero-control-shadow);
+  min-height: 2.75rem;
+  padding: .65rem 1rem;
+}
+.aero-button, .fc .fc-button.fc-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: box-shadow .15s, border-color .15s;
+}
+.aero-button:hover:not(:disabled), .fc .fc-button.fc-button-primary:hover:not(:disabled) { border-color: var(--aero-focus); box-shadow: 0 4px 14px #0875b923; }
+.fc .fc-button.fc-button-primary:not(:disabled).fc-button-active { background: linear-gradient(#e3f6ff, #acdff5); border-color: #7bbbd7; color: #124769; }
+.aero-button--primary { background: linear-gradient(#e3f6ff, #acdff5); border-color: #7bbbd7; color: #124769; }
+.aero-button--success { background: linear-gradient(#effff8, #b9ecd6); border-color: #8ccdb2; color: #18553f; }
+.aero-button--danger { background: linear-gradient(#fff7f8, #f8d4dd); border-color: #dba2b0; color: var(--aero-danger); }
+.aero-button--quiet { background: transparent; box-shadow: none; }
+.aero-button--sm { min-height: 2.25rem; padding: .4rem .75rem; font-size: .875rem; }
+.aero-button--icon { min-width: 2.75rem; padding: .65rem; }
+.aero-input, .aero-select, .aero-textarea { width: 100%; }
+.aero-textarea { min-height: 7rem; resize: vertical; }
+.aero-field { display: grid; gap: .45rem; min-width: 0; align-content: start; }
+.aero-field > label, .aero-field > span:first-child, .aero-choice legend { font-weight: 700; font-size: .9rem; }
+.aero-field small { color: var(--aero-muted); }
+.aero-field .aero-error { color: var(--aero-danger); }
+.aero-field [aeroError] { display: block; color: var(--aero-danger); font-size: .85rem; }
+.aero-field [aeroHint] { color: var(--aero-muted); font-size: .85rem; }
+.aero-select[aria-invalid="true"], .aero-textarea[aria-invalid="true"] { border-color: var(--aero-danger); }
+.aero-input[aria-invalid="true"] { border-color: var(--aero-danger); }
+.aero-input::placeholder, .aero-textarea::placeholder { color: #627b89; opacity: 1; }
+.aero-input:read-only { background: #f4f8fa; }
+.aero-button:disabled, .aero-input:disabled, .aero-select:disabled, .aero-textarea:disabled { opacity: .6; cursor: not-allowed; }
+.aero-button:focus-visible, .fc .fc-button.fc-button-primary:focus-visible, .aero-input:focus-visible, .aero-select:focus-visible,
+.aero-textarea:focus-visible, .aero-choice input:focus-visible, .aero-details > summary:focus-visible {
+  outline: 3px solid var(--aero-focus); outline-offset: 3px;
+}
+.aero-choice { display: flex; flex-wrap: wrap; gap: 1rem; border: 0; padding: 0; margin: 0; }
+.aero-choice legend { margin-bottom: .6rem; }
+.aero-choice label { display: inline-flex; align-items: center; gap: .6rem; min-height: 2.75rem; cursor: pointer; }
+.aero-choice input { accent-color: #167956; width: 1.2rem; height: 1.2rem; }
+.aero-card { padding: 1.5rem; border-radius: 1.5rem; border: 1px solid var(--aero-border); background: linear-gradient(135deg, #ffffffef, #f2fafbd9); box-shadow: inset 0 1px 0 #fff, 0 8px 28px #12585f0a; backdrop-filter: blur(12px); }
+.aero-badge { display: inline-block; padding: .3rem .7rem; border: 1px solid #b7d6df; border-radius: 2rem; font-size: .8rem; font-weight: 700; background: #edf8fc; color: #23506a; }
+.aero-badge--success { background: #e5f7ed; border-color: #a2d9bd; color: #235b40; }
+.aero-badge--warning { background: #fff7d7; border-color: #dfcc89; color: #715715; }
+.aero-alert { border: 1px solid #a9cfdc; border-left: 4px solid #237ca2; background: #f0f9fd; padding: 1rem; border-radius: .8rem; }
+.aero-alert--error { border-color: #dca3b0; background: #fff3f5; color: var(--aero-danger); }
+.aero-table-wrap { overflow-x: auto; border: 1px solid var(--aero-border); border-radius: 1rem; }
+.aero-table { border-collapse: collapse; width: 100%; background: #ffffffdc; }
+.aero-table caption { caption-side: top; padding: 1rem; color: var(--aero-muted); }
+.aero-table th, .aero-table td { text-align: left; padding: .85rem 1rem; border-bottom: 1px solid #deebee; }
+.aero-table th { background: #edf7fa; color: var(--aero-text); }
+.aero-table tbody tr:last-child td { border-bottom: 0; }
+.aero-table tbody tr:hover { background: #f5fbfd; }
+.aero-dialog { width: min(32rem, calc(100% - 2rem)); max-height: calc(100% - 2rem); color: var(--aero-text); }
+.aero-dialog::backdrop { background: #14394b4d; backdrop-filter: blur(4px); }
+.aero-details { border: 1px solid var(--aero-border); border-radius: 1rem; background: #ffffffd9; padding: 1rem; }
+.aero-details summary { cursor: pointer; font-weight: 700; }
+.aero-details[open] summary { margin-bottom: 1rem; }
+.aero-progress { width: 100%; height: .8rem; accent-color: #167956; }
+.aero-spinner { display: inline-block; width: 1.1rem; height: 1.1rem; border: 2px solid #a7c8d6; border-top-color: #124769; border-radius: 50%; animation: aero-spin 1s linear infinite; }
+@keyframes aero-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .aero-spinner { animation: none; } .aero-button { transition: none; } }
+@media (forced-colors: active) { .aero-button, .aero-card, .aero-badge, .aero-alert { border: 1px solid ButtonText; } }

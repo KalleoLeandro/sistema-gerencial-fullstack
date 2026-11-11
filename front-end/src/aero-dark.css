@@ -1,0 +1,165 @@
+/* Shared by the application, the component catalogue, and the Storybook preview. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --aero-page-bg: #0b1420;
+  --aero-surface: #142332;
+  --aero-surface-raised: #1c3042;
+  --aero-sky-top: #172e35;
+  --aero-sky-mid: #142a35;
+  --aero-sky-bottom: #123347;
+  --aero-ice: #142b3b;
+  --aero-glass: rgba(20, 39, 55, .85);
+  --aero-stroke: rgba(139, 190, 216, .25);
+  --aero-border: #416174;
+  --aero-text: #e0edf5;
+  --aero-muted: #a8bfce;
+  --aero-accent: #70caff;
+  --aero-accent-strong: #8bd4ff;
+  --aero-focus: #83d0ff;
+  --aero-leaf: #74dcb5;
+  --aero-leaf-soft: #a3ebcf;
+  --aero-leaf-deep: #8be6c2;
+  --aero-gold: #ffe29b;
+  --aero-danger: #ffb3c4;
+  --aero-shadow: #00000040;
+  --aero-control-bg: linear-gradient(180deg, #20384b, #142838);
+  --aero-control-shadow: inset 0 1px 0 #ffffff12, 0 4px 12px #00000026;
+  --bs-body-bg: var(--aero-page-bg);
+  --bs-body-color: var(--aero-text);
+  --bs-secondary-color: var(--aero-muted);
+  --bs-tertiary-bg: var(--aero-surface-raised);
+  --bs-secondary-bg: var(--aero-surface);
+  --bs-border-color: var(--aero-border);
+  --bs-emphasis-color: var(--aero-text);
+  --bs-link-color: var(--aero-accent);
+  --bs-link-hover-color: #bce8ff;
+  --mat-app-background-color: var(--aero-page-bg);
+  --mat-app-text-color: var(--aero-text);
+}
+
+html[data-theme="dark"] body { background: var(--aero-page-bg); color: var(--aero-text); }
+html[data-theme="dark"] :is(.aero-glass, .aero-panel, .aero-card, .aero-panel-green, .aero-panel-blue) {
+  background: linear-gradient(135deg, #20394bef, #112b2de0) !important;
+  border-color: var(--aero-stroke) !important;
+  color: var(--aero-text);
+  box-shadow: inset 0 1px 0 #ffffff14, 0 12px 30px #00000030 !important;
+}
+html[data-theme="dark"] :is(.aero-input, .aero-select, .aero-textarea, .aero-button, .fc .fc-button, .form-control, .form-select, .page-link, .btn) {
+  background: var(--aero-control-bg) !important;
+  color: var(--aero-text) !important;
+  border-color: var(--aero-border) !important;
+  box-shadow: var(--aero-control-shadow) !important;
+}
+html[data-theme="dark"] :is(input, textarea)::placeholder { color: var(--aero-muted) !important; opacity: 1; }
+html[data-theme="dark"] :is(.aero-input:read-only, .aero-input:disabled, .aero-select:disabled, .aero-textarea:disabled) {
+  background: var(--aero-surface) !important;
+}
+html[data-theme="dark"] :is(select option, select optgroup) { background: var(--aero-surface); color: var(--aero-text); }
+html[data-theme="dark"] :is(.aero-button--primary, .fc .fc-button-active, .btn-primary, .page-item.active .page-link, .aero-button[aria-pressed="true"]) {
+  background: linear-gradient(#285575, #183c56) !important; border-color: #65afd2 !important; color: #e4f6ff !important;
+}
+html[data-theme="dark"] :is(.aero-button--success, .btn-success) {
+  background: linear-gradient(#235744, #173e32) !important; border-color: #5ba98e !important; color: #ceffea !important;
+}
+html[data-theme="dark"] :is(.aero-button--danger, .btn-danger, .btn-action-delete) {
+  background: linear-gradient(#56303d, #3a202e) !important; border-color: #b47184 !important; color: #ffd5df !important;
+}
+html[data-theme="dark"] .aero-button--quiet { background: transparent !important; box-shadow: none !important; }
+html[data-theme="dark"] :is(.aero-badge, .aero-alert, .alert-info) { background: #183c50; color: #c1eaff; border-color: #52859d; }
+html[data-theme="dark"] .aero-badge--success { background: #173d31; color: #a6efd0; border-color: #4b8e73; }
+html[data-theme="dark"] :is(.aero-badge--warning, .alert-warning) { background: #433921; color: #ffe3a0; border-color: #a9925c; }
+html[data-theme="dark"] :is(.aero-alert--error, .alert-danger) { background: #412531; color: #ffc2d0; border-color: #a46578; }
+html[data-theme="dark"] :is(.aero-details, .aero-dialog) { background: var(--aero-surface); border-color: var(--aero-border); }
+html[data-theme="dark"] .aero-dialog::backdrop { background: #020911b3; }
+html[data-theme="dark"] .aero-spinner { border-color: #56758a; border-top-color: #b3e5ff; }
+html[data-theme="dark"] :is(.aero-progress, .aero-choice input) { accent-color: var(--aero-leaf); }
+html[data-theme="dark"] [aria-invalid="true"] { border-color: var(--aero-danger) !important; }
+
+/* Existing business surfaces and Bootstrap overlays also inherit the theme. */
+html[data-theme="dark"] :is(.card, .card-header, .card-body, .card-footer, .modal-content, .modal-header, .modal-footer,
+  .dropdown-menu, .list-group-item, .hero-card, .content-card, .summary-card, .editor-card, .comercial-card,
+  .form-card, .metric-card, .stat-card, .dashboard-card, .table-shell, .login-card, .login-shell, .login-form-panel,
+  .login-brand-panel, .pdv-section, .pdv-result-card, .pdv-cart-item, .pdv-cart-card, .pdv-search-stage,
+  .pdv-quantity-stepper, .app-observacoes-historico, .app-editor-textarea, .form-note,
+  .panel-card, .dashboard-badge, .dashboard-hero-note, .login-brand-stage, .toast-item,
+  .contract-list, .contract-item, .contract-empty) {
+  background: var(--aero-surface) !important;
+  color: var(--aero-text) !important;
+  border-color: var(--aero-border) !important;
+  box-shadow: var(--aero-control-shadow) !important;
+}
+html[data-theme="dark"] :is(h1, h2, h3, h4, h5, h6, label, .page-title, .summary-card strong, .summary-card span,
+  .nav-link, .dropdown-item, .text-dark, .text-body, .text-secondary, .text-muted,
+  .metric-value, .metric-label, .dashboard-hero-note strong, .dashboard-hero-note span, .toast-message, .toast-close,
+  .contract-name, .contract-company, .contract-meta strong, .contract-meta span, .contract-list-header span,
+  .calendar-caption, .panel-subtitle,
+  [class*="text-sky-9"], [class*="text-teal-9"], [class*="text-slate-9"]) { color: var(--aero-text) !important; }
+html[data-theme="dark"] :is(.eyebrow, .page-kicker, .page-description, .hero-card p, .comercial-header p,
+  .editor-toolbar p, .login-form-kicker, .login-form-footer, footer) { color: var(--aero-muted) !important; }
+html[data-theme="dark"] :is(.bg-white, .bg-light) { background: var(--aero-surface) !important; }
+html[data-theme="dark"] :is(.nav-link.active, .dropdown-item:hover, .list-group-item.active) {
+  background: var(--aero-surface-raised) !important; color: var(--aero-text) !important;
+}
+html[data-theme="dark"] .hamburger-toggle span { background: var(--aero-text) !important; }
+html[data-theme="dark"] :is(.table, .aero-table) {
+  --bs-table-bg: var(--aero-surface);
+  --bs-table-color: var(--aero-text);
+  --bs-table-border-color: var(--aero-border);
+  --bs-table-striped-bg: #ffffff05;
+  --bs-table-striped-color: var(--aero-text);
+  --bs-table-hover-bg: #ffffff0b;
+  --bs-table-hover-color: var(--aero-text);
+  background: var(--aero-surface) !important; color: var(--aero-text) !important;
+}
+html[data-theme="dark"] :is(.table, .aero-table) :is(th, td) {
+  background-color: transparent !important; color: var(--aero-text) !important; border-color: var(--aero-border) !important;
+}
+html[data-theme="dark"] :is(.table, .aero-table) thead { background: var(--aero-surface-raised) !important; }
+html[data-theme="dark"] .aero-table tbody tr:hover { background: var(--aero-surface-raised); }
+
+/* Components that still use Material, including menus attached to the body. */
+html[data-theme="dark"] :is(.mat-mdc-form-field, .cdk-overlay-container) {
+  --mdc-filled-text-field-container-color: var(--aero-surface);
+  --mdc-filled-text-field-input-text-color: var(--aero-text);
+  --mdc-filled-text-field-label-text-color: var(--aero-muted);
+  --mat-select-enabled-trigger-text-color: var(--aero-text);
+  --mat-select-panel-background-color: var(--aero-surface);
+  --mat-option-label-text-color: var(--aero-text);
+  --mat-datepicker-calendar-container-background-color: var(--aero-surface);
+  --mat-datepicker-calendar-date-text-color: var(--aero-text);
+  --mat-datepicker-calendar-body-label-text-color: var(--aero-muted);
+  --mat-datepicker-calendar-header-text-color: var(--aero-muted);
+  --mat-datepicker-calendar-period-button-text-color: var(--aero-text);
+  --mat-datepicker-calendar-navigation-button-icon-color: var(--aero-text);
+}
+html[data-theme="dark"] :is(.mat-mdc-text-field-wrapper, .mat-mdc-select-panel, .mat-datepicker-content,
+  .mat-timepicker-panel, .mat-mdc-dialog-surface) { background: var(--aero-surface) !important; color: var(--aero-text) !important; }
+html[data-theme="dark"] :is(.mat-mdc-select-value, .mat-mdc-select-arrow, .mdc-floating-label, .mat-mdc-option) { color: var(--aero-text) !important; }
+
+/* Catalogue, CSS recipes, and documentation. Color swatches keep their illustrative colors. */
+html[data-theme="dark"] :is(.component-sidebar, .code-panel, .code-heading, .css-guide .preview, .css-guide pre,
+  .usage pre, .sbdocs-wrapper, .sbdocs-preview) { background: var(--aero-surface) !important; color: var(--aero-text) !important; }
+html[data-theme="dark"] :is(.usage code, .css-guide code, .component-page code, .sbdocs-content) { color: var(--aero-text) !important; }
+html[data-theme="dark"] .component-sidebar a:hover { background: var(--aero-surface-raised); }
+html[data-theme="dark"] :is(.sbdocs-title, .sbdocs-p, .sbdocs-li) { color: var(--aero-text) !important; }
+html[data-theme="dark"] :is(.swatch.white, .swatch.blue, .swatch.green) { color: #0f3d69; }
+html[data-theme="dark"] .notice { color: var(--aero-leaf); }
+html[data-theme="dark"] img[src$="leal-informatica-wordmark.svg"] { filter: brightness(0) invert(.9); }
+html[data-theme="dark"] .login-brand-logo { background: #eef6f9; border-radius: 1rem; padding: 1rem; }
+html[data-theme="dark"] .fc {
+  --fc-page-bg-color: var(--aero-surface);
+  --fc-neutral-bg-color: var(--aero-surface-raised);
+  --fc-neutral-text-color: var(--aero-muted);
+  --fc-border-color: var(--aero-border);
+  --fc-list-event-hover-bg-color: var(--aero-surface-raised);
+  --fc-today-bg-color: #70caff15;
+}
+html[data-theme="dark"] .fc :is(.fc-col-header-cell, .fc-daygrid-day, .fc-list-day-cushion) {
+  background: var(--aero-surface) !important; color: var(--aero-text) !important;
+}
+
+@media (forced-colors: active) {
+  html[data-theme="dark"] :is(.aero-input, .aero-select, .aero-textarea, .aero-button) {
+    background: Canvas !important; color: CanvasText !important; border-color: ButtonText !important;
+  }
+}

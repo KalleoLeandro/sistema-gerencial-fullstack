@@ -1,0 +1,144 @@
+      - minharede
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE}?authSource=admin
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+  bff:
+    build:
+      context: ./bff
+    container_name: bff
+    networks:
+      - minharede
+    ports:
+      - "${BFF_PORT:-3000}:3000"
+    depends_on:
+      - back-end
+    environment:
+      PORT: "3000"
+      BACK_END: http://back-end:8080
+
+  front-end-angular:
+    build:
+      context: ./front-end
+    container_name: front-end
+    networks:
+      - minharede
+    ports:
+      - "${FRONTEND_PORT:-4200}:80"
+    depends_on:
+      - bff
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    depends_on:
+      - back-end
+      - bff
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - minharede
+    volumes:
+      - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    networks:
+      - minharede
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonar
+    ports:
+      - "${SONARQUBE_PORT:-9000}:9000"
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+    networks:
+      - minharede
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk21
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${JENKINS_PORT:-8085}:8080"
+    environment:
+      TZ: ${TZ}
+    networks:
+      - minharede
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+  jenkins-agent:
+    build:
+      context: ./infraestrutura/jenkins-agent
+      dockerfile: Dockerfile
+    image: sistema-gerencial/jenkins-agent:1.0
+    container_name: jenkins-agent
+    restart: unless-stopped
+    init: true
+    networks:
+      - minharede
+    environment:
+      JENKINS_URL: http://jenkins:8080/
+      JENKINS_AGENT_NAME: ${JENKINS_AGENT_NAME}
+      JENKINS_SECRET: ${JENKINS_AGENT_SECRET}
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_WEB_SOCKET: "true"
+    volumes:
+      - jenkins_agent_home:/home/jenkins/agent
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: leal-cloudflared-gerencial
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - minharede
+    depends_on:
+      - front-end-angular
+
+networks:
+  minharede:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  mongodb-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana_data:
+  sonarqube_data:
+  sonar-token:
+  jenkins_home:
+  jenkins_agent_home:
