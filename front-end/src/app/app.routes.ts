@@ -40,6 +40,29 @@ export const routes: Routes = [
 ]
       },
 {
+        path: 'produtos',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+        children: [
+{
+            path: 'listar',
+            loadComponent: () => import('@pages/produtos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
+            path: 'em-falta',
+            loadComponent: () => import('@pages/produtos/em-falta/em-falta.component').then((c) => c.EmFaltaComponent)
+          },
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/produtos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'cadastrar/:id',
+            loadComponent: () => import('@pages/produtos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          }
+]
+      },
+{
         path: 'comercial',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },

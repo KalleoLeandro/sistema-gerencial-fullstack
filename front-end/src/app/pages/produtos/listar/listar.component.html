@@ -1,0 +1,77 @@
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Cadastros</small>
+<h2>Produtos</h2>
+<p>Produtos, imagens, preços e estoque.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="primary" type="button" (click)="cadastrarNovo()">Cadastrar</button>
+</div>
+</section>
+<section class="content-card">
+<div class="table-meta">
+<small>Exibindo {{ produtos().lista.length }} itens de {{ produtos().total }}</small>
+<app-aero-select class="limit-field" label="Quantidade por página"
+          [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
+          (ngModelChange)="limit = $event; mudarTamanho()" />
+</div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Imagem</th>
+<th>Nome</th>
+<th>Codigo</th>
+<th>Unidade</th>
+<th>Venda</th>
+<th>Estoque</th>
+<th>Status</th>
+<th class="actions-col">Acoes</th>
+</tr>
+</thead>
+<tbody>
+            @for (item of produtos().lista; track item.id) {
+              <tr>
+<td>{{ item.id }}</td>
+<td>
+<ng-container *ngIf="urlImagemExibicao(item) as imagemUrl; else semImagemProduto">
+<img class="product-thumb" [src]="imagemUrl" [alt]="item.nome" loading="lazy" />
+</ng-container>
+<ng-template #semImagemProduto>
+<div class="product-thumb product-thumb--empty">Sem imagem</div>
+</ng-template>
+</td>
+<td>{{ item.nome }}</td>
+<td>{{ item.codigo || '-' }}</td>
+<td>{{ item.unidade_medida }}</td>
+<td>{{ item.valor_venda | currency:'BRL':'symbol':'1.2-2' }}</td>
+<td>{{ item.estoque_atual }}</td>
+<td>
+<span class="status-chip" [class.inactive]="!item.ativo">{{ item.ativo ? 'Ativo' : 'Inativo' }}</span>
+</td>
+<td class="actions-col">
+<button aeroButton="secondary" type="button" class="aero-button--sm" (click)="editar(item.id)">Editar</button>
+<button aeroButton="danger" type="button" class="aero-button--sm" (click)="excluir(item.id)">Excluir</button>
+</td>
+</tr>
+            } @empty {
+              <tr>
+<td colspan="9" class="empty-state">Nenhum produto cadastrado.</td>
+</tr>
+            }
+          </tbody>
+</table>
+</div>
+<nav aria-label="Paginacao" class="pagination-bar">
+<button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+<div class="page-list">
+<button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+</div>
+<button type="button" aeroButton="secondary"  [disabled]="page >= totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+</nav>
+</section>
+</div>

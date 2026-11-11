@@ -1,0 +1,79 @@
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando produto...' : 'Cadastrando produto...'">
+  <div class="container-fluid">
+    <div class="card page-card">
+      <div class="page-header">
+        <div>
+          <small class="eyebrow">Catalogo</small>
+          <h2>{{ id ? 'Editar produto' : 'Novo produto' }}</h2>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <app-aero-field>
+          <span aeroLabel>Codigo</span>
+          <input aeroControl [ngModel]="form.codigo || ''" readonly />
+          <span aeroHint>{{ id ? 'Gerado automaticamente pelo sistema.' : 'Sera gerado automaticamente ao salvar.' }}</span>
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Nome</span>
+          <input aeroControl [(ngModel)]="form.nome" />
+        </app-aero-field>
+        <app-aero-field class="full">
+          <span aeroLabel>Descricao</span>
+          <textarea aeroControl [(ngModel)]="form.descricao" rows="4"></textarea>
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Unidade</span>
+          <input aeroControl [(ngModel)]="form.unidade_medida" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Valor de custo</span>
+          <input aeroControl [(ngModel)]="form.valor_custo" type="text" currencyMask [options]="moneyMaskOptions" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Valor de venda</span>
+          <input aeroControl [(ngModel)]="form.valor_venda" type="text" currencyMask [options]="moneyMaskOptions" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Estoque atual</span>
+          <input aeroControl [(ngModel)]="form.estoque_atual" type="number" min="0" step="0.001" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Estoque minimo</span>
+          <input aeroControl [(ngModel)]="form.estoque_minimo" type="number" min="0" step="0.001" />
+        </app-aero-field>
+        <div class="toggle-field">
+          <app-aero-checkbox [(ngModel)]="form.ativo" label="Produto ativo"></app-aero-checkbox>
+        </div>
+      </div>
+
+      <div class="image-sections">
+        <app-imagem-manager
+          [entityId]="id"
+          entityType="PRODUTO"
+          categoria="PRODUTO_EXIBICAO"
+          titulo="Imagem de exibicao"
+          descricao="Imagem principal usada para visualizacao do produto no sistema."
+          [multiple]="false"
+          [tamanhoMaximoPx]="300"
+          textoVazio="Nenhuma imagem de exibicao cadastrada.">
+        </app-imagem-manager>
+
+        <app-imagem-manager
+          [entityId]="id"
+          entityType="PRODUTO"
+          categoria="PRODUTO_CONTROLE"
+          titulo="Imagens de controle"
+          descricao="Fotos adicionais para conferencia interna, estoque e apoio operacional."
+          [tamanhoMaximoPx]="300"
+          textoVazio="Nenhuma imagem de controle cadastrada.">
+        </app-imagem-manager>
+      </div>
+
+      <div class="actions">
+        <button aeroButton="secondary" type="button"  (click)="voltar()">Voltar</button>
+        <button aeroButton="primary" type="button"  (click)="salvar()" [disabled]="salvando">Salvar</button>
+      </div>
+    </div>
+  </div>
+</app-form-submit-loader>
