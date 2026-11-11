@@ -49,6 +49,7 @@ export class MainLayoutComponent implements OnInit {
     { label: 'Clientes', route: '/clientes/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Ordens de servico', route: '/avulsos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Vendas', route: '/comercial/vendas/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+    { label: 'Financeiro', route: '/financeiro', roles: ['ADMIN', 'DEV'] },
     { label: 'Produtos', route: '/produtos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
     { label: 'Servicos', route: '/servicos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
     { label: 'Usuarios', route: '/usuarios/listar', roles: ['ADMIN', 'DEV'] }

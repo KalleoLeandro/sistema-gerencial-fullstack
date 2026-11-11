@@ -164,7 +164,10 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'DEV'] },
         children: [
-{ path: '', redirectTo: 'receber', pathMatch: 'full' }
+{ path: '', redirectTo: 'receber', pathMatch: 'full' },
+{ path: 'pagar', data: { tipo: 'PAGAR' }, loadComponent: () => import('@pages/financeiro/contas/contas.component').then(c => c.ContasComponent) },
+{ path: 'receber', data: { tipo: 'RECEBER' }, loadComponent: () => import('@pages/financeiro/contas/contas.component').then(c => c.ContasComponent) },
+{ path: 'relatorios', loadComponent: () => import('@pages/financeiro/relatorios/relatorios.component').then(c => c.RelatoriosComponent) }
 ]
       },
 {
