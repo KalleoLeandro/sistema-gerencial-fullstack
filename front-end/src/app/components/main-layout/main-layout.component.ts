@@ -45,6 +45,7 @@ export class MainLayoutComponent implements OnInit {
   protected perfil = signal(sessionStorage.getItem('perfil') || '');
 
   protected readonly navItems: NavItem[] = [
+    { label: 'Dashboard', route: '/dashboard', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Agenda', route: '/agenda', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Clientes', route: '/clientes/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },
     { label: 'Ordens de servico', route: '/avulsos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL', 'USER'] },

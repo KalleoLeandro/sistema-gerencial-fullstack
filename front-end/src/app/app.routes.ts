@@ -11,7 +11,7 @@ export const routes: Routes = [
   },
 {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
 {
@@ -19,6 +19,10 @@ export const routes: Routes = [
     loadComponent: () => import('@components/main-layout/main-layout.component').then((c) => c.MainLayoutComponent),
     canActivate: [authGuard],
     children: [
+{
+        path: 'dashboard',
+        loadComponent: () => import('@pages/dashboard/dashboard.component').then((c) => c.DashboardComponent),
+      },
 {
         path: 'agenda',
         children: [

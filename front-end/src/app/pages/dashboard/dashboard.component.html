@@ -1,0 +1,213 @@
+<div class="container-fluid">
+    <div class="card mb-4">
+        <div class="card-header dashboard-hero">
+            <div class="dashboard-hero-grid">
+                <div>
+                    <p class="section-kicker">Visão geral</p>
+                    <h1 class="section-title">Dashboard</h1>
+                    <p class="section-description">{{ dashboardDescricao }}</p>
+                </div>
+
+                <div class="dashboard-hero-aside">
+                    <div class="dashboard-badge">
+                        {{ isAdmin ? 'Visão financeira e contratual da operação.' : 'Visão operacional dos chamados vinculados ao usuário.' }}
+                    </div>
+
+                    <div class="dashboard-hero-note">
+                        <strong>{{ isAdmin ? 'Acompanhamento executivo' : 'Rotina operacional' }}</strong>
+                        <span>{{ isAdmin ? 'Indicadores de contratos, lucros e prazos críticos em destaque.' : 'Resumo rápido dos atendimentos ligados à sua atuação.' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4 p-4 md:p-6">
+            <div *ngIf="isAdmin; else userMetrics" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 metrics-grid-admin">
+                <mat-card class="metric-card metric-card-blue">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="metric-label">Lucro do Mês</p>
+                            <p class="metric-value">{{ lucroMes | currency:'BRL':'symbol':'1.2-2' }}</p>
+                        </div>
+                        <div class="metric-icon bg-blue-500/12 text-blue-600">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                    </div>
+                </mat-card>
+
+                <mat-card class="metric-card metric-card-emerald">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="metric-label">Lucro Anual</p>
+                            <p class="metric-value">{{ lucroAno | currency:'BRL':'symbol':'1.2-2' }}</p>
+                        </div>
+                        <div class="metric-icon bg-emerald-500/12 text-emerald-600">
+                            <i class="fa-solid fa-chart-column"></i>
+                        </div>
+                    </div>
+                </mat-card>
+
+                <mat-card class="metric-card metric-card-rose">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="metric-label">Contratos Encerrando</p>
+                            <p class="metric-value">{{ contratosEncerrando }}</p>
+                        </div>
+                        <div class="metric-icon bg-rose-500/12 text-rose-600">
+                            <i class="fa-solid fa-file-circle-xmark"></i>
+                        </div>
+                    </div>
+                </mat-card>
+
+                <mat-card class="metric-card metric-card-amber">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="metric-label">Chamados Cancelados</p>
+                            <p class="metric-value">{{ chamadosCancelados }}</p>
+                        </div>
+                        <div class="metric-icon bg-amber-500/12 text-amber-600">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                    </div>
+                </mat-card>
+
+                <mat-card class="metric-card metric-card-slate metric-card-action" (click)="navegarParaProdutosEmFalta()">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="metric-label">Produtos em Falta</p>
+                            <p class="metric-value">{{ produtosEmFalta }}</p>
+                        </div>
+                        <div class="metric-icon bg-slate-500/12 text-slate-700">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+
+            <ng-template #userMetrics>
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <mat-card class="metric-card metric-card-blue">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="metric-label">Chamados no Mês</p>
+                                <p class="metric-value">{{ chamadosMes }}</p>
+                            </div>
+                            <div class="metric-icon bg-blue-500/12 text-blue-600">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                        </div>
+                    </mat-card>
+
+                    <mat-card class="metric-card metric-card-rose">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="metric-label">Chamados em Atraso</p>
+                                <p class="metric-value">{{ chamadosAtrasados }}</p>
+                            </div>
+                            <div class="metric-icon bg-rose-500/12 text-rose-600">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+                    </mat-card>
+
+                    <mat-card class="metric-card metric-card-emerald">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="metric-label">Atendidos por Mim</p>
+                                <p class="metric-value">{{ chamadosAtendidosPorMim }}</p>
+                            </div>
+                            <div class="metric-icon bg-emerald-500/12 text-emerald-600">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                        </div>
+                    </mat-card>
+                </div>
+            </ng-template>
+
+            <div class="grid gap-4 xl:grid-cols-2">
+                <mat-card class="panel-card">
+                    <div class="panel-header">
+                        <div>
+                            <p class="panel-kicker">{{ isAdmin ? 'Financeiro' : 'Produtividade' }}</p>
+                            <h2 class="panel-title">{{ isAdmin ? 'Lucros por mês' : 'Total de chamados por mês' }}</h2>
+                        </div>
+                    </div>
+                    <div class="panel-body chart-panel-body">
+                        <canvas #areaCanvas id="area"></canvas>
+                    </div>
+                </mat-card>
+
+                <mat-card class="panel-card">
+                    <div class="panel-header">
+                        <div>
+                            <p class="panel-kicker">Atendimento</p>
+                            <h2 class="panel-title">Atendimentos por tipo</h2>
+                        </div>
+                    </div>
+                    <div class="panel-body chart-panel-body pie-panel-body">
+                        <canvas #tipoCanvas id="tipo-atendimento"></canvas>
+                    </div>
+                </mat-card>
+            </div>
+
+            <mat-card *ngIf="isAdmin" class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <p class="panel-kicker">Comercial</p>
+                        <h2 class="panel-title">Vendas por mês</h2>
+                    </div>
+                </div>
+                <div class="panel-body chart-panel-body chart-panel-body-wide">
+                    <canvas #vendasCanvas id="vendas-mes"></canvas>
+                </div>
+            </mat-card>
+
+            <mat-card *ngIf="isAdmin" class="panel-card calendar-panel">
+                <div class="panel-header">
+                    <div>
+                        <p class="panel-kicker">Contratos</p>
+                        <h2 class="panel-title">Calendário de Contratos</h2>
+                    </div>
+                    <div class="calendar-caption">
+                        Clique em um contrato para abrir os detalhes da empresa.
+                    </div>
+                </div>
+
+                <div class="panel-body calendar-panel-body">
+                    <div class="calendar-layout">
+                        <div class="calendar-wrapper">
+                            <full-calendar [options]="calendarioContratosOptions"></full-calendar>
+                        </div>
+
+                        <div class="contract-list">
+                            <div class="contract-list-header">
+                                <h3>Próximos vencimentos</h3>
+                                <span>{{ contratosProximosVencimentos.length }} contratos</span>
+                            </div>
+
+                            <button aeroButton="secondary"
+                                *ngFor="let contrato of contratosProximosVencimentos | slice:0:8"
+                                type="button"
+                                class="contract-item"
+                                (click)="navegarParaEmpresa(contrato.idEmpresa)">
+                                <div>
+                                    <p class="contract-name">{{ contrato.nomeFantasia }}</p>
+                                    <p class="contract-company">{{ contrato.razaoSocial }}</p>
+                                </div>
+
+                                <div class="contract-meta">
+                                    <strong>{{ formatarDataContrato(contrato.dataFim) }}</strong>
+                                    <span>{{ descricaoDiasRestantes(contrato.diasParaEncerrar) }}</span>
+                                </div>
+                            </button>
+
+                            <div *ngIf="!contratosProximosVencimentos.length" class="contract-empty">
+                                Nenhum contrato com vencimento em menos de 30 dias.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+</div>

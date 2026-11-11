@@ -4,6 +4,7 @@ import { AgendamentoController } from '@controllers/agendamento/agendamento.cont
 import { AvulsoController } from '@controllers/avulso/avulso.controller';
 import { CaixaController } from '@controllers/caixa/caixa.controller';
 import { ClienteController } from '@controllers/cliente/cliente.controller';
+import { DashboardController } from '@controllers/dashboard/dashboard.controller';
 import { EmpresaController } from '@controllers/empresa/empresa.controller';
 import { EquipamentoController } from '@controllers/equipamento/equipamento.controller';
 import { ImagemController } from '@controllers/imagem/imagem.controller';
@@ -30,6 +31,7 @@ import { ProxyService } from '@services/proxy/proxy.service';
     CaixaController,
     ClienteController,
     ManutencaoController,
+    DashboardController,
     ProdutoController,
     ServicoController,
     OrcamentoController,
