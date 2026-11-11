@@ -227,14 +227,90 @@ export const routes: Routes = [
         data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
         children: [
 {
+            path: 'vendas/listar',
+            loadComponent: () => import('@pages/comercial/vendas/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
             path: 'vendas',
             children: [
 {
                 path: '',
                 redirectTo: 'listar',
                 pathMatch: 'full'
+              },
+{
+                path: 'listar',
+                loadComponent: () => import('@pages/comercial/vendas/listar/listar.component').then((c) => c.ListarComponent)
+              },
+{
+                path: 'pdv',
+                data: { modo: 'pdv' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+{
+                path: 'editar/:id',
+                data: { detalheTipo: 'venda', modo: 'pdv', edicao: true },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+{
+                path: 'detalhes/:id',
+                data: { readonly: true, detalheTipo: 'venda', modo: 'pdv' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+{
+                path: 'orcamento',
+                data: { modo: 'orcamento' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+{
+                path: 'orcamentos/listar',
+                loadComponent: () => import('@pages/comercial/orcamentos/listar/listar.component').then((c) => c.ListarComponent)
+              },
+{
+                path: 'orcamentos/editar/:id',
+                data: { detalheTipo: 'orcamento', modo: 'orcamento', edicao: true },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+              },
+{
+                path: 'orcamentos/detalhes/:id',
+                data: { readonly: true, detalheTipo: 'orcamento', modo: 'orcamento' },
+                loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
               }
 ]
+          },
+{
+            path: 'pdv',
+            data: { modo: 'pdv' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+{
+            path: 'orcamento',
+            data: { modo: 'orcamento' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+{
+            path: 'orcamentos/listar',
+            loadComponent: () => import('@pages/comercial/orcamentos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
+            path: 'orcamentos/editar/:id',
+            data: { detalheTipo: 'orcamento', modo: 'orcamento', edicao: true },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+{
+            path: 'orcamentos/detalhes/:id',
+            data: { readonly: true, detalheTipo: 'orcamento', modo: 'orcamento' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+{
+            path: 'vendas/editar/:id',
+            data: { detalheTipo: 'venda', modo: 'pdv', edicao: true },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
+          },
+{
+            path: 'vendas/detalhes/:id',
+            data: { readonly: true, detalheTipo: 'venda', modo: 'pdv' },
+            loadComponent: () => import('@pages/comercial/orcamento/orcamento.component').then((c) => c.OrcamentoComponent)
           }
 ]
       },

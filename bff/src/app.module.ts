@@ -7,8 +7,10 @@ import { EquipamentoController } from '@controllers/equipamento/equipamento.cont
 import { ImagemController } from '@controllers/imagem/imagem.controller';
 import { LoginController } from '@controllers/login/login.controller';
 import { ManutencaoController } from '@controllers/manutencao/manutencao.controller';
+import { OrcamentoController } from '@controllers/orcamento/orcamento.controller';
 import { ProdutoController } from '@controllers/produto/produto.controller';
 import { ServicoController } from '@controllers/servico/servico.controller';
+import { VendaController } from '@controllers/venda/venda.controller';
 import { Module } from '@nestjs/common';
 import { ProxyService } from '@services/proxy/proxy.service';
 
@@ -26,6 +28,8 @@ import { ProxyService } from '@services/proxy/proxy.service';
     ManutencaoController,
     ProdutoController,
     ServicoController,
+    OrcamentoController,
+    VendaController,
   ],
   providers: [ProxyService],
 })

@@ -1,0 +1,76 @@
+<div class="list-page">
+  <section class="hero-card">
+    <div>
+      <small class="eyebrow">Vendas</small>
+      <h2>Orçamentos</h2>
+      <p>Os orçamentos ficam dentro do fluxo de vendas e servem como etapa anterior ao fechamento no PDV.</p>
+    </div>
+
+    <div class="hero-actions">
+      <button aeroButton="secondary" type="button"  (click)="abrirVendas()">Voltar para vendas</button>
+      <button aeroButton="primary" type="button"  (click)="novoOrcamento()">Novo orçamento</button>
+    </div>
+  </section>
+
+  <section class="content-card">
+    <div class="search-row">
+      <app-aero-input class="search-field" label="Pesquisar"  [(ngModel)]="pesquisa" placeholder="Codigo, cliente, documento, origem ou status" (keyup.enter)="pesquisar()"  type="search" />
+      <button aeroButton="primary" type="button"  (click)="pesquisar()">Pesquisar</button>
+    </div>
+
+    <div class="table-meta">
+      <small>Exibindo {{ orcamentos().lista.length }} itens de {{ orcamentos().total }}</small>
+      <app-aero-select class="limit-field" label="Quantidade por página"
+          [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
+          (ngModelChange)="limit = $event; mudarTamanho()" />
+    </div>
+
+    <div class="table-shell">
+      <table class="table align-middle list-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Codigo</th>
+            <th>Cliente</th>
+            <th>Origem</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Criado em</th>
+            <th class="actions-col">Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of orcamentos().lista; track item.id) {
+            <tr>
+              <td>{{ item.id }}</td>
+              <td>{{ item.codigo || 'Rascunho' }}</td>
+              <td>{{ item.cliente_nome }}</td>
+              <td>{{ item.origem_tipo }}</td>
+              <td><span class="status-pill">{{ item.status }}</span></td>
+              <td>{{ item.total_geral | currency:'BRL':'symbol':'1.2-2' }}</td>
+              <td>{{ item.criado_em | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="actions-col">
+                <button aeroButton="primary" type="button" class="aero-button--sm" (click)="editarOrcamento(item.id)">Editar</button>
+                <button aeroButton="secondary" type="button" class="aero-button--sm" (click)="abrirDetalhes(item.id)">Detalhes</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="empty-state">Nenhum orçamento encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <nav aria-label="Paginacao" class="pagination-bar">
+      <button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+      <div class="page-list">
+        <button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+      </div>
+      <button type="button" aeroButton="secondary"  [disabled]="page === totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+    </nav>
+  </section>
+</div>
