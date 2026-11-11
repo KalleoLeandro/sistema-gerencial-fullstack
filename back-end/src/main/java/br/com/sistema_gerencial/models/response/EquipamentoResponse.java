@@ -1,0 +1,37 @@
+package br.com.sistema_gerencial.models.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * Transporta os dados de equipamento retornados pela API.
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+public class EquipamentoResponse {
+	
+	private int id;
+	private String nome_maquina;
+	private String setor;
+	private String tipo_equipamento;
+	private String placa_mae;
+	private String marca;
+	private String modelo;
+	private String numero_serie;
+	private String processador;
+	private String memoria;
+	private String hd_ssd;
+	private String fonte;
+	private String gabinete;
+	private int id_empresa;
+	private String observacoes;
+}
+

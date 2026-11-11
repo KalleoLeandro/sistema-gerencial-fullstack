@@ -1,0 +1,63 @@
+#botaoModal {
+    display: none;
+    visibility: hidden;
+}
+
+.tab-content label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-weight: 700;
+    color: #705214;
+}
+
+.tab-content h6 {
+  min-height: 3.25rem;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(217, 158, 4, 0.18);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffdf7 0%, #f7f2e3 100%);
+  color: rgba(33, 37, 41, 0.82);
+  line-height: 1.45;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.details-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.card.h-100 {
+    border: 1px solid rgba(217, 158, 4, 0.14);
+    border-radius: 1.35rem;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.details-richtext {
+    padding: 1rem 1.125rem;
+    border: 1px solid rgba(217, 158, 4, 0.16);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #fffdf8 0%, #f8f3e7 100%);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    color: rgba(33, 37, 41, 0.8);
+    line-height: 1.6;
+}
+
+:host ::ng-deep .details-richtext p {
+    margin-bottom: 0.75rem;
+}
+
+:host ::ng-deep .details-richtext p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .details-actions {
+        justify-content: flex-start;
+    }
+}

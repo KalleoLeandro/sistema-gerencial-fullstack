@@ -1,0 +1,114 @@
+.page-shell {
+  padding: 1.5rem;
+}
+
+.page-card {
+  margin-bottom: 1rem;
+}
+
+.page-heading,
+.section-heading {
+  background: transparent;
+}
+
+.page-heading h2,
+.section-heading h3 {
+  margin: 0;
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.empresa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.section-card {
+  box-shadow: none;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.form-grid-empresa {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.form-grid-empresa > app-aero-field,
+.form-grid > app-aero-field {
+  grid-column: span 3;
+  min-width: 0;
+}
+
+.form-grid-atendimento {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  justify-content: start;
+}
+
+.form-grid-atendimento > app-aero-field {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+.form-grid .wide-span {
+  grid-column: span 5;
+}
+
+.form-grid .full-span {
+  grid-column: span 6;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+
+
+#id {
+  display: none;
+}
+
+@media screen and (max-width: 1200px) {
+  .form-grid-empresa {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid .wide-span,
+  .form-grid .full-span,
+  .form-grid > app-aero-field {
+    grid-column: span 1;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .page-shell {
+    padding: 1rem;
+  }
+
+  .empresa-form,
+  .form-grid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .form-grid-atendimento,
+  .form-grid-empresa {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid-atendimento app-aero-field {
+    grid-column: span 1;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}

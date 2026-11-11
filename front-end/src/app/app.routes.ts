@@ -20,6 +20,69 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
 {
+        path: 'empresas',
+        children: [
+{
+            path: 'cadastrar',
+            canActivate: [roleGuard],
+            data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+            loadComponent: () => import('@pages/empresas/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'cadastrar/:id',
+            canActivate: [roleGuard],
+            data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+            loadComponent: () => import('@pages/empresas/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'listar',
+            loadComponent: () => import('@pages/empresas/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
+        path: 'equipamentos',
+        children: [
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/empresas/equipamentos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/equipamentos/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
+        path: 'clientes',
+        children: [
+{
+            path: 'cadastrar',
+            canActivate: [roleGuard],
+            data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+            loadComponent: () => import('@pages/empresas/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'cadastrar/:id',
+            canActivate: [roleGuard],
+            data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+            loadComponent: () => import('@pages/empresas/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'listar',
+            loadComponent: () => import('@pages/empresas/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
         path: 'financeiro',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'DEV'] },

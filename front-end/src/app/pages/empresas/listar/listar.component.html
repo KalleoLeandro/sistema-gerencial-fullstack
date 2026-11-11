@@ -1,0 +1,64 @@
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Cadastros</small>
+<h2>Clientes</h2>
+<p>Consulte os clientes e acesse seus dados e histórico.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="primary" type="button" (click)="cadastrarNovo()" *ngIf="perfil != 'USER'">Novo cliente</button>
+</div>
+</section>
+<section class="content-card">
+<div class="search-row">
+<app-aero-input class="search-field" label="Pesquisar"  type="search" placeholder="Digite parte do nome do cliente" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()" (keyup.enter)="carregarEmpresas()"  />
+<button aeroButton="primary" type="button" (click)="carregarEmpresas()">Pesquisar</button>
+</div>
+<div class="table-meta">
+<small>Exibindo {{ empresas().lista.length }} itens de {{ totalItens }}</small>
+<app-aero-select class="limit-field" label="Quantidade por página"
+          [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
+          (ngModelChange)="limit = $event; mudarTamanho()" />
+</div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Cliente</th>
+<th>CPF/CNPJ</th>
+<th>Telefone</th>
+<th>Cidade</th>
+<th class="actions-col">Ações</th>
+</tr>
+</thead>
+<tbody>@for (item of empresas().lista; track item.id) {
+<tr>
+<td>{{ item.id }}</td>
+<td>{{ item.nome_cliente || item.nome_fantasia || item.razao_social }}</td>
+<td>{{ item.cpf_cnpj || item.cnpj || item.documento || '-' }}</td>
+<td>{{ item.telefone || item.celular || '-' }}</td>
+<td>{{ item.cidade || '-' }}</td>
+<td class="actions-col">
+<button aeroButton="primary" type="button" class="aero-button--sm" (click)="alterarEmpresa(item.id)" *ngIf="perfil != 'USER'">Editar</button>
+<a aeroButton="secondary" class="aero-button--sm" [routerLink]="['/clientes/detalhes', item.id]">Detalhes</a>
+</td>
+</tr>
+} @empty {
+<tr>
+<td colspan="6" class="empty-state">Nenhum cliente encontrado.</td>
+</tr>
+}</tbody>
+</table>
+</div>
+<nav aria-label="Paginacao" class="pagination-bar">
+<button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+<div class="page-list">
+<button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+</div>
+<button type="button" aeroButton="secondary"  [disabled]="page >= totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+</nav>
+</section>
+</div>

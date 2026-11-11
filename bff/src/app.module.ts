@@ -1,3 +1,7 @@
+import { ClienteController } from '@controllers/cliente/cliente.controller';
+import { EmpresaController } from '@controllers/empresa/empresa.controller';
+import { EquipamentoController } from '@controllers/equipamento/equipamento.controller';
+import { ImagemController } from '@controllers/imagem/imagem.controller';
 import { LoginController } from '@controllers/login/login.controller';
 import { ProdutoController } from '@controllers/produto/produto.controller';
 import { ServicoController } from '@controllers/servico/servico.controller';
@@ -8,6 +12,10 @@ import { ProxyService } from '@services/proxy/proxy.service';
   imports: [],
   controllers: [
     LoginController,
+    EmpresaController,
+    EquipamentoController,
+    ImagemController,
+    ClienteController,
     ProdutoController,
     ServicoController,
   ],

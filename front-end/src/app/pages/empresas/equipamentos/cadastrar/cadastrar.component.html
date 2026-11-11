@@ -1,0 +1,110 @@
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando equipamento...' : 'Cadastrando equipamento...'">
+  <div class="page-shell">
+    <div class="card page-card">
+      <div class="card-header py-3 mb-2 page-heading">
+        <h2>Cadastro de Equipamentos</h2>
+      </div>
+      <form [formGroup]="cadastroForm" class="equipamento-form">
+        <input type="hidden" name="id" id="id" formControlName="id">
+
+        <div class="card section-card">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Dados do Equipamento</h3>
+          </div>
+
+        <div class="form-grid">
+          <app-aero-field>
+            <span aeroLabel>Setor</span>
+            <select aeroControl formControlName="setor">
+              <option value="">--Selecione uma opcao--</option>
+              <option *ngFor="let item of setores" [ngValue]="item">{{ item }}</option>
+            </select>
+            <span aeroError *ngIf="cadastroForm.controls['setor'].touched && cadastroForm.controls['setor'].invalid">
+              Campo obrigatorio
+            </span>
+          </app-aero-field>
+
+          <app-aero-field>
+            <span aeroLabel>Tipo Equipamento</span>
+            <select aeroControl formControlName="tipo_equipamento">
+              <option value="">--Selecione uma opcao--</option>
+              <option *ngFor="let item of tipo_equipamento" [ngValue]="item">{{ item }}</option>
+            </select>
+            <span aeroError *ngIf="cadastroForm.controls['tipo_equipamento'].touched && cadastroForm.controls['tipo_equipamento'].invalid">
+              Campo obrigatorio
+            </span>
+          </app-aero-field>
+
+          <app-aero-field class="span-4">
+            <span aeroLabel>Nome da Maquina</span>
+            <input aeroControl type="text" formControlName="nome_maquina" name="nome_maquina">
+            <span aeroError *ngIf="cadastroForm.controls['nome_maquina'].touched && cadastroForm.controls['nome_maquina'].invalid">
+              Campo obrigatorio
+            </span>
+          </app-aero-field>
+
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
+            <span aeroLabel>Placa Mae</span>
+            <input aeroControl type="text" formControlName="placa_mae" name="placa_mae">
+          </app-aero-field>
+
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <span aeroLabel>Marca</span>
+            <input aeroControl type="text" formControlName="marca" name="marca">
+          </app-aero-field>
+
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <span aeroLabel>Modelo</span>
+            <input aeroControl type="text" formControlName="modelo" name="modelo">
+          </app-aero-field>
+
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Notebook'">
+            <span aeroLabel>Numero de Serie</span>
+            <input aeroControl type="text" formControlName="numero_serie" name="numero_serie">
+          </app-aero-field>
+
+          <app-aero-field>
+            <span aeroLabel>Processador</span>
+            <input aeroControl type="text" formControlName="processador" name="processador">
+          </app-aero-field>
+
+          <app-aero-field>
+            <span aeroLabel>Memoria</span>
+            <input aeroControl type="text" formControlName="memoria" name="memoria">
+          </app-aero-field>
+
+          <app-aero-field>
+            <span aeroLabel>HD/SSD</span>
+            <input aeroControl type="text" formControlName="hd_ssd" name="hd_ssd">
+          </app-aero-field>
+
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].valid">
+            <span aeroLabel>{{ cadastroForm.controls['tipo_equipamento'].value === 'Desktop' ? 'Fonte' : 'Carregador' }}</span>
+            <input aeroControl type="text" formControlName="fonte" name="fonte">
+          </app-aero-field>
+
+          <app-aero-field *ngIf="cadastroForm.controls['tipo_equipamento'].value === 'Desktop'">
+            <span aeroLabel>Gabinete</span>
+            <input aeroControl type="text" formControlName="gabinete" name="gabinete">
+          </app-aero-field>
+
+          <div class="span-12 editor-shell">
+            <label>Observacoes</label>
+            <textarea aeroControl formControlName="observacoes" class="editor-textarea" rows="8"
+              placeholder="Digite a descricao"></textarea>
+          </div>
+        </div>
+        </div>
+
+        <div class="form-actions">
+          <button aeroButton="primary"  (click)="$event.preventDefault(); cadastrarAtualizarEquipamento()">
+            {{ id ? 'Atualizar' : 'Cadastrar' }}
+          </button>
+          <button aeroButton="secondary"  (click)="$event.preventDefault(); limparFormulario()">
+            {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</app-form-submit-loader>

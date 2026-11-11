@@ -1,0 +1,339 @@
+<div class="container-fluid">
+
+    <div class="card h-100 mb-4" id="empresa-detalhes-pdf">
+        <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                {{ empresa?.nome_fantasia || empresa?.nome_cliente }}
+            </h6>
+            <button aeroButton="primary" type="button" class="pdf-hide" (click)="exportarPdf()">
+                Exportar PDF
+            </button>
+        </div>
+
+        <div class="col-12">
+
+            <ul class="nav nav-tabs" id="tabs" role="tablist">
+                <li class="nav-item">
+                    <button aeroButton="secondary" class="nav-link active" data-bs-toggle="tab" data-bs-target="#home">
+                        Dados basicos
+                    </button>
+                </li>
+                <li class="nav-item" *ngIf="exibeRecursosContrato">
+                    <button aeroButton="secondary" class="nav-link" data-bs-toggle="tab" data-bs-target="#profile">
+                        Equipamentos
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button aeroButton="secondary" class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-atendimento">
+                        Ordens de servico
+                    </button>
+                </li>
+                <li class="nav-item" *ngIf="exibeRecursosContrato">
+                    <button aeroButton="secondary" class="nav-link" data-bs-toggle="tab" data-bs-target="#historico-manutencao">
+                        Manutencoes
+                    </button>
+                </li>
+            </ul>
+
+            <div class="mt-2 p-4">
+                <div class="tab-content">
+
+                    <div class="tab-pane fade show active details-pane" id="home">
+
+                        <div class="row">
+
+                            <div class="col-12 col-xl-8">
+
+                                <div class="row g-3">
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>{{ empresa?.tipo_pessoa === 'f' ? 'Nome do cliente' : 'Nome fantasia' }}</label>
+                                        <h6>{{ empresa?.nome_fantasia || empresa?.nome_cliente }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12" *ngIf="empresa?.tipo_pessoa === 'j'">
+                                        <label>Razao social</label>
+                                        <h6>{{ empresa?.razao_social }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>{{ empresa?.tipo_pessoa === 'f' ? 'CPF' : 'CNPJ' }}</label>
+                                        <h6>{{ empresa?.cpf_cnpj || empresa?.cnpj }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12" *ngIf="empresa?.tipo_pessoa === 'j'">
+                                        <label>IE</label>
+                                        <h6>{{ empresa?.ie || empresa?.inscricao }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>CEP</label>
+                                        <h6>{{ empresa?.cep }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Endereco</label>
+                                        <h6>{{ empresa?.endereco }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Numero</label>
+                                        <h6>{{ empresa?.numero }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Bairro</label>
+                                        <h6>{{ empresa?.bairro }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Cidade</label>
+                                        <h6>{{ empresa?.cidade }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>UF</label>
+                                        <h6>{{ empresa?.uf }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Telefone</label>
+                                        <h6>{{ empresa?.telefone }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Celular</label>
+                                        <h6>{{ empresa?.celular }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Email</label>
+                                        <h6>{{ empresa?.email }}</h6>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <label>Contato</label>
+                                        <h6>{{ empresa?.contato }}</h6>
+                                    </div>
+
+                                </div>
+
+                                <hr class="details-divider">
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6 col-12">
+                                        <label>Contrato ativo</label>
+                                        <h6>{{ empresa?.possui_contrato ? 'Sim' : 'Nao' }}</h6>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <label>Historico de contrato</label>
+                                        <h6>{{ empresa?.teve_contrato ? 'Sim' : 'Nao' }}</h6>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3" *ngIf="empresa?.teve_contrato">
+                                    <div class="col-md-6 col-12">
+                                        <label>Inicio do contrato</label>
+                                        <h6>{{ empresa?.data_inicio | date:'dd/MM/yyyy' }}</h6>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <label>Fim do contrato</label>
+                                        <h6>{{ empresa?.data_fim | date:'dd/MM/yyyy' }}</h6>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 mb-3 pdf-hide">
+                                    <button aeroButton="secondary" type="button"  (click)="alterarEmpresa()">
+                                        Alterar
+                                    </button>
+                                    <button aeroButton="primary" type="button"  *ngIf="empresa?.teve_contrato || empresa?.possui_contrato"
+                                        (click)="renovarContrato()">
+                                        Renovar contrato
+                                    </button>
+                                    <button aeroButton="danger" type="button"  (click)="modalExcluirEmpresa()">
+                                        Excluir
+                                    </button>
+                                </div>
+
+                                <div class="mt-4" *ngIf="renovacoesContrato().length">
+                                    <label class="mb-2">Historico de renovacoes</label>
+                                    <div class="details-table-shell">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Inicio</th>
+                                                    <th>Fim</th>
+                                                    <th>Registro</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for(item of renovacoesContrato(); track item.id){
+                                                <tr>
+                                                    <td>{{ item.data_inicio_novo | date:'dd/MM/yyyy' }}</td>
+                                                    <td>{{ item.data_fim_novo | date:'dd/MM/yyyy' }}</td>
+                                                    <td>{{ item.criado_em | date:'dd/MM/yyyy HH:mm' }}</td>
+                                                </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-12 col-xl-4 ps-xl-3 mt-4 mt-xl-0" *ngIf="exibeRecursosContrato">
+
+                                <label class="mb-2">Informacoes gerais de infraestrutura</label>
+
+                                <div class="details-infra-shell mb-2 overflow-hidden">
+
+                                    <div *ngIf="perfil === 'USER' || !editandoInfra; else infraEditor"
+                                        class="details-text-content">
+                                        {{ dadosInfra || 'Nenhuma informacao cadastrada.' }}
+                                    </div>
+
+                                    <ng-template #infraEditor>
+                                        <textarea aeroControl
+                                            [(ngModel)]="dadosInfra"
+                                            class="details-textarea details-infra-textarea"
+                                            rows="14"
+                                            placeholder="Digite as informacoes de infraestrutura"></textarea>
+                                    </ng-template>
+
+                                </div>
+
+                                <div class="d-grid gap-2 pdf-hide" *ngIf="perfil !== 'USER'">
+                                    <button aeroButton="primary" type="button" class="w-100"
+                                        (click)="habilitarEdicaoInfra()" *ngIf="!editandoInfra">
+                                        Editar dados de infraestrutura
+                                    </button>
+
+                                    <button aeroButton="success" type="button" class="w-100"
+                                        (click)="$event.preventDefault(); salvarDadosInfra()" *ngIf="editandoInfra"
+                                        [disabled]="!dadosInfra?.trim()">
+                                        Salvar dados de infraestrutura
+                                    </button>
+
+                                    <button aeroButton="secondary" type="button" class="w-100"
+                                        (click)="cancelarEdicaoInfra()" *ngIf="editandoInfra">
+                                        Cancelar
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade details-pane" id="profile" *ngIf="exibeRecursosContrato">
+                        <div class="d-flex p-2 pdf-hide details-toolbar">
+                            <button aeroButton="primary" type="button"  (click)="cadastrarNovoEquipamento()">
+                                Cadastrar novo equipamento
+                            </button>
+                        </div>
+
+                        <div class="details-table-shell">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Setor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(item of listaEquipamentos().lista; track item){
+                                    <tr>
+                                        <td>
+                                            <a [routerLink]="['/equipamentos/detalhes', item.id]"
+                                                [queryParams]="{ id_empresa: empresa?.id }">
+                                                {{ item?.nome_maquina }}
+                                            </a>
+                                        </td>
+                                        <td>{{ item?.setor }}</td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade details-pane" id="historico-atendimento">
+                        <div class="d-flex p-2 pdf-hide details-toolbar">
+                            <button aeroButton="primary" type="button"  (click)="cadastrarNovoAtendimento()">
+                                Cadastrar nova ordem de servico
+                            </button>
+                        </div>
+
+                        <div class="details-table-shell">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Data inicio</th>
+                                        <th>Data fim</th>
+                                        <th>Solicitante</th>
+                                        <th>Executores</th>
+                                        <th>Status</th>
+                                        <th>Detalhar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(item of listaAtendimentos().lista; track item){
+                                    <tr>
+                                        <td>{{ item.id }}</td>
+                                        <td>{{ item.data_inicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.data_fim | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.solicitante }}</td>
+                                        <td>{{ formatarExecutores(item.executores) }}</td>
+                                        <td>{{ item.status_atendimento | statusAtendimento }}</td>
+                                        <td>
+                                            <button aeroButton="secondary" (click)="detalharAtendimento(item.id)">
+                                                <i class="fa-solid fa-search"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade details-pane" id="historico-manutencao" *ngIf="exibeRecursosContrato">
+                        <div class="details-table-shell">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Data inicio</th>
+                                        <th>Data fim</th>
+                                        <th>Tipo</th>
+                                        <th>Status</th>
+                                        <th>Detalhar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(item of listaManutencoes().lista; track item){
+                                    <tr>
+                                        <td>{{ item.id }}</td>
+                                        <td>{{ item.data_inicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.data_fim | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ item.tipo_servico }}</td>
+                                        <td>{{ item.status_atendimento | statusAtendimento }}</td>
+                                        <td>
+                                            <button aeroButton="secondary" (click)="detalharManutencao(item.id)">
+                                                <i class="fa-solid fa-search"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

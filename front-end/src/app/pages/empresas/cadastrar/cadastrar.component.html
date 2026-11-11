@@ -1,0 +1,200 @@
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando cliente...' : 'Cadastrando cliente...'">
+  <div class="page-shell">
+    <div class="card page-card">
+      <div class="card-header py-3 mb-2 page-heading">
+        <h2>Cadastro de Clientes</h2>
+      </div>
+
+      <form [formGroup]="cadastroForm" class="empresa-form">
+        <input aeroControl type="text" name="id" id="id" formControlName="id">
+
+        <div class="card section-card">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Dados do Cliente</h3>
+          </div>
+
+          <div class="form-grid form-grid-empresa">
+            <div class="full-span d-flex flex-column gap-2">
+              <label class="fw-semibold">Tipo de pessoa</label>
+              <app-aero-radio-group class="d-flex gap-4" [ngModel]="cadastroForm.get('tipo_pessoa')?.value"
+                (ngModelChange)="cadastroForm.get('tipo_pessoa')?.patchValue($event)"
+                [ngModelOptions]="{ standalone: true }" [options]="[{label: 'Pessoa Física', value: 'f'}, {label: 'Pessoa Jurídica', value: 'j'}]"></app-aero-radio-group>
+            </div>
+
+            <app-aero-field class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <span aeroLabel>Razao social</span>
+              <input aeroControl type="text" formControlName="razao_social">
+              <span aeroError *ngIf="isInvalid('razao_social')">Campo obrigatorio</span>
+            </app-aero-field>
+
+            <app-aero-field class="full-span">
+              <span aeroLabel>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'Nome fantasia' : 'Nome' }}</span>
+              <input aeroControl type="text" formControlName="nome_fantasia">
+              <span aeroError *ngIf="isInvalid('nome_fantasia')">Campo obrigatorio</span>
+            </app-aero-field>
+
+            <app-aero-field class="full-span" *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <span aeroLabel>Nome exibido</span>
+              <input aeroControl type="text" formControlName="nome_cliente">
+              <span aeroError *ngIf="isInvalid('nome_cliente')">Campo obrigatorio</span>
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>{{ cadastroForm.get('tipo_pessoa')?.value === 'j' ? 'CNPJ' : 'CPF' }}</span>
+              <input aeroControl type="text" formControlName="cpf_cnpj"
+                [mask]="cadastroForm.get('tipo_pessoa')?.value === 'j' ? '00.000.000/0000-00' : '000.000.000-00'"
+                (input)="buscarCnpj()">
+            </app-aero-field>
+
+            <app-aero-field *ngIf="cadastroForm.get('tipo_pessoa')?.value === 'j'">
+              <span aeroLabel>IE</span>
+              <input aeroControl type="text" formControlName="ie" maxlength="20">
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>CEP</span>
+              <input aeroControl type="text" formControlName="cep" name="cep" mask="00.000-000" (input)="buscarCep()">
+            </app-aero-field>
+
+            <app-aero-field class="wide-span">
+              <span aeroLabel>Endereco</span>
+              <input aeroControl type="text" formControlName="endereco" name="endereco">
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Numero</span>
+              <input
+                aeroControl
+                type="number"
+                formControlName="numero"
+                name="numero"
+                min="0"
+                step="1"
+                onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '+';">
+              <span aeroError *ngIf="isInvalid('numero')">Numero invalido</span>
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Complemento</span>
+              <input aeroControl type="text" formControlName="complemento" name="complemento">
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Bairro</span>
+              <input aeroControl type="text" formControlName="bairro" name="bairro">
+            </app-aero-field>
+
+            <app-aero-field class="wide-span">
+              <span aeroLabel>Cidade</span>
+              <input aeroControl type="text" formControlName="cidade" name="cidade">
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>UF</span>
+              <input aeroControl type="text" formControlName="uf" name="uf">
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Telefone</span>
+              <input aeroControl type="text" formControlName="telefone" name="telefone" mask="(00) 0000-0000">
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Celular</span>
+              <input aeroControl type="text" formControlName="celular" name="celular" mask="(00) 00000-0000">
+              <span aeroError *ngIf="isInvalid('celular')">Informe pelo menos 11 digitos</span>
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Email</span>
+              <input aeroControl type="email" formControlName="email" name="email">
+            </app-aero-field>
+
+            <app-aero-field class="full-span">
+              <span aeroLabel>Contato</span>
+              <input aeroControl type="text" formControlName="contato" name="contato">
+            </app-aero-field>
+          </div>
+        </div>
+
+        <div class="card section-card">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Vinculo Contratual</h3>
+          </div>
+
+          <div class="form-grid form-grid-atendimento">
+            <div class="full-span d-flex flex-column gap-2">
+              <label class="fw-semibold">Situacao do contrato</label>
+              <div class="d-flex flex-wrap gap-4">
+                <app-aero-checkbox formControlName="possui_contrato" label="Possui contrato ativo" />
+                <app-aero-checkbox formControlName="teve_contrato" label="Possui histórico de contrato" />
+              </div>
+            </div>
+
+            <app-aero-field *ngIf="possuiHistoricoContrato">
+              <span aeroLabel>Inicio do contrato</span>
+              <input aeroControl aeroDate="date" formControlName="data_inicio" placeholder="Selecione a data">
+
+              <span aeroError *ngIf="cadastroForm.get('data_inicio')?.hasError('required')">Campo obrigatorio</span>
+              <span aeroError *ngIf="hasDateRangeError('data_inicio')">A data inicial nao pode ser maior que a data final</span>
+            </app-aero-field>
+
+            <app-aero-field *ngIf="possuiHistoricoContrato">
+              <span aeroLabel>Fim do contrato</span>
+              <input aeroControl aeroDate="date" [min]="minDate" formControlName="data_fim" placeholder="Selecione a data">
+
+              <span aeroError *ngIf="cadastroForm.get('data_fim')?.hasError('required')">Campo obrigatorio</span>
+              <span aeroError *ngIf="cadastroForm.get('data_fim')?.hasError('dataPassada')">A data final nao pode ser menor que hoje</span>
+              <span aeroError *ngIf="cadastroForm.get('data_fim')?.hasError('dataFinalMenorQueDataInicial')">A data final deve ser igual ou maior que a data inicial</span>
+              <span aeroError *ngIf="hasDateRangeError('data_fim')">A data final deve ser igual ou maior que a data inicial</span>
+            </app-aero-field>
+          </div>
+        </div>
+
+        <div class="card section-card" *ngIf="id">
+          <div class="card-header py-3 mb-2 section-heading">
+            <h3>Renovacao de Contrato</h3>
+          </div>
+
+          <div class="form-grid form-grid-atendimento">
+            <app-aero-field>
+              <span aeroLabel>Novo inicio do contrato</span>
+              <input aeroControl aeroDate="date" [(ngModel)]="renovacaoDataInicio" [ngModelOptions]="{ standalone: true }" placeholder="Selecione a data">
+
+            </app-aero-field>
+
+            <app-aero-field>
+              <span aeroLabel>Novo fim do contrato</span>
+              <input aeroControl aeroDate="date" [(ngModel)]="renovacaoDataFim" [ngModelOptions]="{ standalone: true }" [min]="minDate" placeholder="Selecione a data">
+
+            </app-aero-field>
+
+            <app-aero-field class="full-span">
+              <span aeroLabel>Observacoes da renovacao</span>
+              <textarea aeroControl rows="4" [(ngModel)]="renovacaoObservacoes" [ngModelOptions]="{ standalone: true }"></textarea>
+            </app-aero-field>
+          </div>
+
+          <div class="form-actions">
+            <button aeroButton="primary" class="primary-action" type="button" (click)="renovarContrato()"
+              [disabled]="renovandoContrato || !renovacaoDataInicio || !renovacaoDataFim">
+              Registrar renovacao
+            </button>
+            <button aeroButton="secondary" class="secondary-action" type="button" (click)="limparRenovacaoContrato()">
+              Limpar renovacao
+            </button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button aeroButton="primary" class="primary-action" type="button" (click)="cadastrarAtualizarEmpresa()">
+            Salvar cliente
+          </button>
+          <button aeroButton="secondary" class="secondary-action" type="button" (click)="limparFormulario()">
+            {{ id ? 'Restaurar Campos' : 'Limpar Formulario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</app-form-submit-loader>
