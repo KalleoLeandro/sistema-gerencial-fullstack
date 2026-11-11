@@ -46,6 +46,7 @@ export class MainLayoutComponent implements OnInit {
 
   protected readonly navItems: NavItem[] = [
     { label: 'Produtos', route: '/produtos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+    { label: 'Servicos', route: '/servicos/listar', roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
     { label: 'Usuarios', route: '/usuarios/listar', roles: ['ADMIN', 'DEV'] }
   ];
 

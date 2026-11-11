@@ -63,6 +63,25 @@ export const routes: Routes = [
 ]
       },
 {
+        path: 'servicos',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },
+        children: [
+{
+            path: 'listar',
+            loadComponent: () => import('@pages/servicos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/servicos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'cadastrar/:id',
+            loadComponent: () => import('@pages/servicos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          }
+]
+      },
+{
         path: 'comercial',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'DEV', 'COMERCIAL'] },

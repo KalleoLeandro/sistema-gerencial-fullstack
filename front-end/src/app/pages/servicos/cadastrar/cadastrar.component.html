@@ -1,0 +1,39 @@
+<app-form-submit-loader [loading]="salvando" [message]="id ? 'Atualizando servico...' : 'Cadastrando servico...'">
+  <div class="container-fluid">
+    <div class="card page-card">
+      <div class="page-header">
+        <div>
+          <small class="eyebrow">Catalogo</small>
+          <h2>{{ id ? 'Editar servico' : 'Novo servico' }}</h2>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <app-aero-field>
+          <span aeroLabel>Codigo</span>
+          <input aeroControl [(ngModel)]="form.codigo" />
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Nome</span>
+          <input aeroControl [(ngModel)]="form.nome" />
+        </app-aero-field>
+        <app-aero-field class="full">
+          <span aeroLabel>Descricao</span>
+          <textarea aeroControl [(ngModel)]="form.descricao" rows="4"></textarea>
+        </app-aero-field>
+        <app-aero-field>
+          <span aeroLabel>Valor padrao</span>
+          <input aeroControl [(ngModel)]="form.valor_padrao" type="text" currencyMask [options]="moneyMaskOptions" />
+        </app-aero-field>
+        <div class="toggle-field">
+          <app-aero-checkbox [(ngModel)]="form.ativo" label="Servico ativo"></app-aero-checkbox>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button aeroButton="secondary" type="button"  (click)="voltar()">Voltar</button>
+        <button aeroButton="primary" type="button"  (click)="salvar()" [disabled]="salvando">Salvar</button>
+      </div>
+    </div>
+  </div>
+</app-form-submit-loader>
