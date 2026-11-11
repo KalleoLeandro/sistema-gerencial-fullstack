@@ -84,6 +84,23 @@ export const routes: Routes = [
 ]
       },
 {
+        path: 'avulsos',
+        children: [
+{
+            path: 'listar',
+            loadComponent: () => import('@pages/avulsos/listar/listar.component').then((c) => c.ListarComponent)
+          },
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/avulsos/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/avulsos/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
         path: 'ordens-servico',
         children: [
 {

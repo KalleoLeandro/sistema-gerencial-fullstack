@@ -1,0 +1,110 @@
+<div class="list-page">
+<section class="hero-card">
+<div>
+<small class="eyebrow">Cadastros</small>
+<h2>Ordens de serviço</h2>
+<p>Consulte os atendimentos e acompanhe os serviços realizados.</p>
+</div>
+<div class="hero-actions">
+<button aeroButton="primary" type="button" (click)="cadastrarNovo()">Cadastrar</button>
+</div>
+</section>
+<section class="content-card">
+<div class="search-row">
+<app-aero-input class="search-field" *ngIf="tipo_consulta == 'nome'" label="Pesquisa"  type="search" placeholder="Digite parte do nome do cliente" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()"  />
+<app-aero-input class="search-field" *ngIf="tipo_consulta == 'cpf'" label="Pesquisa"  type="search" placeholder="Digite parte do CPF do cliente" mask="000.000.000-00" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()"  />
+<app-aero-input class="search-field" *ngIf="tipo_consulta == 'cnpj'" label="Pesquisa"  type="search" placeholder="Digite parte do CNPJ do cliente" mask="00.000.000/0000-00" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()"  />
+<app-aero-field class="search-field" *ngIf="tipo_consulta == 'data_inicio'">
+<span aeroLabel>Pesquisa</span>
+<input aeroControl aeroDate="date" [ngModel]="dataInicioPesquisa" (ngModelChange)="onDataInicioPesquisaChange($event)" [ngModelOptions]="{ standalone: true }" placeholder="Selecione a data do atendimento" aria-label="Pesquisar" />
+</app-aero-field>
+<app-aero-input class="search-field" *ngIf="tipo_consulta == 'executor_interno'" label="Pesquisa"  type="search" placeholder="Digite parte do nome do executor interno" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()"  />
+<app-aero-input class="search-field" *ngIf="tipo_consulta == 'executor_externo'" label="Pesquisa"  type="search" placeholder="Digite parte do nome do executor externo" [(ngModel)]="dadosPesquisa" (ngModelChange)="verificarVazio()"  />
+<app-aero-field class="type-field">
+<span aeroLabel>Tipo de pesquisa</span>
+<select aeroControl [(ngModel)]="tipo_consulta" (ngModelChange)="limparPesquisa()">
+<option *ngFor="let item of atributo; let i = index" [value]="item.nome">{{ item.descricao }}</option>
+</select>
+</app-aero-field>
+<div class="search-action">
+<button aeroButton="primary" type="button"  (click)="carregarHistoricoAvulsos()">
+            Pesquisar
+          </button>
+</div>
+</div>
+<div class="table-meta">
+<small>Exibindo {{ listaAvulsos().lista.length }} itens de {{ listaAvulsos().total }}</small>
+<app-aero-select class="limit-field" label="Quantidade por página"
+          [options]="pageSizeOptions" [ngModel]="limit" name="limit" required
+          (ngModelChange)="limit = $event; mudarTamanho()" />
+</div>
+<div class="table-shell">
+<table class="table align-middle list-table">
+<thead class="thead-dark">
+<tr>
+<th scope="col">N</th>
+<th scope="col">Nome</th>
+<th scope="col">Data Inicio</th>
+<th scope="col">Data Fim</th>
+<th scope="col">CPF/CNPJ</th>
+<th scope="col">Executores</th>
+<th scope="col">Status do Atendimento</th>
+<th scope="col">Valor do Servico</th>
+<th scope="col" class="actions-col">Ações</th>
+</tr>
+</thead>
+<tbody>
+          @for(item of listaAvulsos().lista; track item){
+          <tr>
+<td>{{item.id}}</td>
+<td>
+{{item.nome_cliente}}
+</td>
+<td>{{item.data_inicio | date:'dd/MM/yyyy HH:mm'}}</td>
+<td>{{item.data_fim | date:'dd/MM/yyyy HH:mm'}}</td>
+<td>{{item.cpf_cnpj}}</td>
+<td>{{formatarExecutores(item.executores)}}</td>
+<td>{{item.status_atendimento | statusAtendimento}}</td>
+<td>{{ item.valor_servico | currency:'BRL':'symbol':'1.2-2' }}</td>
+<td class="actions-col">
+  <button aeroButton="primary" type="button" class="aero-button--sm" (click)="alterarAvulso(item.id)">Editar</button>
+  <a aeroButton="secondary" class="aero-button--sm" [routerLink]="['/avulsos/detalhes', item.id]">Detalhes</a>
+</td>
+</tr>
+          }
+        <tr *ngIf="!listaAvulsos().lista.length">
+<td colspan="9" class="empty-state">Nenhum registro encontrado.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<nav aria-label="Paginacao" class="pagination-bar">
+<button type="button" aeroButton="secondary"  [disabled]="page === 1" (click)="irParaPagina(page - 1)">Anterior</button>
+<div class="page-list">
+<button type="button" [aeroButton]="page === pagina ? 'primary' : 'secondary'"  *ngFor="let pagina of paginasVisiveis" [class.active]="page === pagina" (click)="irParaPagina(pagina)" [attr.aria-current]="page === pagina ? 'page' : null">
+          {{ pagina }}
+        </button>
+</div>
+<button type="button" aeroButton="secondary"  [disabled]="page >= totalPages" (click)="irParaPagina(page + 1)">Proximo</button>
+</nav>
+</section>
+</div>
+<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacao" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="modalConfirmacao">Cadastro de Atendimentos Avulsos</h5>
+<button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">×</span>
+</button>
+</div>
+<div class="modal-body">
+<span>{{resposta}}</span>
+</div>
+<div class="modal-footer">
+<button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirAvulso()">Excluir</button>
+<button aeroButton="secondary" type="button"  data-bs-dismiss="modal">Fechar</button>
+</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,224 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card h-100 mb-4" id="avulso-detalhes-pdf">
+        <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
+            <h6 class="m-0 font-weight-bold text-secondary">Detalhes da Ordem de Servico #{{avulso?.id}}</h6>
+            <button aeroButton="primary" type="button" class="pdf-hide" (click)="exportarPdf()">
+                Exportar PDF
+            </button>
+        </div>
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+                <ul class="nav nav-tabs flex-grow-1" id="tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button aeroButton="secondary" class="nav-link active" id="tab1" data-bs-toggle="tab" data-bs-target="#home" type="button"
+                            role="tab" aria-controls="home" aria-selected="true">Dados Basicos</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="mt-2 p-4">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel"
+                        aria-labelledby="home-tab">
+                        <div class="details-actions pdf-hide">
+                            <button aeroButton="secondary" type="button"  *ngIf="!mostrarSelecao"
+                                (click)="alterarAvulso()">Alterar</button>
+                            <button aeroButton="primary" type="button"
+                                (click)="abrirFluxoComercial()">Orcamento / Venda</button>
+                            <button aeroButton="secondary" type="button"  *ngIf="
+                                    !mostrarSelecao &&
+                                    (
+                                        perfil !== 'USER' ||
+                                        (perfil === 'USER' && avulso?.status_atendimento !== 3 && avulso?.status_atendimento !== 4)
+                                    )
+                                " (click)="mostrarSelecao = true">Mudar Status</button>
+                            <button aeroButton="secondary" type="button"  *ngIf="mostrarSelecao"
+                                (click)="alterarStatusAvulso()">Salvar Status</button>
+                            <select aeroControl class="form-control details-actions__select" [(ngModel)]="statusSelecionado" *ngIf="mostrarSelecao">
+                                <option [ngValue]="null">--Selecione uma opcao</option>
+                                <option *ngFor="let item of status_atendimento" [ngValue]="item.id">
+                                    {{ item.descricao }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="row g-4 mt-1">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label *ngIf="avulso?.tipo_pessoa?.toLowerCase() === 'f'">Nome do Cliente</label>
+                                <label *ngIf="avulso?.tipo_pessoa?.toLowerCase() === 'j'">Nome Fantasia</label>
+                                <h6>{{ avulso?.nome_cliente }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12" *ngIf="avulso?.tipo_pessoa?.toLowerCase() === 'j'">
+                                <label>Razao Social</label>
+                                <h6>{{ avulso?.razao_social }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>CPF/CNPJ</label>
+                                <h6>{{ avulso?.cpf_cnpj }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>IE</label>
+                                <h6>{{ avulso?.ie }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Contato</label>
+                                <h6>{{ avulso?.contato }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>CEP</label>
+                                <h6>{{ avulso?.cep }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Endereco</label>
+                                <h6>{{ avulso?.endereco }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Numero</label>
+                                <h6>{{ avulso?.numero }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Bairro</label>
+                                <h6>{{ avulso?.bairro }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Cidade</label>
+                                <h6>{{ avulso?.cidade }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>UF</label>
+                                <h6>{{ avulso?.uf }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Telefone</label>
+                                <h6>{{ avulso?.telefone }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Celular</label>
+                                <h6>{{ avulso?.celular }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Email</label>
+                                <h6>{{ avulso?.email }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12" *ngIf="avulso?.contato">
+                                <label>Contato</label>
+                                <h6>{{ avulso?.contato }}</h6>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row g-4 mt-1">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Inicio do Servico</label>
+                                <h6>{{ avulso?.data_inicio | date:'dd/MM/yyyy HH:mm' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Fim do Servico</label>
+                                <h6>{{ avulso?.data_fim | date:'dd/MM/yyyy HH:mm' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Valor do Servico</label>
+                                <h6>{{ avulso?.valor_servico | currency:'BRL':'symbol':'1.2-2'}}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Tipo de Atendimento</label>
+                                <h6>{{ avulso?.tipo_atendimento}}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Status do Atendimento</label>
+                                <h6>{{ avulso?.status_atendimento! | statusAtendimento }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Deslocamento</label>
+                                <h6>{{ avulso?.deslocamento! }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Valor por Km</label>
+                                <h6>{{ avulso?.valor_deslocamento! }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Total</label>
+                                <h6>{{ avulso?.total! }}</h6>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row g-4 mt-1">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Executores</label>
+                                @for(item of listaExecutores; track item){
+                                <h6>{{ item?.nome}}</h6>
+                                }
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row g-4 mt-1">
+                            <div class="col-12">
+                                <label>Descricao</label>
+                                <div class="details-richtext" [innerHTML]="avulso?.descricao">{{ avulso?.descricao }}</div>
+                            </div>
+                        </div>
+                        <div class="row g-4 mt-2 mb-4" *ngIf="avulso?.observacoes">
+                            <div class="col-12">
+                                <label>Observacoes</label>
+                                <div class="details-observacoes">{{ avulso?.observacoes }}</div>
+                            </div>
+                        </div>
+                        <div class="row g-4 mt-2 mb-4" *ngIf="motivo_cancelamento">
+                            <div class="col-12">
+                                <label>Motivo do Cancelamento</label>
+                                <br>
+                                <div class="details-richtext"
+                                    [innerHTML]="avulso?.motivo_cancelamento">{{ avulso?.motivo_cancelamento }}</div>
+                            </div>
+                        </div>
+                        <div id="modal">
+                            <button aeroButton="secondary" type="button" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalConfirmacao"></button>
+                            <button aeroButton="secondary" type="button" id="botaoModalMotivoCancelamento" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalMotivoCancelamento"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacao" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConfirmacao">Cadastro de Atendimentos</h5>
+                <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <span>{{resposta}}</span>
+            </div>
+            <div class="modal-footer">
+                <button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirAvulso()">Excluir</button>
+                <button aeroButton="secondary" type="button"  data-bs-dismiss="modal" (click)="redirecionar()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMotivoCancelamento" tabindex="-1" aria-labelledby="modalMotivoCancelamento" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMotivoCancelamento">Cadastro de Avulso</h5>
+                <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body" *ngIf="statusSelecionado !== 0">
+                <label>Descreva o motivo do cancelamento</label>
+                <textarea aeroControl [(ngModel)]="motivo_cancelamento" class="details-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+            </div>
+            <div class="modal-body" *ngIf="statusSelecionado === 0">
+                <span>{{resposta}}</span>
+            </div>
+            <div class="modal-footer">
+                <button aeroButton="danger" *ngIf="motivo_cancelamento && statusSelecionado !== 0" type="button"  (click)="salvarStatusAvulso()">Salvar</button>
+                <button aeroButton="secondary" type="button" *ngIf="statusSelecionado !== 0"  data-bs-dismiss="modal" (click)="statusSelecionado = null">Cancelar</button>
+                <button aeroButton="secondary" type="button" *ngIf="statusSelecionado === 0"  data-bs-dismiss="modal">Fechar</button>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- End of Main Content -->
