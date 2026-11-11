@@ -1,0 +1,187 @@
+﻿<div class="container-fluid">
+  <app-form-submit-loader [loading]="salvando" [message]="idManutencao ? 'Atualizando manutencao...' : 'Cadastrando manutencao...'">
+  <div class="card mb-4">
+    <div class="card-header py-3 mb-2">
+      <h6 class="m-0 font-weight-bold text-secondary">Cadastro de Manutencoes</h6>
+    </div>
+    <div class="col-12">
+      <form [formGroup]="cadastroForm" class="app-form">
+        <div class="card-header py-3 mb-2">
+          <h6 class="m-0 font-weight-bold text-secondary">Dados da Manutencao</h6>
+        </div>
+
+        <div class="app-form-grid">
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Data Inicio</span>
+            <input aeroControl aeroDate="date" [ngModel]="inicioData" (ngModelChange)="onInicioDataChange($event)" [ngModelOptions]="{standalone: true}">
+
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Hora Inicio</span>
+            <input aeroControl aeroDate="time" [ngModel]="inicioHora" (ngModelChange)="onInicioHoraChange($event)" [ngModelOptions]="{standalone: true}">
+
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Data Fim</span>
+            <input aeroControl aeroDate="date" [ngModel]="fimData" (ngModelChange)="onFimDataChange($event)" [ngModelOptions]="{standalone: true}" [min]="getMinFimData()">
+
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Hora Fim</span>
+            <input aeroControl aeroDate="time" [ngModel]="fimHora" (ngModelChange)="onFimHoraChange($event)" [ngModelOptions]="{standalone: true}" [min]="getMinFimHora()">
+
+            <span aeroError *ngIf="cadastroForm.hasError('intervaloInvalido')">A data/hora final nao pode ser menor que a inicial</span>
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Tipo de Servico</span>
+            <input aeroControl type="text" formControlName="tipo_servico" name="tipo_servico">
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Valor do Servico</span>
+            <input aeroControl type="text" formControlName="valor_servico" name="valor_servico" currencyMask [options]="{prefix: 'R$', thousands: '.', decimal: ',', align: 'left', max: 10000}" (input)="onChangePreco($event)">
+            <span aeroError *ngIf="cadastroForm.controls['valor_servico'].touched && cadastroForm.controls['valor_servico'].invalid">Campo obrigatorio</span>
+          </app-aero-field>
+
+          <app-aero-field class="app-field span-3">
+            <span aeroLabel>Tipo de Atendimento</span>
+            <select aeroControl formControlName="tipo_atendimento">
+              <option value="">--Selecione uma opcao--</option>
+              <option *ngFor="let item of tipo_atendimento" [ngValue]="item">{{ item }}</option>
+            </select>
+          </app-aero-field>
+
+          <div class="span-8 executor-row">
+            <div class="executor-meta">
+              <label>Executores</label>
+              <div class="input-wrapper">
+                <span class="item-lateral">
+                  <button aeroButton="secondary" type="button" id="botaoModalBusca" data-bs-toggle="modal" data-bs-target="#modalBusca"><i class="fa-solid fa-search"></i></button>
+                </span>
+              </div>
+            </div>
+
+            <table class="table table-borderless executor-table" *ngIf="listaExecutores()">
+              <tbody>
+                @for(item of listaExecutores(); track item.id){
+                <tr>
+                  <td>{{ item.nome }}</td>
+                  <td><button aeroButton="secondary" type="button" (click)="removerExecutor(item.id)"><i class="fa-solid fa-xmark"></i></button></td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="span-12 app-editor-shell">
+            <label>Descricao</label>
+            <textarea aeroControl formControlName="descricao" class="app-editor-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+          </div>
+
+          <div class="span-12">
+            <label>Observacoes</label>
+            <div class="app-observacoes-historico">{{ historicoObservacoes }}</div>
+          </div>
+        </div>
+
+        <div class="app-form-actions">
+          <button aeroButton="primary"  (click)="$event.preventDefault(); cadastrarAtualizarManutencao()">{{ idManutencao ? 'Atualizar' : 'Cadastrar' }}</button>
+          <button aeroButton="secondary"  (click)="$event.preventDefault(); limparFormulario()">{{ idManutencao ? 'Restaurar Campos' : 'Limpar Formulario' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </app-form-submit-loader>
+</div>
+
+<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacao" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacao">Cadastro de Empresas</h5>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+      <div class="modal-body">
+        <span>{{resposta}}</span>
+      </div>
+      <div class="modal-footer">
+        <button aeroButton="secondary" type="button" class="modal-close-button" data-bs-dismiss="modal" (click)="redirecionar()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalBusca" tabindex="-1" aria-labelledby="modalBusca" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBusca">Cadastro de Atendimentos</h5>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="col-12">
+          <table class="table" *ngIf="listaExecutores()">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Selecionar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(item of executores(); track item.id){
+              <tr>
+                <td>{{ item.nome }}</td>
+                <td><button aeroButton="secondary" type="button" (click)="setExecutor(item)"><i class="fa-solid fa-check"></i></button></td>
+              </tr>
+              }
+              <tr>
+                <td>Outros</td>
+                <td><button aeroButton="secondary" type="button" (click)="setExecutor({ id: 0, nome: '' })"><i class="fa-solid fa-check"></i></button></td>
+              </tr>
+              <tr *ngIf="mostrarOutro()">
+                <td colspan="2">
+                  <app-aero-field class="app-field span-6">
+                    <span aeroLabel>Informe o nome</span>
+                    <input aeroControl type="text" [ngModel]="outroNome()" (ngModelChange)="outroNome.set($event)" [ngModelOptions]="{standalone: true}">
+                  </app-aero-field>
+                  <button aeroButton="primary" class="aero-button--sm modal-confirm-button" (click)="confirmarOutro()" [disabled]="!outroNome()">Adicionar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button aeroButton="secondary" type="button" id="close-modal-escolha" class="modal-close-button" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalJustificativaData" tabindex="-1" aria-labelledby="modalJustificativaDataLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalJustificativaDataLabel">Justificar alteracao de horario</h5>
+        <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      </div>
+      <div class="modal-body">
+        <div [formGroup]="cadastroForm">
+          <app-aero-field class="app-field span-12">
+            <span aeroLabel>Justificativa</span>
+            <textarea aeroControl formControlName="justificativa_alteracao_data" rows="4" placeholder="Informe o motivo da alteracao"></textarea>
+            <span aeroError *ngIf="cadastroForm.controls['justificativa_alteracao_data'].touched && !cadastroForm.controls['justificativa_alteracao_data'].value">Campo obrigatorio</span>
+          </app-aero-field>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button aeroButton="secondary" type="button" class="modal-close-button" data-bs-dismiss="modal">Cancelar</button>
+        <button aeroButton="primary" type="button" class="modal-confirm-button" (click)="confirmarJustificativaAlteracao()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>

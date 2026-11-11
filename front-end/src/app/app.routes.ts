@@ -58,6 +58,19 @@ export const routes: Routes = [
 ]
       },
 {
+        path: 'manutencao',
+        children: [
+{
+            path: 'cadastrar',
+            loadComponent: () => import('@pages/empresas/manutencao/cadastrar/cadastrar.component').then((c) => c.CadastrarComponent)
+          },
+{
+            path: 'detalhes/:id',
+            loadComponent: () => import('@pages/empresas/manutencao/detalhes/detalhes.component').then((c) => c.DetalhesComponent)
+          }
+]
+      },
+{
         path: 'clientes',
         children: [
 {

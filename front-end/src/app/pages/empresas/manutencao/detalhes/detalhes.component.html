@@ -1,0 +1,154 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card h-100 mb-4" id="manutencao-detalhes-pdf">
+        <div class="card-header py-3 mb-2 d-flex align-items-center justify-content-between gap-3">
+            <h6 class="m-0 font-weight-bold text-secondary">Detalhes da Manutencao</h6>
+            <button aeroButton="primary" type="button" class="pdf-hide" (click)="exportarPdf()">
+                Exportar PDF
+            </button>
+        </div>
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+                <ul class="nav nav-tabs flex-grow-1" id="tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button aeroButton="secondary" class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">Dados da Manutencao</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="mt-2 p-4">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel"
+                        aria-labelledby="home-tab">
+                        <div class="details-actions pdf-hide">
+                            <button aeroButton="secondary" type="button"  *ngIf="!mostrarSelecao"
+                                (click)="alterarManutencao()">Alterar</button>
+                            <button aeroButton="primary" type="button"
+                                (click)="abrirFluxoComercial()">Orcamento / Venda</button>
+                            <button aeroButton="secondary" type="button"  *ngIf="
+                                    !mostrarSelecao &&
+                                    (
+                                        perfil !== 'USER' ||
+                                        (perfil === 'USER' && manutencao?.status_atendimento !== 3 && manutencao?.status_atendimento !== 4)
+                                    )
+                                " (click)="mostrarSelecao = true">Mudar Status</button>
+                            <button aeroButton="secondary" type="button"  *ngIf="mostrarSelecao"
+                                (click)="alterarStatusManutencao()">Salvar Status</button>
+                            <select aeroControl class="form-control details-actions__select" [(ngModel)]="statusSelecionado" *ngIf="mostrarSelecao">
+                                <option [ngValue]="null">--Selecione uma opcao</option>
+                                <option *ngFor="let item of status_atendimento" [ngValue]="item.id">
+                                    {{ item.descricao }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Data Inicio</label>
+                                <h6>{{ manutencao?.data_inicio | date:'dd/MM/yyyy HH:mm' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Data Fim</label>
+                                <h6>{{ manutencao?.data_fim | date:'dd/MM/yyyy HH:mm' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Tipo Servico</label>
+                                <h6>{{ manutencao?.tipo_servico }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Valor do Servico</label>
+                                <h6>{{ manutencao?.valor_servico | currency:'BRL' }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Tipo de Atendimento</label>
+                                <h6>{{ manutencao?.tipo_atendimento }}</h6>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Status do Atendimento</label>
+                                <h6>{{ manutencao?.status_atendimento! | statusAtendimento }}</h6>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row g-4 mt-1">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                <label>Executores</label>
+                                @for(item of listaExecutores; track item){
+                                <h6>{{ item?.nome}}</h6>
+                                }
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12">
+                                <label>Descricao</label>
+                                <div class="details-richtext"
+                                    [innerHTML]="manutencao?.descricao">{{ manutencao?.descricao }}</div>
+                            </div>
+                            <div class="row g-4 mt-2 mb-4" *ngIf="manutencao?.observacoes">
+                                <div class="col-12">
+                                    <label>Observacoes</label>
+                                    <div class="details-observacoes">{{ manutencao?.observacoes }}</div>
+                                </div>
+                            </div>
+                            <div class="row g-4 mt-2 mb-4" *ngIf="manutencao?.motivo_cancelamento">
+                                <div class="col-12">
+                                    <label>Motivo do Cancelamento</label>
+                                    <br>
+                                    <div class="details-richtext"
+                                        [innerHTML]="manutencao?.motivo_cancelamento">{{ manutencao?.motivo_cancelamento}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal">
+    <button aeroButton="secondary" type="button" id="botaoModalEmpresa" data-bs-toggle="modal" data-bs-target="#modalConfirmacaoEmpresa"></button>
+</div>
+<button aeroButton="secondary" type="button" id="botaoModalMotivoCancelamento" class="botaoModal" data-bs-toggle="modal" data-bs-target="#modalMotivoCancelamento"></button>
+
+<div class="modal fade" id="modalConfirmacaoEmpresa" tabindex="-1" aria-labelledby="modalConfirmacaoEmpresa" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConfirmacaoEmpresa">Cadastro de Empresas</h5>
+                <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <span>{{resposta}}</span>
+            </div>
+            <div class="modal-footer">
+                <button aeroButton="danger" *ngIf="excluir" type="button"  (click)="excluirManutencao()">Excluir</button>
+                <button aeroButton="secondary" type="button"  data-bs-dismiss="modal" (click)="redirecionar()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMotivoCancelamento" tabindex="-1" aria-labelledby="modalMotivoCancelamento" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMotivoCancelamento">Cadastro de Manutencao</h5>
+                <button aeroButton="quiet" type="button"  data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body" *ngIf="statusSelecionado !== 0">
+                <label>Descreva o motivo do cancelamento</label>
+                <textarea aeroControl [(ngModel)]="motivo_cancelamento" class="details-textarea" rows="8" placeholder="Digite a descricao"></textarea>
+            </div>
+            <div class="modal-body" *ngIf="statusSelecionado === 0">
+                <span>{{resposta}}</span>
+            </div>
+            <div class="modal-footer">
+                <button aeroButton="danger" *ngIf="motivo_cancelamento && statusSelecionado !== 0" type="button"  (click)="salvarStatusManutencao()">Salvar</button>
+                <button aeroButton="secondary" type="button" *ngIf="statusSelecionado !== 0"  data-bs-dismiss="modal" (click)="statusSelecionado = null">Cancelar</button>
+                <button aeroButton="secondary" type="button" *ngIf="statusSelecionado === 0"  data-bs-dismiss="modal">Fechar</button>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- End of Main Content -->
