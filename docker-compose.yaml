@@ -1,3 +1,67 @@
+services:
+  mysql:
+    build:
+      context: ./db
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - minharede
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mongodb:
+    build:
+      context: ./ndb
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-root}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-sistema_gerencial_auditoria}
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - minharede
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://${MONGO_ROOT_USERNAME:-root}:${MONGO_ROOT_PASSWORD:-root}@127.0.0.1:27017/admin", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  rabbitmq:
+    build:
+      context: ./mensageria
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - minharede
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  back-end:
+    build:
+      context: ./back-end
+    container_name: back-end
+    networks:
       - minharede
     ports:
       - "${BACKEND_PORT:-8080}:8080"
@@ -9,14 +73,14 @@
       rabbitmq:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE}?authSource=admin
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-sistema_gerencial_fullstack}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-root}:${MONGO_ROOT_PASSWORD:-root}@mongodb:27017/${MONGO_DATABASE:-sistema_gerencial_auditoria}?authSource=admin
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: "5672"
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
 
   bff:
     build:
@@ -63,7 +127,7 @@
     ports:
       - "${GRAFANA_PORT:-3001}:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
     networks:
       - minharede
     volumes:
@@ -91,7 +155,7 @@
     ports:
       - "127.0.0.1:${JENKINS_PORT:-8085}:8080"
     environment:
-      TZ: ${TZ}
+      TZ: ${TZ:-America/Sao_Paulo}
     networks:
       - minharede
     volumes:
@@ -109,7 +173,7 @@
       - minharede
     environment:
       JENKINS_URL: http://jenkins:8080/
-      JENKINS_AGENT_NAME: ${JENKINS_AGENT_NAME}
+      JENKINS_AGENT_NAME: ${JENKINS_AGENT_NAME:-agente-local}
       JENKINS_SECRET: ${JENKINS_AGENT_SECRET}
       JENKINS_AGENT_WORKDIR: /home/jenkins/agent
       JENKINS_WEB_SOCKET: "true"
