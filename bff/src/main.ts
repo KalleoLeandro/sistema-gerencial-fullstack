@@ -6,6 +6,7 @@ import { logger } from '@utils/utils';
 import { Logger } from 'winston';
 import * as cookieParser from 'cookie-parser';
 import { GlobalExceptionFilter } from '@errors/global-exception-filter/global-exception-filter';
+import { corsOptions } from './cors-options';
 
 const log: Logger = logger;
 
@@ -33,11 +34,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('api-docs', app, document);
 
-  app.enableCors({
-    origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
+  app.enableCors(corsOptions(process.env.ALLOWED_ORIGINS));
 
   await app.listen(environments.PORT || 3000, () => {
     log.info(`Servidor rodando na porta ${environments.PORT}`);

@@ -165,6 +165,8 @@ bash build.sh
 docker compose up -d --build
 ```
 
+No build de produção, o frontend usa `/bff` no mesmo domínio da página. O Nginx encaminha essas chamadas para `bff:3000`, inclusive quando o acesso ocorre por um túnel HTTPS. Para chamadas diretas ao BFF, configure `ALLOWED_ORIGINS` no `.env` com origens completas separadas por vírgula, por exemplo `https://lealinformatica.com.br,https://www.lealinformatica.com.br`. O Compose repassa essa variável ao BFF; após alterá-la, recrie esse serviço. O frontend em desenvolvimento continua usando `http://localhost:3000` e precisa de sua origem na lista quando houver configuração explícita.
+
 O [`build.sh`](build.sh) instala as dependências Node e compila backend, BFF e Angular. No backend, ele usa `mvn clean package -DskipTests`; portanto, esse atalho não executa a validação completa dos testes. Para validar testes e cobertura, use os comandos da seção **Testes e qualidade**.
 
 Para executar também a análise SonarQube, configure as chaves dos projetos e os tokens e depois rode o script separado:

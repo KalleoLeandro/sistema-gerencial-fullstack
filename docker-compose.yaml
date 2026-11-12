@@ -95,6 +95,7 @@ services:
     environment:
       PORT: "3000"
       BACK_END: http://back-end:8080
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:4200,http://127.0.0.1:4200}
 
   front-end-angular:
     build:
